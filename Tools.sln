@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResxTools", "ResxTools\ResxTools.csproj", "{4AE23CDD-F36D-4FBD-8F13-A0CDECBFC4A0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaAdminClient", "KafkaAdminClient\KafkaAdminClient.csproj", "{4157255B-C355-4CF2-A935-12A5EBBEB274}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{4AE23CDD-F36D-4FBD-8F13-A0CDECBFC4A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4AE23CDD-F36D-4FBD-8F13-A0CDECBFC4A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4AE23CDD-F36D-4FBD-8F13-A0CDECBFC4A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4157255B-C355-4CF2-A935-12A5EBBEB274}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4157255B-C355-4CF2-A935-12A5EBBEB274}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4157255B-C355-4CF2-A935-12A5EBBEB274}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4157255B-C355-4CF2-A935-12A5EBBEB274}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
