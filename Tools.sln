@@ -9,6 +9,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResxTools", "ResxTools\Resx
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaAdminClient", "KafkaAdminClient\KafkaAdminClient.csproj", "{4157255B-C355-4CF2-A935-12A5EBBEB274}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DicomReader", "DicomReader\DicomReader.csproj", "{660D500D-B0F3-4965-91C3-0F4D8EA01189}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DicomCrawler", "DicomCrawler", "{7BC23D10-0362-4D7D-A1C8-A88B2BE50FF2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DicomCrawler", "DicomCrawler\DicomCrawler\DicomCrawler.csproj", "{9DE9A8C8-727A-4438-B83F-7250F4E40555}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DicomCrawler.Gtk", "DicomCrawler\DicomCrawler.Gtk\DicomCrawler.Gtk.csproj", "{692F0C24-5853-48DE-9736-4401DC4AC0D7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DicomCrawler.Mac", "DicomCrawler\DicomCrawler.Mac\DicomCrawler.Mac.csproj", "{F46C6079-61EE-44D4-B44D-143BA458F5E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DicomCrawler.Wpf", "DicomCrawler\DicomCrawler.Wpf\DicomCrawler.Wpf.csproj", "{20FE6C99-5628-4683-84F9-54DBCC85E9B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,11 +39,37 @@ Global
 		{4157255B-C355-4CF2-A935-12A5EBBEB274}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4157255B-C355-4CF2-A935-12A5EBBEB274}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4157255B-C355-4CF2-A935-12A5EBBEB274}.Release|Any CPU.Build.0 = Release|Any CPU
+		{660D500D-B0F3-4965-91C3-0F4D8EA01189}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{660D500D-B0F3-4965-91C3-0F4D8EA01189}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{660D500D-B0F3-4965-91C3-0F4D8EA01189}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{660D500D-B0F3-4965-91C3-0F4D8EA01189}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DE9A8C8-727A-4438-B83F-7250F4E40555}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DE9A8C8-727A-4438-B83F-7250F4E40555}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DE9A8C8-727A-4438-B83F-7250F4E40555}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DE9A8C8-727A-4438-B83F-7250F4E40555}.Release|Any CPU.Build.0 = Release|Any CPU
+		{692F0C24-5853-48DE-9736-4401DC4AC0D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{692F0C24-5853-48DE-9736-4401DC4AC0D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{692F0C24-5853-48DE-9736-4401DC4AC0D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{692F0C24-5853-48DE-9736-4401DC4AC0D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F46C6079-61EE-44D4-B44D-143BA458F5E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F46C6079-61EE-44D4-B44D-143BA458F5E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F46C6079-61EE-44D4-B44D-143BA458F5E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F46C6079-61EE-44D4-B44D-143BA458F5E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20FE6C99-5628-4683-84F9-54DBCC85E9B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20FE6C99-5628-4683-84F9-54DBCC85E9B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20FE6C99-5628-4683-84F9-54DBCC85E9B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20FE6C99-5628-4683-84F9-54DBCC85E9B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {48988962-D6BF-4B2F-B2E3-B48FE3982AEB}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9DE9A8C8-727A-4438-B83F-7250F4E40555} = {7BC23D10-0362-4D7D-A1C8-A88B2BE50FF2}
+		{692F0C24-5853-48DE-9736-4401DC4AC0D7} = {7BC23D10-0362-4D7D-A1C8-A88B2BE50FF2}
+		{F46C6079-61EE-44D4-B44D-143BA458F5E3} = {7BC23D10-0362-4D7D-A1C8-A88B2BE50FF2}
+		{20FE6C99-5628-4683-84F9-54DBCC85E9B4} = {7BC23D10-0362-4D7D-A1C8-A88B2BE50FF2}
 	EndGlobalSection
 EndGlobal
