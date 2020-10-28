@@ -1,6 +1,7 @@
 ﻿using System;
 using DicomCrawler.Helpers;
 using DicomCrawler.Models;
+using DicomCrawler.ViewModels;
 using Eto.Forms;
 
 namespace DicomCrawler.Controls.DicomQueryTab

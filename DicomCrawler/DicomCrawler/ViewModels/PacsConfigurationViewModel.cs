@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace DicomCrawler.Models
+namespace DicomCrawler.ViewModels
 {
     public class PacsConfigurationViewModel : INotifyPropertyChanged
     {

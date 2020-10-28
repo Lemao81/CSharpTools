@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using DicomCrawler.Helpers;
-using DicomCrawler.Models;
+using DicomCrawler.ViewModels;
 using Eto.Drawing;
 using Eto.Forms;
 using Newtonsoft.Json;

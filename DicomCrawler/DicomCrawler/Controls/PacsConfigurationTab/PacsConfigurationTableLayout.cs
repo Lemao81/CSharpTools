@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
-using DicomCrawler.Models;
+using DicomCrawler.ViewModels;
 using Eto.Drawing;
 using Eto.Forms;
 
