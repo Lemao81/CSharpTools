@@ -1,8 +1,10 @@
 ﻿using System;
+using System.IO;
 using DicomCrawler.Helpers;
 using DicomCrawler.Models;
 using Eto.Drawing;
 using Eto.Forms;
+using Newtonsoft.Json;
 
 namespace DicomCrawler.Controls.PacsServerConfigurationTab
 {
@@ -15,9 +17,6 @@ namespace DicomCrawler.Controls.PacsServerConfigurationTab
 
         public static PacsServerConfigurationTabPage Create()
         {
-            var modifyButton = CreateModifyButton();
-            var saveButton = CreateSaveButton();
-
             return new PacsServerConfigurationTabPage
             {
                 Padding = Gap.Medium,
@@ -40,11 +39,11 @@ namespace DicomCrawler.Controls.PacsServerConfigurationTab
                                 {
                                     new StackLayoutItem
                                     {
-                                        Control = modifyButton
+                                        Control = CreateModifyButton()
                                     },
                                     new StackLayoutItem
                                     {
-                                        Control = saveButton
+                                        Control = CreateSaveButton()
                                     }
                                 }
                             }
@@ -74,7 +73,7 @@ namespace DicomCrawler.Controls.PacsServerConfigurationTab
             };
             saveButton.Click += (sender, args) => OnSave((PacsServerConfiguration) ((Button) sender).DataContext);
             saveButton.BindDataContext(b => b.Enabled, (PacsServerConfiguration configuration) => !configuration.IsReadOnly);
-            
+
             return saveButton;
         }
 
@@ -99,6 +98,8 @@ namespace DicomCrawler.Controls.PacsServerConfigurationTab
                 settings.PacsCallingAet = callingAet;
                 settings.PacsCalledAet = calledAet;
                 configuration.IsReadOnly = true;
+
+                File.WriteAllText("config.json", JsonConvert.SerializeObject(settings));
             }
             catch (Exception)
             {

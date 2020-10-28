@@ -13,55 +13,59 @@ namespace DicomCrawler.Controls.DicomQueryTab
 
         public static DicomQueryTabPage Create()
         {
-            return new DicomQueryTabPage
+            var tabPage = new DicomQueryTabPage
             {
                 Padding = Gap.Medium,
-                DataContext = ViewModelFactory.Create<DicomQuery>(),
-                Content = new StackLayout
+                DataContext = ViewModelFactory.Create<DicomQuery>()
+            };
+            tabPage.Content = new StackLayout
+            {
+                Orientation = Orientation.Horizontal,
+                Spacing = Gap.Large,
+                Items =
                 {
-                    Orientation = Orientation.Vertical,
-                    Spacing = Gap.Large,
-                    Width = 300,
-                    Items =
+                    new StackLayoutItem
                     {
-                        new StackLayoutItem
+                        Control = new StackLayout
                         {
-                            Control = new StackLayout
+                            Spacing = Gap.Large,
+                            Items =
                             {
-                                Orientation = Orientation.Horizontal,
-                                Items =
+                                new StackLayoutItem
                                 {
-                                    new StackLayoutItem
+                                    Control = RetrieveLevelStackLayout.Create()
+                                },
+                                new StackLayoutItem
+                                {
+                                    Control = QueryParameterStackLayout.Create()
+                                },
+                                new StackLayoutItem
+                                {
+                                    Control = new Button
                                     {
-                                        Control = RetrieveLevelStackLayout.Create()
+                                        Text = "Start Query"
                                     }
                                 }
                             }
-                        },
-                        new StackLayoutItem
+                        }
+                    },
+                    new StackLayoutItem
+                    {
+                        Control = new StackLayout
                         {
-                            Control = new StackLayout
+                            Items =
                             {
-                                Orientation = Orientation.Horizontal,
-                                Items =
+                                new StackLayoutItem
                                 {
-                                    new StackLayoutItem
-                                    {
-                                        Control = QueryParameterStackLayout.Create()
-                                    }
+                                    Control = DicomTagListDynamicLayout.Create(tabPage)
                                 }
-                            }
-                        },
-                        new StackLayoutItem
-                        {
-                            Control = new Button
-                            {
-                                Text = "Start Query"
                             }
                         }
                     }
                 }
             };
+
+            return tabPage;
         }
     }
 }

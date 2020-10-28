@@ -7,6 +7,8 @@ namespace DicomCrawler.Helpers
     public static class Extensions
     {
         public static bool IsNullOrEmpty(this string @string) => string.IsNullOrEmpty(@string);
+        
+        public static bool IsNullOrWhiteSpace(this string @string) => string.IsNullOrWhiteSpace(@string);
 
         public static Settings GetSettings(this Application application)
         {
