@@ -13,13 +13,13 @@ namespace DicomCrawler.Controls.DicomQueryTab
         public static QueryParameterStackLayout Create()
         {
             var patientIdTextBox = new TextBox();
-            patientIdTextBox.TextBinding.BindDataContext((DicomQuery query) => query.Parameter.PatientId);
+            patientIdTextBox.TextBinding.BindDataContext((DicomQueryViewModel query) => query.Parameter.PatientId);
 
             var accessionNumberTextBox = new TextBox();
-            accessionNumberTextBox.TextBinding.BindDataContext((DicomQuery query) => query.Parameter.AccessionNumber);
+            accessionNumberTextBox.TextBinding.BindDataContext((DicomQueryViewModel query) => query.Parameter.AccessionNumber);
 
             var studyInstanceUidTextBox = new TextBox();
-            studyInstanceUidTextBox.TextBinding.BindDataContext((DicomQuery query) => query.Parameter.StudyInstanceUid);
+            studyInstanceUidTextBox.TextBinding.BindDataContext((DicomQueryViewModel query) => query.Parameter.StudyInstanceUid);
 
             return new QueryParameterStackLayout
             {

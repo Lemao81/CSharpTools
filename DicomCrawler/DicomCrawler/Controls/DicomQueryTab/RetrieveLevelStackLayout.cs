@@ -21,7 +21,7 @@ namespace DicomCrawler.Controls.DicomQueryTab
                 SelectedValue = RetrieveLevel.Patient,
                 Spacing = Gap.Vertical.Small
             };
-            radioButtonList.BindDataContext(c => c.SelectedValue, (DicomQuery query) => query.RetrieveLevel);
+            radioButtonList.BindDataContext(c => c.SelectedValue, (DicomQueryViewModel query) => query.RetrieveLevel);
 
             return new RetrieveLevelStackLayout
             {

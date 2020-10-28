@@ -11,7 +11,7 @@ namespace DicomCrawler.Controls.DicomQueryTab
         {
         }
 
-        private static event EventHandler<DataContextEventArgs<DicomQuery>> _ChangeDataContext;
+        private static event EventHandler<DataContextEventArgs<DicomQueryViewModel>> _ChangeDataContext;
 
         public static DicomTagListDynamicLayout Create(BindableWidget dataContextSource)
         {
@@ -47,7 +47,7 @@ namespace DicomCrawler.Controls.DicomQueryTab
             {
                 PlaceholderText = "Add Tag"
             };
-            dicomTagTextBox.TextBinding.BindDataContext((DicomQuery query) => query.DicomTagInput);
+            dicomTagTextBox.TextBinding.BindDataContext((DicomQueryViewModel query) => query.DicomTagInput);
 
             return dicomTagTextBox;
         }
@@ -97,17 +97,17 @@ namespace DicomCrawler.Controls.DicomQueryTab
             var listBox = new ListBox
             {
             };
-            listBox.BindDataContext(c => c.DataStore, (DicomQuery query) => query.DicomTags);
+            listBox.BindDataContext(c => c.DataStore, (DicomQueryViewModel query) => query.DicomTags);
 
             return listBox;
         }
 
-        private static void ChangeViewModel(object sender, Action<DicomQuery> action)
+        private static void ChangeViewModel(object sender, Action<DicomQueryViewModel> action)
         {
-            var currentViewModel = MvvmHelper.GetDataContextViewModel<DicomQuery>(sender);
-            var newViewModel = new DicomQuery(currentViewModel);
+            var currentViewModel = MvvmHelper.GetDataContextViewModel<DicomQueryViewModel>(sender);
+            var newViewModel = new DicomQueryViewModel(currentViewModel);
             action(newViewModel);
-            _ChangeDataContext?.Invoke(null, new DataContextEventArgs<DicomQuery>(newViewModel));
+            _ChangeDataContext?.Invoke(null, new DataContextEventArgs<DicomQueryViewModel>(newViewModel));
         }
     }
 }

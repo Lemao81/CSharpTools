@@ -6,28 +6,28 @@ using Eto.Drawing;
 using Eto.Forms;
 using Newtonsoft.Json;
 
-namespace DicomCrawler.Controls.PacsServerConfigurationTab
+namespace DicomCrawler.Controls.PacsConfigurationTab
 {
-    public class PacsServerConfigurationTabPage : TabPage
+    public class PacsConfigurationTabPage : TabPage
     {
-        private PacsServerConfigurationTabPage()
+        private PacsConfigurationTabPage()
         {
             Text = "PACS Configuration";
         }
 
-        public static PacsServerConfigurationTabPage Create()
+        public static PacsConfigurationTabPage Create()
         {
-            return new PacsServerConfigurationTabPage
+            return new PacsConfigurationTabPage
             {
                 Padding = Gap.Medium,
-                DataContext = ViewModelFactory.Create<PacsServerConfiguration>(),
+                DataContext = ViewModelFactory.Create<PacsConfigurationViewModel>(),
                 Content = new StackLayout
                 {
                     Items =
                     {
                         new StackLayoutItem
                         {
-                            Control = PacsServerConfigurationTableLayout.Create()
+                            Control = PacsConfigurationTableLayout.Create()
                         },
                         new StackLayoutItem
                         {
@@ -59,8 +59,8 @@ namespace DicomCrawler.Controls.PacsServerConfigurationTab
             {
                 Text = "Modify"
             };
-            modifyButton.Click += (sender, args) => OnModify((PacsServerConfiguration) ((Button) sender).DataContext);
-            modifyButton.BindDataContext(b => b.Enabled, (PacsServerConfiguration configuration) => configuration.IsReadOnly);
+            modifyButton.Click += (sender, args) => OnModify((PacsConfigurationViewModel) ((Button) sender).DataContext);
+            modifyButton.BindDataContext(b => b.Enabled, (PacsConfigurationViewModel configuration) => configuration.IsReadOnly);
 
             return modifyButton;
         }
@@ -71,18 +71,18 @@ namespace DicomCrawler.Controls.PacsServerConfigurationTab
             {
                 Text = "Save",
             };
-            saveButton.Click += (sender, args) => OnSave((PacsServerConfiguration) ((Button) sender).DataContext);
-            saveButton.BindDataContext(b => b.Enabled, (PacsServerConfiguration configuration) => !configuration.IsReadOnly);
+            saveButton.Click += (sender, args) => OnSave((PacsConfigurationViewModel) ((Button) sender).DataContext);
+            saveButton.BindDataContext(b => b.Enabled, (PacsConfigurationViewModel configuration) => !configuration.IsReadOnly);
 
             return saveButton;
         }
 
-        private static void OnModify(PacsServerConfiguration configuration)
+        private static void OnModify(PacsConfigurationViewModel configuration)
         {
             configuration.IsReadOnly = false;
         }
 
-        private static void OnSave(PacsServerConfiguration configuration)
+        private static void OnSave(PacsConfigurationViewModel configuration)
         {
             var settings = Application.Instance.GetSettings();
 
@@ -99,7 +99,7 @@ namespace DicomCrawler.Controls.PacsServerConfigurationTab
                 settings.PacsCalledAet = calledAet;
                 configuration.IsReadOnly = true;
 
-                File.WriteAllText("config.json", JsonConvert.SerializeObject(settings));
+                File.WriteAllText("settings.json", JsonConvert.SerializeObject(settings, Formatting.Indented, new JsonSerializerSettings?()));
             }
             catch (Exception)
             {

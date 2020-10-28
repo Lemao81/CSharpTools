@@ -3,20 +3,20 @@ using DicomCrawler.Enums;
 
 namespace DicomCrawler.Models
 {
-    public class DicomQuery
+    public class DicomQueryViewModel
     {
         public RetrieveLevel RetrieveLevel { get; set; }
         public DicomQueryParameter Parameter { get; set; }
         public string DicomTagInput { get; set; }
         public ISet<string> DicomTags { get; set; }
 
-        public DicomQuery()
+        public DicomQueryViewModel()
         {
             Parameter = new DicomQueryParameter();
             DicomTags = new HashSet<string>();
         }
 
-        public DicomQuery(DicomQuery dicomQuery)
+        public DicomQueryViewModel(DicomQueryViewModel dicomQuery)
         {
             RetrieveLevel = dicomQuery.RetrieveLevel;
             Parameter = new DicomQueryParameter(dicomQuery.Parameter);

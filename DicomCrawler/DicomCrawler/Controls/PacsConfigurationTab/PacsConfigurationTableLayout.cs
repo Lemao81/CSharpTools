@@ -4,17 +4,17 @@ using DicomCrawler.Models;
 using Eto.Drawing;
 using Eto.Forms;
 
-namespace DicomCrawler.Controls.PacsServerConfigurationTab
+namespace DicomCrawler.Controls.PacsConfigurationTab
 {
-    public class PacsServerConfigurationTableLayout : TableLayout
+    public class PacsConfigurationTableLayout : TableLayout
     {
-        private PacsServerConfigurationTableLayout() : base(2, 4)
+        private PacsConfigurationTableLayout() : base(2, 4)
         {
         }
 
-        public static PacsServerConfigurationTableLayout Create()
+        public static PacsConfigurationTableLayout Create()
         {
-            var table = new PacsServerConfigurationTableLayout
+            var table = new PacsConfigurationTableLayout
             {
                 Spacing = new Size(8, 4)
             };
@@ -41,10 +41,10 @@ namespace DicomCrawler.Controls.PacsServerConfigurationTab
             };
         }
 
-        private static TextBox CreateTextBox(Expression<Func<PacsServerConfiguration, string>> propertyExpression)
+        private static TextBox CreateTextBox(Expression<Func<PacsConfigurationViewModel, string>> propertyExpression)
         {
             var textBox = new TextBox();
-            textBox.BindDataContext(_ => _.ReadOnly, (PacsServerConfiguration configuration) => configuration.IsReadOnly);
+            textBox.BindDataContext(_ => _.ReadOnly, (PacsConfigurationViewModel configuration) => configuration.IsReadOnly);
             textBox.TextBinding.BindDataContext(propertyExpression);
 
             return textBox;

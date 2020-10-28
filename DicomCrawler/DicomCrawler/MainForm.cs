@@ -2,7 +2,7 @@ using System;
 using DicomCrawler.Controls;
 using DicomCrawler.Controls.App;
 using DicomCrawler.Controls.DicomQueryTab;
-using DicomCrawler.Controls.PacsServerConfigurationTab;
+using DicomCrawler.Controls.PacsConfigurationTab;
 using DicomCrawler.Controls.QueryResultTab;
 using DicomCrawler.Helpers;
 using DicomCrawler.Models;
@@ -37,7 +37,7 @@ namespace DicomCrawler
                 {
                     DicomQueryTabPage.Create(),
                     DicomQueryResultTabPage.Create(),
-                    PacsServerConfigurationTabPage.Create()
+                    PacsConfigurationTabPage.Create()
                 }
             };
 

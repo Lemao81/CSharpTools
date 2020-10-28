@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace DicomCrawler.Models
 {
-    public class PacsServerConfiguration : INotifyPropertyChanged
+    public class PacsConfigurationViewModel : INotifyPropertyChanged
     {
         private string _host;
         private string _port;

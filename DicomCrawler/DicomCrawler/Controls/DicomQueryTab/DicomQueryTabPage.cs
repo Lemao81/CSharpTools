@@ -16,7 +16,7 @@ namespace DicomCrawler.Controls.DicomQueryTab
             var tabPage = new DicomQueryTabPage
             {
                 Padding = Gap.Medium,
-                DataContext = ViewModelFactory.Create<DicomQuery>()
+                DataContext = ViewModelFactory.Create<DicomQueryViewModel>()
             };
             tabPage.Content = new StackLayout
             {
