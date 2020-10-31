@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using DicomCrawler.Helpers;
+using DicomCrawler.Models;
 using DicomCrawler.ViewModels;
 using Eto.Drawing;
 using Eto.Forms;
@@ -17,18 +18,15 @@ namespace DicomCrawler.Controls.PacsConfigurationTab
 
         public static PacsConfigurationTabPage Create()
         {
-            return new PacsConfigurationTabPage
+            var tabPage = new PacsConfigurationTabPage
             {
                 Padding = Gap.Medium,
-                DataContext = ViewModelFactory.Create<PacsConfigurationViewModel>(),
+                DataContext = ViewModelFactory.CreateEmpty<PacsConfigurationViewModel>(),
                 Content = new StackLayout
                 {
                     Items =
                     {
-                        new StackLayoutItem
-                        {
-                            Control = PacsConfigurationTableLayout.Create()
-                        },
+                        new StackLayoutItem { Control = PacsConfigurationTableLayout.Create() },
                         new StackLayoutItem
                         {
                             Control = new StackLayout
@@ -37,20 +35,18 @@ namespace DicomCrawler.Controls.PacsConfigurationTab
                                 Orientation = Orientation.Horizontal,
                                 Items =
                                 {
-                                    new StackLayoutItem
-                                    {
-                                        Control = CreateModifyButton()
-                                    },
-                                    new StackLayoutItem
-                                    {
-                                        Control = CreateSaveButton()
-                                    }
+                                    new StackLayoutItem { Control = CreateModifyButton() },
+                                    new StackLayoutItem { Control = CreateSaveButton() }
                                 }
                             }
                         }
                     }
                 }
             };
+
+            PacsConfigurationViewModel.ViewModelChanged += (sender, args) => tabPage.DataContext = args.ViewModel;
+
+            return tabPage;
         }
 
         private static Button CreateModifyButton()
@@ -59,7 +55,8 @@ namespace DicomCrawler.Controls.PacsConfigurationTab
             {
                 Text = "Modify"
             };
-            modifyButton.Click += (sender, args) => OnModify((PacsConfigurationViewModel) ((Button) sender).DataContext);
+            modifyButton.Click += (sender, args) => MvvmHelper.ChangeViewModel<PacsConfigurationViewModel>(sender, configuraiton => configuraiton.IsReadOnly = false,
+                PacsConfigurationViewModel.OnViewModelChanged);
             modifyButton.BindDataContext(b => b.Enabled, (PacsConfigurationViewModel configuration) => configuration.IsReadOnly);
 
             return modifyButton;
@@ -71,7 +68,7 @@ namespace DicomCrawler.Controls.PacsConfigurationTab
             {
                 Text = "Save",
             };
-            saveButton.Click += (sender, args) => OnSave((PacsConfigurationViewModel) ((Button) sender).DataContext);
+            saveButton.Click += (sender, args) => OnSave(sender);
             saveButton.BindDataContext(b => b.Enabled, (PacsConfigurationViewModel configuration) => !configuration.IsReadOnly);
 
             return saveButton;
@@ -82,29 +79,41 @@ namespace DicomCrawler.Controls.PacsConfigurationTab
             configuration.IsReadOnly = false;
         }
 
-        private static void OnSave(PacsConfigurationViewModel configuration)
+        private static void OnSave(object sender)
         {
+            var configuration = MvvmHelper.GetDataContextViewModel<PacsConfigurationViewModel>(sender);
             var settings = Application.Instance.GetSettings();
-
             try
             {
-                var host = configuration.Host;
-                var port = configuration.Port.IsNullOrEmpty() ? 0 : int.Parse(configuration.Port);
-                var callingAet = configuration.CallingAet;
-                var calledAet = configuration.CalledAet;
-
-                settings.PacsHost = host;
-                settings.PacsPort = port;
-                settings.PacsCallingAet = callingAet;
-                settings.PacsCalledAet = calledAet;
-                configuration.IsReadOnly = true;
-
-                File.WriteAllText("settings.json", JsonConvert.SerializeObject(settings, Formatting.Indented, new JsonSerializerSettings?()));
+                SetSettings(configuration, settings);
+                WriteSettingsToFile(settings);
+                MvvmHelper.ChangeViewModel<PacsConfigurationViewModel>(sender, configuraiton => configuraiton.IsReadOnly = true,
+                    PacsConfigurationViewModel.OnViewModelChanged);
             }
             catch (Exception)
             {
                 MessageBox.Show("Input is not valid", MessageBoxType.Error);
             }
+        }
+
+        private static void SetSettings(PacsConfigurationViewModel configuration, Settings settings)
+        {
+            var host = configuration.Host;
+            var port = configuration.Port.IsNullOrEmpty() ? 0 : int.Parse(configuration.Port);
+            var callingAet = configuration.CallingAet;
+            var calledAet = configuration.CalledAet;
+
+            settings.PacsHost = host;
+            settings.PacsPort = port;
+            settings.PacsCallingAet = callingAet;
+            settings.PacsCalledAet = calledAet;
+            configuration.IsReadOnly = true;
+        }
+
+        private static void WriteSettingsToFile(Settings settings)
+        {
+            var settingsIO = new SettingsIO(settings);
+            File.WriteAllText("settings.json", JsonConvert.SerializeObject(settingsIO, Formatting.Indented));
         }
     }
 }

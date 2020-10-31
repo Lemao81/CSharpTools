@@ -16,8 +16,11 @@ namespace DicomCrawler.Controls.DicomQueryTab
             var tabPage = new DicomQueryTabPage
             {
                 Padding = Gap.Medium,
-                DataContext = ViewModelFactory.Create<DicomQueryViewModel>()
+                DataContext = ViewModelFactory.CreateEmpty<DicomQueryViewModel>(),
             };
+
+            DicomQueryViewModel.ViewModelChanged += (sender, args) => tabPage.DataContext = args.ViewModel;
+
             tabPage.Content = new StackLayout
             {
                 Orientation = Orientation.Horizontal,
@@ -57,7 +60,7 @@ namespace DicomCrawler.Controls.DicomQueryTab
                             {
                                 new StackLayoutItem
                                 {
-                                    Control = DicomTagListDynamicLayout.Create(tabPage)
+                                    Control = DicomTagListDynamicLayout.Create()
                                 }
                             }
                         }

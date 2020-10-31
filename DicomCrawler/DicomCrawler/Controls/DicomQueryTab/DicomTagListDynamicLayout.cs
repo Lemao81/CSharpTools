@@ -1,6 +1,4 @@
-﻿using System;
-using DicomCrawler.Helpers;
-using DicomCrawler.Models;
+﻿using DicomCrawler.Helpers;
 using DicomCrawler.ViewModels;
 using Eto.Forms;
 
@@ -12,12 +10,8 @@ namespace DicomCrawler.Controls.DicomQueryTab
         {
         }
 
-        private static event EventHandler<DataContextEventArgs<DicomQueryViewModel>> _ChangeDataContext;
-
-        public static DicomTagListDynamicLayout Create(BindableWidget dataContextSource)
+        public static DicomTagListDynamicLayout Create()
         {
-            _ChangeDataContext += (sender, args) => dataContextSource.DataContext = args.DataContext;
-
             var dynamicLayout = new DicomTagListDynamicLayout();
             dynamicLayout.BeginVertical();
             dynamicLayout.BeginHorizontal();
@@ -68,7 +62,7 @@ namespace DicomCrawler.Controls.DicomQueryTab
                     return;
                 }
 
-                ChangeViewModel(sender, query => query.DicomTags.Add(dicomTagInput.Text));
+                MvvmHelper.ChangeViewModel<DicomQueryViewModel>(sender, query => query.DicomTags.Add(dicomTagInput.Text), DicomQueryViewModel.OnViewModelChanged);
             };
 
             return addDicomTagButton;
@@ -86,7 +80,7 @@ namespace DicomCrawler.Controls.DicomQueryTab
             {
                 if (dicomTagList.SelectedIndex >= 0 && dicomTagList.SelectedValue is string selectedValue)
                 {
-                    ChangeViewModel(sender, query => query.DicomTags.Remove((selectedValue)));
+                    MvvmHelper.ChangeViewModel<DicomQueryViewModel>(sender, query => query.DicomTags.Remove((selectedValue)), DicomQueryViewModel.OnViewModelChanged);
                 }
             };
 
@@ -101,14 +95,6 @@ namespace DicomCrawler.Controls.DicomQueryTab
             listBox.BindDataContext(c => c.DataStore, (DicomQueryViewModel query) => query.DicomTags);
 
             return listBox;
-        }
-
-        private static void ChangeViewModel(object sender, Action<DicomQueryViewModel> action)
-        {
-            var currentViewModel = MvvmHelper.GetDataContextViewModel<DicomQueryViewModel>(sender);
-            var newViewModel = new DicomQueryViewModel(currentViewModel);
-            action(newViewModel);
-            _ChangeDataContext?.Invoke(null, new DataContextEventArgs<DicomQueryViewModel>(newViewModel));
         }
     }
 }

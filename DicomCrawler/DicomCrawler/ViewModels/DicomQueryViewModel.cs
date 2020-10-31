@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using DicomCrawler.Enums;
+using DicomCrawler.Models;
 
 namespace DicomCrawler.ViewModels
 {
@@ -11,6 +13,20 @@ namespace DicomCrawler.ViewModels
         private DicomQueryParameterViewModel _parameter;
         private string _dicomTagInput;
         private ISet<string> _dicomTags;
+
+        public DicomQueryViewModel()
+        {
+            _parameter = new DicomQueryParameterViewModel();
+            _dicomTags = new HashSet<string>();
+        }
+
+        public DicomQueryViewModel(DicomQueryViewModel dicomQuery)
+        {
+            _retrieveLevel = dicomQuery.RetrieveLevel;
+            _parameter = new DicomQueryParameterViewModel(dicomQuery.Parameter);
+            _dicomTagInput = dicomQuery.DicomTagInput;
+            _dicomTags = new HashSet<string>(dicomQuery.DicomTags);
+        }
 
         public RetrieveLevel RetrieveLevel
         {
@@ -64,25 +80,14 @@ namespace DicomCrawler.ViewModels
             }
         }
 
-        public DicomQueryViewModel()
-        {
-            Parameter = new DicomQueryParameterViewModel();
-            DicomTags = new HashSet<string>();
-        }
+        public static event EventHandler<ViewModelEventArgs<DicomQueryViewModel>> ViewModelChanged;
 
-        public DicomQueryViewModel(DicomQueryViewModel dicomQuery)
-        {
-            _retrieveLevel = dicomQuery.RetrieveLevel;
-            _parameter = new DicomQueryParameterViewModel(dicomQuery.Parameter);
-            _dicomTagInput = dicomQuery.DicomTagInput;
-            _dicomTags = new HashSet<string>(dicomQuery.DicomTags);
-        }
+        public static void OnViewModelChanged(DicomQueryViewModel newViewModel) =>
+            ViewModelChanged?.Invoke(null, new ViewModelEventArgs<DicomQueryViewModel>(newViewModel));
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

@@ -1,5 +1,7 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using DicomCrawler.Models;
 
 namespace DicomCrawler.ViewModels
 {
@@ -10,6 +12,19 @@ namespace DicomCrawler.ViewModels
         private string _callingAet;
         private string _calledAet;
         private bool _isReadOnly;
+
+        public PacsConfigurationViewModel()
+        {
+        }
+
+        public PacsConfigurationViewModel(PacsConfigurationViewModel configuration)
+        {
+            _host = configuration.Host;
+            _port = configuration.Port;
+            _callingAet = configuration.CallingAet;
+            _calledAet = configuration.CalledAet;
+            _isReadOnly = configuration.IsReadOnly;
+        }
 
         public string Host
         {
@@ -75,6 +90,11 @@ namespace DicomCrawler.ViewModels
                 }
             }
         }
+
+        public static event EventHandler<ViewModelEventArgs<PacsConfigurationViewModel>> ViewModelChanged;
+
+        public static void OnViewModelChanged(PacsConfigurationViewModel newViewModel) =>
+            ViewModelChanged?.Invoke(null, new ViewModelEventArgs<PacsConfigurationViewModel>(newViewModel));
 
         public event PropertyChangedEventHandler PropertyChanged;
 

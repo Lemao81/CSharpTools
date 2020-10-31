@@ -14,5 +14,13 @@ namespace DicomCrawler.Helpers
 
             return viewModel;
         }
+
+        public static void ChangeViewModel<T>(object sender, Action<T> changeAction, Action<T> emitOnChanged) where T : class
+        {
+            var currentViewModel = GetDataContextViewModel<T>(sender);
+            var newViewModel = ViewModelFactory.CreateCloned<T>(currentViewModel);
+            changeAction(newViewModel);
+            emitOnChanged(newViewModel);
+        }
     }
 }

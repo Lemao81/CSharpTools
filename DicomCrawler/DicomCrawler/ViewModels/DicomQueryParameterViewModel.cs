@@ -1,6 +1,8 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using DicomCrawler.Helpers;
+using DicomCrawler.Models;
 
 namespace DicomCrawler.ViewModels
 {
@@ -9,6 +11,17 @@ namespace DicomCrawler.ViewModels
         private string _patientId;
         private string _accessionNumber;
         private string _studyInstanceUid;
+
+        public DicomQueryParameterViewModel()
+        {
+        }
+
+        public DicomQueryParameterViewModel(DicomQueryParameterViewModel parameter)
+        {
+            _patientId = parameter.PatientId;
+            _accessionNumber = parameter.AccessionNumber;
+            _studyInstanceUid = parameter.StudyInstanceUid;
+        }
 
         public string PatientId
         {
@@ -51,22 +64,14 @@ namespace DicomCrawler.ViewModels
 
         public bool Any => !PatientId.IsNullOrWhiteSpace() || !AccessionNumber.IsNullOrWhiteSpace() || !StudyInstanceUid.IsNullOrWhiteSpace();
 
-        public DicomQueryParameterViewModel()
-        {
-        }
-
-        public DicomQueryParameterViewModel(DicomQueryParameterViewModel parameter)
-        {
-            _patientId = parameter.PatientId;
-            _accessionNumber = parameter.AccessionNumber;
-            _studyInstanceUid = parameter.StudyInstanceUid;
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+
+        public static event EventHandler<ViewModelEventArgs<DicomQueryParameterViewModel>> ViewModelChanged;
+
+        public static void OnViewModelChanged(DicomQueryParameterViewModel newViewModel) =>
+            ViewModelChanged?.Invoke(null, new ViewModelEventArgs<DicomQueryParameterViewModel>(newViewModel));
     }
 }
