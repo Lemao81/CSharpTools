@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DicomCrawler.Mac", "DicomCr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DicomCrawler.Wpf", "DicomCrawler\DicomCrawler.Wpf\DicomCrawler.Wpf.csproj", "{20FE6C99-5628-4683-84F9-54DBCC85E9B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UiRenderTests", "UiRenderTests\UiRenderTests.csproj", "{3786A0E9-61B6-46B9-AB8D-99F666C0FE80}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{20FE6C99-5628-4683-84F9-54DBCC85E9B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20FE6C99-5628-4683-84F9-54DBCC85E9B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20FE6C99-5628-4683-84F9-54DBCC85E9B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3786A0E9-61B6-46B9-AB8D-99F666C0FE80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3786A0E9-61B6-46B9-AB8D-99F666C0FE80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3786A0E9-61B6-46B9-AB8D-99F666C0FE80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3786A0E9-61B6-46B9-AB8D-99F666C0FE80}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
