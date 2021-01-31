@@ -12,6 +12,7 @@ namespace DicomReader2
             DataContext = _mainViewModel;
             InitializeComponent();
             _mainViewModel.RequestedFieldFocusRequested += (s, e) => OnRequestedFieldFocusRequested();
+            _mainViewModel.PatientId = "17102";
         }
 
         protected override void OnInitialized(EventArgs e)

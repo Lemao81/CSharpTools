@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Windows.Input;
+using Dicom.Network;
 using DicomReader2.Bases;
 using DicomReader2.Extensions;
 using DicomReader2.Helpers;
 using DicomReader2.Models;
-using FellowOakDicom.Network;
+using DicomReader2.Services;
 using Newtonsoft.Json;
 
 namespace DicomReader2.ViewModels
@@ -29,9 +28,16 @@ namespace DicomReader2.ViewModels
         private ICommand _addRequestedField;
         private ICommand _removeRequestedField;
         private ICommand _clearRequestedFields;
+        private ICommand _executeQuery;
+        private readonly DicomQueryService _dicomQueryService;
         private const string ConfigFileName = "config.json";
 
         public event EventHandler RequestedFieldFocusRequested;
+
+        public MainViewModel()
+        {
+            _dicomQueryService = new DicomQueryService();
+        }
 
         public void Init()
         {
@@ -147,6 +153,12 @@ namespace DicomReader2.ViewModels
             set => _clearRequestedFields = value;
         }
 
+        public ICommand ExecuteQuery
+        {
+            get => _executeQuery ?? (_executeQuery = new CommandHandler(OnExecuteQuery, CanExecuteQuery));
+            set => _executeQuery = value;
+        }
+
         private bool CanSaveConfiguration() => _isConfigurationChanged;
 
         private bool CanAddRequestedField() => !_requestedField.IsNullOrEmpty();
@@ -154,6 +166,9 @@ namespace DicomReader2.ViewModels
         private bool CanRemoveRequestedField() => !_selectedRequestedField.IsNullOrEmpty();
 
         private bool CanClearRequestedFields() => RequestedFields.Count > 0;
+
+        private bool CanExecuteQuery() => !_patientId.IsNullOrEmpty() || !_studyInstanceUid.IsNullOrEmpty() ||
+                                          !_accessionNumber.IsNullOrEmpty() && RequestedFields.Count > 0 && !_host.IsNullOrEmpty() && !_port.IsNullOrEmpty();
 
         private void OnSaveConfiguration()
         {
@@ -181,6 +196,11 @@ namespace DicomReader2.ViewModels
         {
             RequestedFields.Clear();
             RequestedFieldFocusRequested?.Invoke(this, EventArgs.Empty);
+        }
+
+        private async void OnExecuteQuery()
+        {
+            await _dicomQueryService.ExecuteDicomQuery(_patientId, RetrieveLevel, _host, _port, _callingAet, _calledAet);
         }
     }
 }
