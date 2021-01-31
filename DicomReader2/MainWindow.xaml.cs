@@ -11,6 +11,7 @@ namespace DicomReader2
         {
             DataContext = _mainViewModel;
             InitializeComponent();
+            _mainViewModel.RequestedFieldFocusRequested += (s, e) => OnRequestedFieldFocusRequested();
         }
 
         protected override void OnInitialized(EventArgs e)
@@ -19,5 +20,7 @@ namespace DicomReader2
 
             _mainViewModel.Init();
         }
+
+        private void OnRequestedFieldFocusRequested() => txtRequestedField.Focus();
     }
 }

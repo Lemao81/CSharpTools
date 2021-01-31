@@ -1,8 +1,14 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.IO;
 using System.Windows.Input;
 using DicomReader2.Bases;
+using DicomReader2.Extensions;
 using DicomReader2.Helpers;
 using DicomReader2.Models;
+using FellowOakDicom.Network;
 using Newtonsoft.Json;
 
 namespace DicomReader2.ViewModels
@@ -13,12 +19,19 @@ namespace DicomReader2.ViewModels
         private string _port;
         private string _callingAet;
         private string _calledAet;
-        private ICommand _saveConfiguration;
         private bool _isConfigurationChanged;
         private string _patientId;
         private string _studyInstanceUid;
         private string _accessionNumber;
+        private string _requestedField;
+        private string _selectedRequestedField;
+        private ICommand _saveConfiguration;
+        private ICommand _addRequestedField;
+        private ICommand _removeRequestedField;
+        private ICommand _clearRequestedFields;
         private const string ConfigFileName = "config.json";
+
+        public event EventHandler RequestedFieldFocusRequested;
 
         public void Init()
         {
@@ -92,6 +105,22 @@ namespace DicomReader2.ViewModels
             get => _accessionNumber;
             set => SetProperty(ref _accessionNumber, value);
         }
+
+        public DicomQueryRetrieveLevel RetrieveLevel { get; set; }
+
+        public ObservableCollection<string> RequestedFields { get; } = new ObservableCollection<string>();
+
+        public string RequestedField
+        {
+            get => _requestedField;
+            set => SetProperty(ref _requestedField, value);
+        }
+
+        public string SelectedRequestedField
+        {
+            get => _selectedRequestedField;
+            set => SetProperty(ref _selectedRequestedField, value);
+        }
         #endregion
 
         public ICommand SaveConfiguration
@@ -100,7 +129,31 @@ namespace DicomReader2.ViewModels
             set => _saveConfiguration = value;
         }
 
+        public ICommand AddRequestedField
+        {
+            get => _addRequestedField ?? (_addRequestedField = new CommandHandler(OnAddRequestedField, CanAddRequestedField));
+            set => _addRequestedField = value;
+        }
+
+        public ICommand RemoveRequestedField
+        {
+            get => _removeRequestedField ?? (_removeRequestedField = new CommandHandler(OnRemoveRequestedField, CanRemoveRequestedField));
+            set => _removeRequestedField = value;
+        }
+
+        public ICommand ClearRequestedFields
+        {
+            get => _clearRequestedFields ?? (_clearRequestedFields = new CommandHandler(OnClearRequestedFields, CanClearRequestedFields));
+            set => _clearRequestedFields = value;
+        }
+
         private bool CanSaveConfiguration() => _isConfigurationChanged;
+
+        private bool CanAddRequestedField() => !_requestedField.IsNullOrEmpty();
+
+        private bool CanRemoveRequestedField() => !_selectedRequestedField.IsNullOrEmpty();
+
+        private bool CanClearRequestedFields() => RequestedFields.Count > 0;
 
         private void OnSaveConfiguration()
         {
@@ -113,6 +166,21 @@ namespace DicomReader2.ViewModels
             };
             File.WriteAllText(ConfigFileName, JsonConvert.SerializeObject(pacsConfiguration));
             _isConfigurationChanged = false;
+        }
+
+        private void OnAddRequestedField()
+        {
+            RequestedFields.Add(_requestedField);
+            RequestedField = string.Empty;
+            RequestedFieldFocusRequested?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void OnRemoveRequestedField() => RequestedFields.Remove(_selectedRequestedField);
+
+        private void OnClearRequestedFields()
+        {
+            RequestedFields.Clear();
+            RequestedFieldFocusRequested?.Invoke(this, EventArgs.Empty);
         }
     }
 }

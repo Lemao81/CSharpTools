@@ -5,9 +5,14 @@
                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                  xmlns:local="clr-namespace:DicomReader.WPF"
+                 xmlns:helpers="clr-namespace:DicomReader2.Helpers"
                  mc:Ignorable="d"
                  WindowStartupLocation="CenterScreen"
+                 ResizeMode="NoResize"
                  Title="MainWindow" Height="550" Width="725">
+    <Window.Resources>
+        <helpers:EnumMatchToBooleanConverter x:Key="enumConverter" />
+    </Window.Resources>
     <Grid>
         <TabControl>
             <!-- query tab -->
@@ -15,24 +20,55 @@
                 <Grid VerticalAlignment="Top">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
+                        <ColumnDefinition />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition />
                         <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
                     </Grid.RowDefinitions>
-                    <!-- patientId -->
-                    <TextBlock Text="PatientId" Grid.Column="0" Grid.Row="0" />
-                    <TextBox Text="{Binding PatientId}" Grid.Column="0" Grid.Row="1" />
-                    <!-- studyInstanceUid -->
-                    <TextBlock Text="StudyInstanceUid" Grid.Column="0" Grid.Row="2" />
-                    <TextBox Text="{Binding StudyInstanceUid}" Grid.Column="0" Grid.Row="3" />
-                    <!-- accessionNumber -->
-                    <TextBlock Text="AccessionNumber" Grid.Column="0" Grid.Row="4" />
-                    <TextBox Text="{Binding AccessionNumber}" Grid.Column="0" Grid.Row="5" />
+                    <StackPanel Grid.Column="0" Grid.Row="0">
+                        <!-- patientId -->
+                        <TextBlock Text="PatientId" />
+                        <TextBox Text="{Binding PatientId}" />
+                        <!-- studyInstanceUid -->
+                        <TextBlock Text="StudyInstanceUid" />
+                        <TextBox Text="{Binding StudyInstanceUid}" />
+                        <!-- accessionNumber -->
+                        <TextBlock Text="AccessionNumber" />
+                        <TextBox Text="{Binding AccessionNumber}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="0" Grid.Row="1">
+                        <RadioButton Content="Patient" GroupName="RetrieveLevel"
+                                     IsChecked="{Binding Path=RetrieveLevel, Mode=TwoWay, 
+                                 Converter={StaticResource enumConverter},
+                                 ConverterParameter=Patient}" />
+                        <RadioButton Content="Study" GroupName="RetrieveLevel"
+                                     IsChecked="{Binding Path=RetrieveLevel, Mode=TwoWay, 
+                                 Converter={StaticResource enumConverter},
+                                 ConverterParameter=Study}" />
+                        <RadioButton Content="Series" GroupName="RetrieveLevel"
+                                     IsChecked="{Binding Path=RetrieveLevel, Mode=TwoWay, 
+                                 Converter={StaticResource enumConverter},
+                                 ConverterParameter=Series}" />
+                    </StackPanel>
+                    <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <ListView Name="lstRequestedFields" ItemsSource="{Binding RequestedFields}" SelectedItem="{Binding SelectedRequestedField}"
+                                  Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4" />
+                        <TextBox Name="txtRequestedField" Text="{Binding RequestedField, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" />
+                        <Button Content="Add" Command="{Binding AddRequestedField}" Grid.Column="1" Grid.Row="1" />
+                        <Button Content="Remove" Command="{Binding RemoveRequestedField}" Grid.Column="2" Grid.Row="1" />
+                        <Button Content="Clear" Command="{Binding ClearRequestedFields}" Grid.Column="3" Grid.Row="1" />
+                    </Grid>
                 </Grid>
             </TabItem>
 
