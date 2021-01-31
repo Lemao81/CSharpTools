@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace DicomReader.WPF.Properties
+namespace DicomReader2.Properties
 {
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
@@ -42,7 +42,7 @@ namespace DicomReader.WPF.Properties
                 if ((resourceMan == null))
                 {
                     global::System.Resources.ResourceManager temp =
-                        new global::System.Resources.ResourceManager("DicomReader.WPF.Properties.Resources", typeof(Resources).Assembly);
+                        new global::System.Resources.ResourceManager("DicomReader2.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
