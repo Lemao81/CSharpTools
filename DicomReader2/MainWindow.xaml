@@ -1,4 +1,4 @@
-﻿<mah:MetroWindow x:Class="DicomReader.WPF.MainWindow"
+﻿<mah:MetroWindow x:Class="DicomReader2.MainWindow"
                  xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,18 +6,43 @@
                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                  xmlns:local="clr-namespace:DicomReader.WPF"
                  mc:Ignorable="d"
-                 Title="MainWindow" Height="350" Width="525">
+                 WindowStartupLocation="CenterScreen"
+                 Title="MainWindow" Height="550" Width="725">
     <Grid>
         <TabControl>
+            <!-- query tab -->
             <TabItem Header="Query">
-                <Grid />
+                <Grid VerticalAlignment="Top">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <!-- patientId -->
+                    <TextBlock Text="PatientId" Grid.Column="0" Grid.Row="0" />
+                    <TextBox Text="{Binding PatientId}" Grid.Column="0" Grid.Row="1" />
+                    <!-- studyInstanceUid -->
+                    <TextBlock Text="StudyInstanceUid" Grid.Column="0" Grid.Row="2" />
+                    <TextBox Text="{Binding StudyInstanceUid}" Grid.Column="0" Grid.Row="3" />
+                    <!-- accessionNumber -->
+                    <TextBlock Text="AccessionNumber" Grid.Column="0" Grid.Row="4" />
+                    <TextBox Text="{Binding AccessionNumber}" Grid.Column="0" Grid.Row="5" />
+                </Grid>
             </TabItem>
 
+            <!-- result tab -->
             <TabItem Header="Result">
                 <Grid />
             </TabItem>
 
-            <TabItem Header="PACS Config" DataContext="x:PacsConfigViewModel">
+            <!-- config tab -->
+            <TabItem Header="Configuration">
                 <Grid VerticalAlignment="Top">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
@@ -25,6 +50,7 @@
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
+                        <RowDefinition />
                         <RowDefinition />
                         <RowDefinition />
                         <RowDefinition />
@@ -41,16 +67,18 @@
                             <RowDefinition />
                         </Grid.RowDefinitions>
                         <TextBlock Text="Host" Grid.Column="0" Grid.Row="0" />
-                        <TextBox Grid.Column="0" Grid.Row="1" />
+                        <TextBox Text="{Binding Host}" Grid.Column="0" Grid.Row="1" />
 
                         <TextBlock Text="Port" Grid.Column="1" Grid.Row="0" />
-                        <TextBox Grid.Column="1" Grid.Row="1" />
+                        <TextBox Text="{Binding Port}" Grid.Column="1" Grid.Row="1" />
                     </Grid>
                     <TextBlock Text="CallingAet" Grid.Column="0" Grid.Row="1" />
-                    <TextBox Grid.Column="0" Grid.Row="2" />
+                    <TextBox Text="{Binding CallingAet}" Grid.Column="0" Grid.Row="2" />
 
                     <TextBlock Text="CalledAet" Grid.Column="0" Grid.Row="3" />
-                    <TextBox Grid.Column="0" Grid.Row="4" />
+                    <TextBox Text="{Binding CalledAet}" Grid.Column="0" Grid.Row="4" />
+
+                    <Button Content="Save" Command="{Binding SaveConfiguration}" Grid.Column="0" Grid.Row="5" />
                 </Grid>
             </TabItem>
         </TabControl>

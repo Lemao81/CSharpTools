@@ -1,14 +1,23 @@
-﻿using DicomReader2.ViewModels;
+﻿using System;
+using DicomReader2.ViewModels;
 
-namespace DicomReader.WPF
+namespace DicomReader2
 {
     public partial class MainWindow
     {
+        private readonly MainViewModel _mainViewModel = new MainViewModel();
+
         public MainWindow()
         {
-            var mainViewModel = new MainViewModel();
-            DataContext = mainViewModel;
+            DataContext = _mainViewModel;
             InitializeComponent();
+        }
+
+        protected override void OnInitialized(EventArgs e)
+        {
+            base.OnInitialized(e);
+
+            _mainViewModel.Init();
         }
     }
 }
