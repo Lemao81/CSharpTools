@@ -148,8 +148,10 @@
     <Compile Include="Extensions\Extensions.cs" />
     <Compile Include="Helpers\CommandHandler.cs" />
     <Compile Include="Helpers\EnumMatchToBooleanConverter.cs" />
+    <Compile Include="Helpers\Result.cs" />
     <Compile Include="Models\PacsConfiguration.cs" />
     <Compile Include="Services\DicomQueryService.cs" />
+    <Compile Include="Services\DicomTagProvider.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

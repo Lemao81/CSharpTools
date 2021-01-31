@@ -19,8 +19,8 @@
             <TabItem Header="Query">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition />
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition  Width="4*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition />
@@ -72,10 +72,10 @@
                         <Button Content="Remove" Command="{Binding RemoveRequestedField}" Grid.Column="2" Grid.Row="1" />
                         <Button Content="Clear" Command="{Binding ClearRequestedFields}" Grid.Column="3" Grid.Row="1" />
                         <StackPanel Grid.Column="4" Grid.Row="0">
-                            <Button Content="Patient studies"></Button>
+                            <Button Content="Patient studies" Command="{Binding AddPatientStudiesFields}" />
                         </StackPanel>
                     </Grid>
-                    <Button Content="Query" Command="{Binding ExecuteQuery}" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" />
+                    <Button Name="btnQuery" Content="Query" Command="{Binding ExecuteQuery}" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" />
                 </Grid>
             </TabItem>
 

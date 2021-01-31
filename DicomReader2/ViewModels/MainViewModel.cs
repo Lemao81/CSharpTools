@@ -29,10 +29,13 @@ namespace DicomReader2.ViewModels
         private ICommand _removeRequestedField;
         private ICommand _clearRequestedFields;
         private ICommand _executeQuery;
+        private ICommand _addPatientStudiesFields;
         private readonly DicomQueryService _dicomQueryService;
+        private DicomQueryRetrieveLevel _retrieveLevel;
         private const string ConfigFileName = "config.json";
 
         public event EventHandler RequestedFieldFocusRequested;
+        public event EventHandler QueryButtonFocusRequested;
 
         public MainViewModel()
         {
@@ -112,7 +115,11 @@ namespace DicomReader2.ViewModels
             set => SetProperty(ref _accessionNumber, value);
         }
 
-        public DicomQueryRetrieveLevel RetrieveLevel { get; set; }
+        public DicomQueryRetrieveLevel RetrieveLevel
+        {
+            get => _retrieveLevel;
+            set => SetProperty(ref _retrieveLevel, value);
+        }
 
         public ObservableCollection<string> RequestedFields { get; } = new ObservableCollection<string>();
 
@@ -159,6 +166,12 @@ namespace DicomReader2.ViewModels
             set => _executeQuery = value;
         }
 
+        public ICommand AddPatientStudiesFields
+        {
+            get => _addPatientStudiesFields ?? (_addPatientStudiesFields = new CommandHandler(OnAddPatientStudiesFields, CanAddPatientStudiesFields));
+            set => _addPatientStudiesFields = value;
+        }
+
         private bool CanSaveConfiguration() => _isConfigurationChanged;
 
         private bool CanAddRequestedField() => !_requestedField.IsNullOrEmpty();
@@ -169,6 +182,8 @@ namespace DicomReader2.ViewModels
 
         private bool CanExecuteQuery() => !_patientId.IsNullOrEmpty() || !_studyInstanceUid.IsNullOrEmpty() ||
                                           !_accessionNumber.IsNullOrEmpty() && RequestedFields.Count > 0 && !_host.IsNullOrEmpty() && !_port.IsNullOrEmpty();
+
+        private bool CanAddPatientStudiesFields() => true;
 
         private void OnSaveConfiguration()
         {
@@ -200,7 +215,18 @@ namespace DicomReader2.ViewModels
 
         private async void OnExecuteQuery()
         {
-            await _dicomQueryService.ExecuteDicomQuery(_patientId, RetrieveLevel, _host, _port, _callingAet, _calledAet);
+            await _dicomQueryService.ExecuteDicomQuery(this);
+        }
+
+        private void OnAddPatientStudiesFields()
+        {
+            RequestedFields.Clear();
+            RequestedFields.Add("0008:0050");
+            RequestedFields.Add("0020:000D");
+            RequestedFields.Add("0008:1030");
+            RequestedFields.Add("0008:0020");
+            RetrieveLevel = DicomQueryRetrieveLevel.Study;
+            QueryButtonFocusRequested?.Invoke(this, EventArgs.Empty);
         }
     }
 }

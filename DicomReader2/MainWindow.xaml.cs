@@ -1,4 +1,5 @@
 ﻿using System;
+using Dicom.Network;
 using DicomReader2.ViewModels;
 
 namespace DicomReader2
@@ -11,8 +12,10 @@ namespace DicomReader2
         {
             DataContext = _mainViewModel;
             InitializeComponent();
-            _mainViewModel.RequestedFieldFocusRequested += (s, e) => OnRequestedFieldFocusRequested();
+            _mainViewModel.RequestedFieldFocusRequested += OnRequestedFieldFocusRequested;
+            _mainViewModel.QueryButtonFocusRequested += OnQueryButtonFocusRequested;
             _mainViewModel.PatientId = "17102";
+            _mainViewModel.RetrieveLevel = DicomQueryRetrieveLevel.Study;
         }
 
         protected override void OnInitialized(EventArgs e)
@@ -22,6 +25,8 @@ namespace DicomReader2
             _mainViewModel.Init();
         }
 
-        private void OnRequestedFieldFocusRequested() => txtRequestedField.Focus();
+        private void OnRequestedFieldFocusRequested(object sender, EventArgs args) => txtRequestedField.Focus();
+
+        private void OnQueryButtonFocusRequested(object sender, EventArgs args) => btnQuery.Focus();
     }
 }
