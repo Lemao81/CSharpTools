@@ -9,7 +9,7 @@
                  mc:Ignorable="d"
                  WindowStartupLocation="CenterScreen"
                  ResizeMode="NoResize"
-                 Title="MainWindow" Height="550" Width="725">
+                 Title="Dicom Reader" Height="550" Width="725">
     <Window.Resources>
         <helpers:EnumMatchToBooleanConverter x:Key="enumConverter" />
     </Window.Resources>
@@ -20,7 +20,7 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="3*" />
-                        <ColumnDefinition  Width="4*"/>
+                        <ColumnDefinition Width="4*" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition />
