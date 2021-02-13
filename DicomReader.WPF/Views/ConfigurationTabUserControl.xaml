@@ -1,0 +1,48 @@
+﻿<UserControl x:Class="DicomReader.WPF.Views.ConfigurationTabUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:DicomReader.WPF.Views"
+             xmlns:mvvm="http://prismlibrary.com/"
+             mvvm:ViewModelLocator.AutoWireViewModel="True"
+             mc:Ignorable="d" x:Name="Configuration"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid VerticalAlignment="Top">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <TextBlock Text="Host" Grid.Column="0" Grid.Row="0" />
+            <TextBox Text="{Binding Host}" Grid.Column="0" Grid.Row="1" />
+
+            <TextBlock Text="Port" Grid.Column="1" Grid.Row="0" />
+            <TextBox Text="{Binding Port}" Grid.Column="1" Grid.Row="1" />
+        </Grid>
+        <TextBlock Text="CallingAet" Grid.Column="0" Grid.Row="1" />
+        <TextBox Text="{Binding CallingAet}" Grid.Column="0" Grid.Row="2" />
+
+        <TextBlock Text="CalledAet" Grid.Column="0" Grid.Row="3" />
+        <TextBox Text="{Binding CalledAet}" Grid.Column="0" Grid.Row="4" />
+
+        <Button Content="Save" Grid.Column="0" Grid.Row="5" />
+    </Grid>
+</UserControl>
