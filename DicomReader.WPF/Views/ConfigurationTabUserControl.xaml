@@ -10,6 +10,8 @@
              d:DesignHeight="550" d:DesignWidth="725">
     <Grid VerticalAlignment="Top">
         <StackPanel Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8">
+            <TextBlock Text="Name" />
+            <TextBox Text="{Binding ConfigurationName}" Margin="0,4,0,0" IsReadOnly="True" />
             <TextBlock Text="Host" />
             <TextBox Text="{Binding Host, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,0" />
             <TextBlock Text="Port" Margin="0,8,0,0" />

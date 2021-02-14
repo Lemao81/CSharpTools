@@ -1,4 +1,6 @@
 ﻿using DicomReader.WPF.Constants;
+using DicomReader.WPF.Interfaces;
+using DicomReader.WPF.Services;
 using DicomReader.WPF.Views;
 using Prism.Ioc;
 using Prism.Modularity;
@@ -10,6 +12,7 @@ namespace DicomReader.WPF.Modules
     {
         public void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            containerRegistry.Register<IFileSystemService, FileSystemService>();
         }
 
         public void OnInitialized(IContainerProvider containerProvider)

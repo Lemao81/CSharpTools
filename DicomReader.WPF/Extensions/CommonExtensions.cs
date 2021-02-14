@@ -12,7 +12,9 @@ namespace DicomReader.WPF.Extensions
         public static bool IsNullOrEmpty<T>(this IEnumerable<T> enumerable) => enumerable == null || !enumerable.Any();
 
         public static string AsJson(this object obj) => JsonConvert.SerializeObject(obj);
-        
+
+        public static T Deserialize<T>(this string str) => JsonConvert.DeserializeObject<T>(str);
+
         public static string AsIndentedJson(this object obj) => JsonConvert.SerializeObject(obj, Formatting.Indented);
 
         public static bool GetIsFocused(DependencyObject obj) => (bool) obj.GetValue(IsFocusedProperty);

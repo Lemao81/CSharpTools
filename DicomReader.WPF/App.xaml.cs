@@ -2,8 +2,10 @@
 using Prism.Ioc;
 using System.Windows;
 using System.Windows.Controls;
+using DicomReader.WPF.Interfaces;
 using DicomReader.WPF.Modules;
 using DicomReader.WPF.RegionAdapters;
+using DicomReader.WPF.Services;
 using Prism.Modularity;
 using Prism.Regions;
 
@@ -35,6 +37,7 @@ namespace DicomReader.WPF
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            containerRegistry.RegisterSingleton<IFileSystemService, FileSystemService>();
         }
     }
 }

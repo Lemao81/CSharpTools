@@ -9,20 +9,22 @@ namespace DicomReader.WPF.Models
         {
         }
 
-        public string Host { get; protected set; }
-        public int Port { get; protected set; }
-        public string CallingAet { get; protected set; }
-        public string CalledAet { get; protected set; }
+        public string Name { get; set; }
+        public string Host { get; set; }
+        public int Port { get; set; }
+        public string CallingAet { get; set; }
+        public string CalledAet { get; set; }
 
-        public static Result<PacsConfiguration> Create(string host, string port, string callingAet, string calledAet)
+        public static Result<PacsConfiguration> Create(string name, string host, string port, string callingAet, string calledAet)
         {
-            if (host.IsNullOrEmpty() || !int.TryParse(port, out var portNumber))
+            if (name.IsNullOrEmpty() || host.IsNullOrEmpty() || !int.TryParse(port, out var portNumber))
             {
                 return Result<PacsConfiguration>.Fail();
             }
 
             return Result<PacsConfiguration>.Success(new PacsConfiguration
             {
+                Name = name,
                 Host = host,
                 Port = portNumber,
                 CallingAet = callingAet ?? string.Empty,
@@ -31,6 +33,6 @@ namespace DicomReader.WPF.Models
         }
 
         public static Result<PacsConfiguration> Create(ConfigurationTabUserControlViewModel viewModel) =>
-            Create(viewModel.Host, viewModel.Port, viewModel.CallingAet, viewModel.CalledAet);
+            Create(viewModel.ConfigurationName, viewModel.Host, viewModel.Port, viewModel.CallingAet, viewModel.CalledAet);
     }
 }
