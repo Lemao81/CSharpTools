@@ -7,42 +7,18 @@
              xmlns:mvvm="http://prismlibrary.com/"
              mvvm:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d" x:Name="Configuration"
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="550" d:DesignWidth="725">
     <Grid VerticalAlignment="Top">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition />
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-        </Grid.RowDefinitions>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*" />
-                <ColumnDefinition Width="1*" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition />
-                <RowDefinition />
-            </Grid.RowDefinitions>
-            <TextBlock Text="Host" Grid.Column="0" Grid.Row="0" />
-            <TextBox Text="{Binding Host}" Grid.Column="0" Grid.Row="1" />
-
-            <TextBlock Text="Port" Grid.Column="1" Grid.Row="0" />
-            <TextBox Text="{Binding Port}" Grid.Column="1" Grid.Row="1" />
-        </Grid>
-        <TextBlock Text="CallingAet" Grid.Column="0" Grid.Row="1" />
-        <TextBox Text="{Binding CallingAet}" Grid.Column="0" Grid.Row="2" />
-
-        <TextBlock Text="CalledAet" Grid.Column="0" Grid.Row="3" />
-        <TextBox Text="{Binding CalledAet}" Grid.Column="0" Grid.Row="4" />
-
-        <Button Content="Save" Grid.Column="0" Grid.Row="5" />
+        <StackPanel Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8">
+            <TextBlock Text="Host" />
+            <TextBox Text="{Binding Host}" Margin="0,4,0,0" />
+            <TextBlock Text="Port" Margin="0,8,0,0" />
+            <TextBox Text="{Binding Port}" Margin="0,4,0,0" />
+            <TextBlock Text="CallingAet" Margin="0,8,0,0" />
+            <TextBox Text="{Binding CallingAet}" Margin="0,4,0,0" />
+            <TextBlock Text="CalledAet" Margin="0,8,0,0" />
+            <TextBox Text="{Binding CalledAet}" Margin="0,4,0,0" />
+            <Button Content="Save" Grid.Column="0" Grid.Row="5" Margin="0,16,0,0" HorizontalAlignment="Center" Width="70" />
+        </StackPanel>
     </Grid>
 </UserControl>

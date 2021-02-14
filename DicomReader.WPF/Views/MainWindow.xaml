@@ -8,7 +8,6 @@
                  prism:ViewModelLocator.AutoWireViewModel="True"
                  Title="{Binding Title}" Height="550" Width="725">
     <Grid>
-        <!-- <ContentControl prism:RegionManager.RegionName="ContentRegion" /> -->
-        <TabControl prism:RegionManager.RegionName="TabRegion" HorizontalAlignment="Left" VerticalAlignment="Stretch" />
+        <TabControl prism:RegionManager.RegionName="TabRegion" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
     </Grid>
 </mah:MetroWindow>

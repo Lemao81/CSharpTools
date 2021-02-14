@@ -8,68 +8,73 @@
              xmlns:converters="clr-namespace:DicomReader.WPF.Converters"
              mvvm:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d" x:Name="Query"
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="550" d:DesignWidth="725">
     <UserControl.Resources>
         <converters:EnumMatchToBooleanConverter x:Key="enumConverter" />
     </UserControl.Resources>
+
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3*" />
-            <ColumnDefinition Width="4*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition />
+            <RowDefinition Height="2*" />
             <RowDefinition Height="*" />
-            <RowDefinition />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <StackPanel Grid.Column="0" Grid.Row="0">
-            <!-- patientId -->
-            <TextBlock Text="PatientId" />
-            <TextBox Text="{Binding PatientId}" />
-            <!-- studyInstanceUid -->
-            <TextBlock Text="StudyInstanceUid" />
-            <TextBox Text="{Binding StudyInstanceUid}" />
-            <!-- accessionNumber -->
-            <TextBlock Text="AccessionNumber" />
-            <TextBox Text="{Binding AccessionNumber}" />
-        </StackPanel>
-        <StackPanel Grid.Column="0" Grid.Row="1">
-            <RadioButton Content="Patient" GroupName="RetrieveLevel"
+            <StackPanel Width="250" Margin="8" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <TextBlock Text="PatientId" />
+                <TextBox Text="{Binding PatientId}" Margin="0,4,0,0" />
+                <TextBlock Text="StudyInstanceUid" Margin="0, 8, 0, 0" />
+                <TextBox Text="{Binding StudyInstanceUid}" Margin="0,4,0,0" />
+                <TextBlock Text="AccessionNumber" Margin="0, 8, 0, 0" />
+                <TextBox Text="{Binding AccessionNumber}" Margin="0,4,0,0" />
+            </StackPanel>
+            <StackPanel Width="130" Margin="8" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <TextBlock Text="Retrieve Level"></TextBlock>
+                <RadioButton Content="Patient" GroupName="RetrieveLevel" Margin="0, 4, 0, 0"
                          IsChecked="{Binding Path=RetrieveLevel, Mode=TwoWay, 
                                  Converter={StaticResource enumConverter},
                                  ConverterParameter=Patient}" />
-            <RadioButton Content="Study" GroupName="RetrieveLevel"
+                <RadioButton Content="Study" GroupName="RetrieveLevel" Margin="0, 4, 0, 0"
                          IsChecked="{Binding Path=RetrieveLevel, Mode=TwoWay, 
                                  Converter={StaticResource enumConverter},
                                  ConverterParameter=Study}" />
-            <RadioButton Content="Series" GroupName="RetrieveLevel"
+                <RadioButton Content="Series" GroupName="RetrieveLevel" Margin="0, 4, 0, 0"
                          IsChecked="{Binding Path=RetrieveLevel, Mode=TwoWay, 
                                  Converter={StaticResource enumConverter},
                                  ConverterParameter=Series}" />
+            </StackPanel>
         </StackPanel>
-        <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="2">
+        <Grid Grid.Column="1" Grid.Row="0" Margin="8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="3*" />
                 <ColumnDefinition Width="1*" />
-                <ColumnDefinition Width="1*" />
-                <ColumnDefinition Width="1*" />
-                <ColumnDefinition Width="2*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <ListView Name="lstRequestedFields" ItemsSource="{Binding RequestedFields}" SelectedItem="{Binding SelectedRequestedField}"
-                      Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4" />
-            <TextBox Name="txtRequestedField" Text="{Binding RequestedField, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" />
-            <Button Content="Add" Grid.Column="1" Grid.Row="1" />
-            <Button Content="Remove" Grid.Column="2" Grid.Row="1" />
-            <Button Content="Clear" Grid.Column="3" Grid.Row="1" />
-            <StackPanel Grid.Column="4" Grid.Row="0">
+                      Grid.Column="0" Grid.Row="0" />
+            <Grid Grid.Column="0" Grid.Row="1" Margin="0, 4, 0, 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0" Name="txtRequestedField" Text="{Binding RequestedField, UpdateSourceTrigger=PropertyChanged}" />
+                <Button Grid.Column="1" Content="Add" Margin="4, 0, 0, 0" />
+                <Button Grid.Column="2" Content="Remove" Margin="4, 0, 0, 0" />
+                <Button Grid.Column="3" Content="Clear" Margin="4, 0, 0, 0" />
+            </Grid>
+            <StackPanel Grid.Column="1" Grid.Row="0" Margin="4, 0, 0, 0">
                 <Button Content="Patient studies" />
             </StackPanel>
         </Grid>
-        <Button Name="btnQuery" Content="Query" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" />
+        <Button Name="btnQuery" Content="Query" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Margin="8" />
     </Grid>
 </UserControl>
