@@ -6,6 +6,7 @@
              xmlns:mvvm="http://prismlibrary.com/"
              xmlns:local="clr-namespace:DicomReader.WPF.Views"
              xmlns:converters="clr-namespace:DicomReader.WPF.Converters"
+             xmlns:extensions="clr-namespace:DicomReader.WPF.Extensions"
              mvvm:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d" x:Name="Query"
              d:DesignHeight="550" d:DesignWidth="725">
@@ -19,7 +20,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="2*" />
+            <RowDefinition Height="3*" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
@@ -33,17 +34,17 @@
                 <TextBox Text="{Binding AccessionNumber}" Margin="0,4,0,0" />
             </StackPanel>
             <StackPanel Width="130" Margin="8" HorizontalAlignment="Left" VerticalAlignment="Top">
-                <TextBlock Text="Retrieve Level"></TextBlock>
+                <TextBlock Text="Retrieve Level" />
                 <RadioButton Content="Patient" GroupName="RetrieveLevel" Margin="0, 4, 0, 0"
-                         IsChecked="{Binding Path=RetrieveLevel, Mode=TwoWay, 
+                             IsChecked="{Binding Path=RetrieveLevel, Mode=TwoWay, 
                                  Converter={StaticResource enumConverter},
                                  ConverterParameter=Patient}" />
                 <RadioButton Content="Study" GroupName="RetrieveLevel" Margin="0, 4, 0, 0"
-                         IsChecked="{Binding Path=RetrieveLevel, Mode=TwoWay, 
+                             IsChecked="{Binding Path=RetrieveLevel, Mode=TwoWay, 
                                  Converter={StaticResource enumConverter},
                                  ConverterParameter=Study}" />
                 <RadioButton Content="Series" GroupName="RetrieveLevel" Margin="0, 4, 0, 0"
-                         IsChecked="{Binding Path=RetrieveLevel, Mode=TwoWay, 
+                             IsChecked="{Binding Path=RetrieveLevel, Mode=TwoWay, 
                                  Converter={StaticResource enumConverter},
                                  ConverterParameter=Series}" />
             </StackPanel>
@@ -58,7 +59,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <ListView Name="lstRequestedFields" ItemsSource="{Binding RequestedFields}" SelectedItem="{Binding SelectedRequestedField}"
-                      Grid.Column="0" Grid.Row="0" />
+                      Grid.Column="0" Grid.Row="0" BorderThickness="0.5" />
             <Grid Grid.Column="0" Grid.Row="1" Margin="0, 4, 0, 0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -66,15 +67,17 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" Name="txtRequestedField" Text="{Binding RequestedField, UpdateSourceTrigger=PropertyChanged}" />
-                <Button Grid.Column="1" Content="Add" Margin="4, 0, 0, 0" />
-                <Button Grid.Column="2" Content="Remove" Margin="4, 0, 0, 0" />
-                <Button Grid.Column="3" Content="Clear" Margin="4, 0, 0, 0" />
+                <TextBox Grid.Column="0" Name="txtRequestedField" Text="{Binding RequestedField, UpdateSourceTrigger=PropertyChanged}"
+                         extensions:CommonExtensions.IsFocused="{Binding IsRequestedFieldFocused}" />
+                <Button Grid.Column="1" Content="Add" Command="{Binding AddRequestedFieldCommand}" Margin="4, 0, 0, 0" />
+                <Button Grid.Column="2" Content="Remove" Command="{Binding RemoveRequestedFieldCommand}" Margin="4, 0, 0, 0" />
+                <Button Grid.Column="3" Content="Clear" Command="{Binding ClearRequestedFieldsCommand}" Margin="4, 0, 0, 0" />
             </Grid>
             <StackPanel Grid.Column="1" Grid.Row="0" Margin="4, 0, 0, 0">
                 <Button Content="Patient studies" />
             </StackPanel>
         </Grid>
-        <Button Name="btnQuery" Content="Query" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Margin="8" />
+        <Button Name="btnQuery" Content="Query" Height="40" Width="150" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2"
+                Margin="8" />
     </Grid>
 </UserControl>

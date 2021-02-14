@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using Dicom.Network;
+using DicomReader.WPF.Extensions;
+using Prism.Commands;
 using Prism.Mvvm;
 
 namespace DicomReader.WPF.ViewModels
@@ -12,7 +14,18 @@ namespace DicomReader.WPF.ViewModels
         private DicomQueryRetrieveLevel _retrieveLevel;
         private string _requestedField;
         private string _selectedRequestedField;
+        private bool _isRequestedFieldFocused;
 
+        public QueryPanelTabUserControlViewModel()
+        {
+            RequestedFields = new ObservableCollection<string>();
+            RequestedFields.CollectionChanged += (s, e) => ClearRequestedFieldsCommand.RaiseCanExecuteChanged();
+            AddRequestedFieldCommand = new DelegateCommand(AddRequestedField, CanAddRequestedField).ObservesProperty(() => RequestedField);
+            RemoveRequestedFieldCommand = new DelegateCommand(RemoveRequestedField, CanRemoveRequestedField).ObservesProperty(() => SelectedRequestedField);
+            ClearRequestedFieldsCommand = new DelegateCommand(ClearRequestedFields, CanClearRequestedFields);
+        }
+
+        #region bound properties
         public string PatientId
         {
             get => _patientId;
@@ -43,12 +56,57 @@ namespace DicomReader.WPF.ViewModels
             set => SetProperty(ref _requestedField, value);
         }
 
-        public ObservableCollection<string> RequestedFields { get; } = new ObservableCollection<string>();
+        public ObservableCollection<string> RequestedFields { get; }
 
         public string SelectedRequestedField
         {
             get => _selectedRequestedField;
             set => SetProperty(ref _selectedRequestedField, value);
         }
+
+        public bool IsRequestedFieldFocused
+        {
+            get => _isRequestedFieldFocused;
+            set => SetProperty(ref _isRequestedFieldFocused, value);
+        }
+        #endregion
+
+        #region bound commands
+        public DelegateCommand AddRequestedFieldCommand { get; }
+        public DelegateCommand RemoveRequestedFieldCommand { get; }
+        public DelegateCommand ClearRequestedFieldsCommand { get; }
+        #endregion
+
+        #region command handlers
+        private void AddRequestedField()
+        {
+            if (_requestedField.IsNullOrEmpty()) return;
+
+            RequestedFields.Add(_requestedField);
+            RequestedField = string.Empty;
+            IsRequestedFieldFocused = true;
+        }
+
+        private bool CanAddRequestedField() => !_requestedField.IsNullOrEmpty();
+
+        private void RemoveRequestedField()
+        {
+            if (_selectedRequestedField.IsNullOrEmpty()) return;
+
+            RequestedFields.Remove(_selectedRequestedField);
+        }
+
+        private bool CanRemoveRequestedField() => !_selectedRequestedField.IsNullOrEmpty();
+
+        private void ClearRequestedFields()
+        {
+            if (RequestedFields.IsNullOrEmpty()) return;
+
+            RequestedFields.Clear();
+            IsRequestedFieldFocused = true;
+        }
+
+        private bool CanClearRequestedFields() => RequestedFields.Count > 0;
+        #endregion
     }
 }
