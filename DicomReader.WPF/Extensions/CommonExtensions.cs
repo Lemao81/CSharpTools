@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using DicomReader.WPF.Interfaces;
 using Newtonsoft.Json;
 
 namespace DicomReader.WPF.Extensions
@@ -13,7 +14,7 @@ namespace DicomReader.WPF.Extensions
 
         public static string AsJson(this object obj) => JsonConvert.SerializeObject(obj);
 
-        public static T Deserialize<T>(this string str) => JsonConvert.DeserializeObject<T>(str);
+        public static T Deserialize<T>(this string str) where T : IDto => JsonConvert.DeserializeObject<T>(str);
 
         public static string AsIndentedJson(this object obj) => JsonConvert.SerializeObject(obj, Formatting.Indented);
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DicomReader.WPF.Extensions;
+using DicomReader.WPF.Models.Dtos;
 
 namespace DicomReader.WPF.Models
 {
@@ -8,18 +9,18 @@ namespace DicomReader.WPF.Models
     {
         private AppConfiguration()
         {
+            PacsConfigurations = new Dictionary<string, PacsConfiguration>();
         }
 
-        public Dictionary<string, PacsConfiguration> PacsConfigurations { get; set; }
+        public Dictionary<string, PacsConfiguration> PacsConfigurations { get; protected set; }
 
         public static Result<AppConfiguration> Parse(string serializedString)
         {
             try
             {
-                var configDeserialized = serializedString.Deserialize<AppConfiguration>();
-                configDeserialized.PacsConfigurations ??= new Dictionary<string, PacsConfiguration>();
+                var dto = serializedString.Deserialize<AppConfigurationDto>();
 
-                return configDeserialized;
+                return Map(dto);
             }
             catch (Exception exception)
             {
@@ -27,9 +28,21 @@ namespace DicomReader.WPF.Models
             }
         }
 
-        public static AppConfiguration CreateEmpty() => new AppConfiguration
+        public static AppConfiguration CreateEmpty() => new AppConfiguration();
+
+        public static Result<AppConfiguration> Map(AppConfigurationDto dto)
         {
-            PacsConfigurations = new Dictionary<string, PacsConfiguration>()
-        };
+            var appConfig = new AppConfiguration();
+            foreach (var (key, value) in dto.PacsConfigurations)
+            {
+                var pacsConfiguration = PacsConfiguration.Map(value);
+                if (pacsConfiguration.IsSuccess)
+                {
+                    appConfig.PacsConfigurations.Add(key, pacsConfiguration.Value);
+                }
+            }
+
+            return appConfig;
+        }
     }
 }
