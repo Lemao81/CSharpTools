@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Dicom;
 using Dicom.Network;
 using DicomReader.WPF.Extensions;
 using DicomReader.WPF.Interfaces;
@@ -28,6 +30,8 @@ namespace DicomReader.WPF.ViewModels
             RemoveRequestedFieldCommand = new DelegateCommand(RemoveRequestedField, CanRemoveRequestedField).ObservesProperty(() => SelectedRequestedField);
             ClearRequestedFieldsCommand = new DelegateCommand(ClearRequestedFields, CanClearRequestedFields);
             ExecuteQueryCommand = new DelegateCommand(ExecuteQuery, CanExecuteQuery).ObservesCanExecute(() => IsQueryExecutable);
+            AddPatientStudiesFieldsCommand = new DelegateCommand(AddPatientStudiesFields);
+            TestingCommand = new DelegateCommand(Testing);
         }
 
         #region bound properties
@@ -95,6 +99,8 @@ namespace DicomReader.WPF.ViewModels
         public DelegateCommand RemoveRequestedFieldCommand { get; }
         public DelegateCommand ClearRequestedFieldsCommand { get; }
         public DelegateCommand ExecuteQueryCommand { get; }
+        public DelegateCommand AddPatientStudiesFieldsCommand { get; }
+        public DelegateCommand TestingCommand { get; }
         #endregion
 
         #region command handlers
@@ -139,7 +145,7 @@ namespace DicomReader.WPF.ViewModels
                 throw new InvalidOperationException("No PACS configuration available");
             }
 
-            await _dicomQueryService.ExecuteDicomQuery(this, pacsConfiguration);
+            var dicomResults = await _dicomQueryService.ExecuteDicomQuery(this, pacsConfiguration);
         }
 
         private bool CanExecuteQuery() =>
@@ -147,6 +153,26 @@ namespace DicomReader.WPF.ViewModels
              !StudyInstanceUid.IsNullOrEmpty() ||
              !AccessionNumber.IsNullOrEmpty()) &&
             RequestedFields.Count > 0;
+
+        private void AddPatientStudiesFields() => AddToRequestedFieldsIfNotExistant(new[] { nameof(DicomTag.PatientID), nameof(DicomTag.StudyDescription) });
+
+        private void Testing()
+        {
+            StudyInstanceUid = "1.3.6.1.4.1.24930.2.64893540834227.1862430";
+            AddPatientStudiesFields();
+            RetrieveLevel = DicomQueryRetrieveLevel.Study;
+        }
         #endregion
+
+        private void AddToRequestedFieldsIfNotExistant(IEnumerable<string> fieldsToAdd)
+        {
+            foreach (var field in fieldsToAdd)
+            {
+                if (!RequestedFields.Contains(field))
+                {
+                    RequestedFields.Add(field);
+                }
+            }
+        }
     }
 }

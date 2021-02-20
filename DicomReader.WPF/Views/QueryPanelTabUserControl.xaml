@@ -48,6 +48,7 @@
                                  Converter={StaticResource enumConverter},
                                  ConverterParameter=Series}" />
             </StackPanel>
+            <Button Content="Testing" Command="{Binding TestingCommand}" Width="100" Margin="0, 16, 0, 0" />
         </StackPanel>
         <Grid Grid.Column="1" Grid.Row="0" Margin="8">
             <Grid.ColumnDefinitions>
@@ -74,7 +75,7 @@
                 <Button Grid.Column="3" Content="Clear" Command="{Binding ClearRequestedFieldsCommand}" Margin="4, 0, 0, 0" />
             </Grid>
             <StackPanel Grid.Column="1" Grid.Row="0" Margin="8, 0, 0, 0">
-                <Button Content="Patient studies" />
+                <Button Content="Patient studies" Command="{Binding AddPatientStudiesFieldsCommand}" />
             </StackPanel>
         </Grid>
         <Button Name="btnQuery" Content="Query" Command="{Binding ExecuteQueryCommand}" Height="40" Width="150" HorizontalAlignment="Center" Grid.Column="0"

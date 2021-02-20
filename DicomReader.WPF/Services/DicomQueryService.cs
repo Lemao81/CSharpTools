@@ -23,8 +23,12 @@ namespace DicomReader.WPF.Services
             _dicomTagProvider = dicomTagProvider;
         }
 
-        public async Task ExecuteDicomQuery(QueryPanelTabUserControlViewModel viewModel, PacsConfiguration pacsConfiguration) =>
-            await SendFindRequest(CreateFindRequest(viewModel), pacsConfiguration);
+        public async Task<List<List<DicomResult>>> ExecuteDicomQuery(QueryPanelTabUserControlViewModel viewModel, PacsConfiguration pacsConfiguration)
+        {
+            var findRequest = CreateFindRequest(viewModel);
+
+            return await SendFindRequestAndCollectResult(findRequest, pacsConfiguration);
+        }
 
         private DicomCFindRequest CreateFindRequest(QueryPanelTabUserControlViewModel viewModel)
         {
@@ -72,28 +76,62 @@ namespace DicomReader.WPF.Services
 
         private static void DatasetAddGeneric<T>(DicomCFindRequest findRequest, DicomTag tag) => findRequest.Dataset.AddOrUpdate<T>(tag);
 
-        private static async Task SendFindRequest(DicomCFindRequest request, PacsConfiguration pacsConfiguration)
+        private static async Task<List<List<DicomResult>>> SendFindRequestAndCollectResult(DicomCFindRequest findRequest, PacsConfiguration pacsConfiguration)
         {
-            var client = new DicomClient(pacsConfiguration.Host, pacsConfiguration.Port, false, pacsConfiguration.CallingAet, pacsConfiguration.CalledAet);
-            client.NegotiateAsyncOps();
-
-            var result = new List<DicomDataset>();
-            request.OnResponseReceived = (_, response) =>
+            try
             {
-                if (response.HasDataset && response.Dataset != null)
+                var client = new DicomClient(pacsConfiguration.Host, pacsConfiguration.Port, false,
+                    pacsConfiguration.CallingAet.IsNullOrEmpty() ? "FINDSCU" : pacsConfiguration.CallingAet,
+                    pacsConfiguration.CalledAet);
+                client.NegotiateAsyncOps();
+
+                var result = new List<List<DicomResult>>();
+                findRequest.OnResponseReceived = (_, response) =>
                 {
-                    result.Add(response.Dataset);
-                }
-            };
-            client.AssociationRejected += (sender, args) => throw new ApplicationException(args.Reason.ToString());
-            client.RequestTimedOut += (sender, args) => throw new ApplicationException(args.ToString());
-            client.AssociationReleased += (sender, args) =>
-            {
-                var x = 3;
-            };
+                    if (!response.HasDataset || response.Dataset == null) return;
 
-            await client.AddRequestAsync(request);
-            await client.SendAsync();
+                    var dataSetValues = new List<DicomResult>();
+                    dataSetValues.AddRange(response.Dataset.Select(entry =>
+                        DicomResult.Create(entry.Tag.DictionaryEntry.Keyword, response.Dataset.GetString(entry.Tag))));
+                    result.Add(dataSetValues);
+                };
+                findRequest.OnTimeout = (_, args) =>
+                {
+                    Console.WriteLine("findRequest.OnTimeout");
+                };
+                client.StateChanged += (sender, args) =>
+                {
+                    Console.WriteLine($"State: {args.NewState}");
+                };
+                client.AssociationAccepted += (sender, args) =>
+                {
+                    Console.WriteLine("client.AssociationAccepted");
+                };
+                client.AssociationRejected += (sender, args) =>
+                {
+                    Console.WriteLine("client.AssociationRejected");
+                    throw new ApplicationException(args.Reason.ToString());
+                };
+                client.RequestTimedOut += (sender, args) =>
+                {
+                    Console.WriteLine("client.RequestTimedOut");
+                    throw new ApplicationException(args.ToString());
+                };
+                client.AssociationReleased += (sender, args) =>
+                {
+                    Console.WriteLine("client.AssociationReleased");
+                };
+
+                await client.AddRequestAsync(findRequest);
+                await client.SendAsync();
+
+                return result;
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine("Exception during dicom query");
+                throw new ApplicationException("Dicom query failed", exception);
+            }
         }
     }
 }
