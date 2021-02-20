@@ -13,6 +13,8 @@ namespace DicomReader.WPF.Modules
         public void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.Register<IFileSystemService, FileSystemService>();
+            containerRegistry.Register<IDicomTagProvider, DicomTagProvider>();
+            containerRegistry.Register<IDicomQueryService, DicomQueryService>();
         }
 
         public void OnInitialized(IContainerProvider containerProvider)
