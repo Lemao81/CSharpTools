@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using DicomReader.WPF.Constants;
 using DicomReader.WPF.Extensions;
 using DicomReader.WPF.Interfaces;
@@ -18,10 +19,17 @@ namespace DicomReader.WPF.ViewModels
         private bool _isConfigurationChanged;
         private string _configurationName;
 
+        public static event EventHandler<ConfigurationChangedArgs> ConfigurationChanged;
+
         public ConfigurationTabUserControlViewModel(IFileSystemService fileSystemService)
         {
             _fileSystemService = fileSystemService;
             SaveConfigurationCommand = new DelegateCommand(SaveConfiguration).ObservesCanExecute(() => IsConfigurationChanged);
+            Initialize();
+        }
+
+        public void Initialize()
+        {
             LoadAppConfig()
                 .OnFailureOrException(InitializeNew)
                 .OnSuccess(InitializeWithLoaded);
@@ -89,6 +97,8 @@ namespace DicomReader.WPF.ViewModels
             set => SetProperty(ref _isConfigurationChanged, value);
         }
 
+        public PacsConfiguration SelectedConfiguration => PacsConfiguration.Create(ConfigurationName, Host, Port, CallingAet, CalledAet).Value;
+
         #region bound commands
         public DelegateCommand SaveConfigurationCommand { get; }
         #endregion
@@ -120,6 +130,11 @@ namespace DicomReader.WPF.ViewModels
                 Port = value.Port.ToString();
                 CallingAet = value.CallingAet;
                 CalledAet = value.CalledAet;
+
+                ConfigurationChanged?.Invoke(this, new ConfigurationChangedArgs
+                {
+                    PacsConfiguration = value
+                });
             }
             else
             {

@@ -27,11 +27,11 @@
         <StackPanel Grid.Column="0" Grid.Row="0">
             <StackPanel Width="250" Margin="8" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <TextBlock Text="PatientId" />
-                <TextBox Text="{Binding PatientId}" Margin="0,4,0,0" />
+                <TextBox Text="{Binding PatientId, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,0" />
                 <TextBlock Text="StudyInstanceUid" Margin="0, 8, 0, 0" />
-                <TextBox Text="{Binding StudyInstanceUid}" Margin="0,4,0,0" />
+                <TextBox Text="{Binding StudyInstanceUid, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,0" />
                 <TextBlock Text="AccessionNumber" Margin="0, 8, 0, 0" />
-                <TextBox Text="{Binding AccessionNumber}" Margin="0,4,0,0" />
+                <TextBox Text="{Binding AccessionNumber, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,0" />
             </StackPanel>
             <StackPanel Width="130" Margin="8" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <TextBlock Text="Retrieve Level" />
@@ -77,7 +77,8 @@
                 <Button Content="Patient studies" />
             </StackPanel>
         </Grid>
-        <Button Name="btnQuery" Content="Query" Height="40" Width="150" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2"
+        <Button Name="btnQuery" Content="Query" Command="{Binding ExecuteQueryCommand}" Height="40" Width="150" HorizontalAlignment="Center" Grid.Column="0"
+                Grid.Row="2" Grid.ColumnSpan="2"
                 Margin="8" />
     </Grid>
 </UserControl>

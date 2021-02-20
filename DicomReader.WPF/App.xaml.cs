@@ -37,7 +37,6 @@ namespace DicomReader.WPF
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            containerRegistry.RegisterSingleton<IFileSystemService, FileSystemService>();
         }
     }
 }
