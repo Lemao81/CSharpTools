@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ResxTools", "ResxTools\Resx
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaAdminClient", "KafkaAdminClient\KafkaAdminClient.csproj", "{4157255B-C355-4CF2-A935-12A5EBBEB274}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DicomReader", "DicomReader\DicomReader.csproj", "{660D500D-B0F3-4965-91C3-0F4D8EA01189}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DicomCrawler", "DicomCrawler", "{7BC23D10-0362-4D7D-A1C8-A88B2BE50FF2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DicomCrawler", "DicomCrawler\DicomCrawler\DicomCrawler.csproj", "{9DE9A8C8-727A-4438-B83F-7250F4E40555}"
@@ -22,8 +20,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DicomCrawler.Wpf", "DicomCrawler\DicomCrawler.Wpf\DicomCrawler.Wpf.csproj", "{20FE6C99-5628-4683-84F9-54DBCC85E9B4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UiRenderTests", "UiRenderTests\UiRenderTests.csproj", "{3786A0E9-61B6-46B9-AB8D-99F666C0FE80}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DicomReader2", "DicomReader2\DicomReader2.csproj", "{38653CCC-6359-43A2-A458-63264FDDDC22}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DicomReader.WPF", "DicomReader.WPF\DicomReader.WPF.csproj", "{BEFDFA92-B792-4FA4-A88D-E34AE9999332}"
 EndProject
@@ -45,10 +41,6 @@ Global
 		{4157255B-C355-4CF2-A935-12A5EBBEB274}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4157255B-C355-4CF2-A935-12A5EBBEB274}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4157255B-C355-4CF2-A935-12A5EBBEB274}.Release|Any CPU.Build.0 = Release|Any CPU
-		{660D500D-B0F3-4965-91C3-0F4D8EA01189}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{660D500D-B0F3-4965-91C3-0F4D8EA01189}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{660D500D-B0F3-4965-91C3-0F4D8EA01189}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{660D500D-B0F3-4965-91C3-0F4D8EA01189}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9DE9A8C8-727A-4438-B83F-7250F4E40555}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9DE9A8C8-727A-4438-B83F-7250F4E40555}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DE9A8C8-727A-4438-B83F-7250F4E40555}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -69,10 +61,6 @@ Global
 		{3786A0E9-61B6-46B9-AB8D-99F666C0FE80}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3786A0E9-61B6-46B9-AB8D-99F666C0FE80}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3786A0E9-61B6-46B9-AB8D-99F666C0FE80}.Release|Any CPU.Build.0 = Release|Any CPU
-		{38653CCC-6359-43A2-A458-63264FDDDC22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{38653CCC-6359-43A2-A458-63264FDDDC22}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{38653CCC-6359-43A2-A458-63264FDDDC22}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{38653CCC-6359-43A2-A458-63264FDDDC22}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BEFDFA92-B792-4FA4-A88D-E34AE9999332}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BEFDFA92-B792-4FA4-A88D-E34AE9999332}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BEFDFA92-B792-4FA4-A88D-E34AE9999332}.Release|Any CPU.ActiveCfg = Release|Any CPU
