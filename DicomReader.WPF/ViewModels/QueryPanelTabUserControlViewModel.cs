@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Dicom;
+using System.Linq;
 using Dicom.Network;
+using DicomReader.WPF.Constants;
 using DicomReader.WPF.Extensions;
 using DicomReader.WPF.Interfaces;
+using DicomReader.WPF.Models;
 using Prism.Commands;
 using Prism.Mvvm;
-using Prism.Regions;
 
 namespace DicomReader.WPF.ViewModels
 {
@@ -26,14 +27,24 @@ namespace DicomReader.WPF.ViewModels
         {
             _dicomQueryService = dicomQueryService;
             RequestedFields = new ObservableCollection<string>();
+            SelectedRequestedFields = new List<string>();
+            RetrieveLevel = DicomQueryRetrieveLevel.Study;
             RequestedFields.CollectionChanged += (s, e) => ClearRequestedFieldsCommand.RaiseCanExecuteChanged();
+
             AddRequestedFieldCommand = new DelegateCommand(AddRequestedField, CanAddRequestedField).ObservesProperty(() => RequestedField);
             RemoveRequestedFieldCommand = new DelegateCommand(RemoveRequestedField, CanRemoveRequestedField).ObservesProperty(() => SelectedRequestedField);
             ClearRequestedFieldsCommand = new DelegateCommand(ClearRequestedFields, CanClearRequestedFields);
             ExecuteQueryCommand = new DelegateCommand(ExecuteQuery, CanExecuteQuery).ObservesCanExecute(() => IsQueryExecutable);
-            AddPatientStudiesFieldsCommand = new DelegateCommand(AddPatientStudiesFields);
+            AddPatientStandardFieldsCommand = new DelegateCommand(AddPatientStandardFields);
+            AddStudyFieldsCommand = new DelegateCommand(AddStudyFields);
+            AddSeriesStandardFieldsCommand = new DelegateCommand(AddSeriesStandardFields);
+            AddPatientExtendedFieldsCommand = new DelegateCommand(AddPatientExtendedFields);
+            AddSeriesExtendedFieldsCommand = new DelegateCommand(AddSeriesExtendedFields);
+            AddPatientsStudiesFieldsCommand = new DelegateCommand(AddPatientsStudiesFields);
             TestingCommand = new DelegateCommand(Testing);
         }
+
+        public static event EventHandler<ResultChangedEventArgs> ResultChanged;
 
         #region bound properties
         public string PatientId
@@ -86,6 +97,8 @@ namespace DicomReader.WPF.ViewModels
             set => SetProperty(ref _selectedRequestedField, value);
         }
 
+        public List<string> SelectedRequestedFields { get; }
+
         public bool IsRequestedFieldFocused
         {
             get => _isRequestedFieldFocused;
@@ -100,7 +113,12 @@ namespace DicomReader.WPF.ViewModels
         public DelegateCommand RemoveRequestedFieldCommand { get; }
         public DelegateCommand ClearRequestedFieldsCommand { get; }
         public DelegateCommand ExecuteQueryCommand { get; }
-        public DelegateCommand AddPatientStudiesFieldsCommand { get; }
+        public DelegateCommand AddPatientStandardFieldsCommand { get; }
+        public DelegateCommand AddStudyFieldsCommand { get; }
+        public DelegateCommand AddSeriesStandardFieldsCommand { get; }
+        public DelegateCommand AddPatientExtendedFieldsCommand { get; }
+        public DelegateCommand AddSeriesExtendedFieldsCommand { get; }
+        public DelegateCommand AddPatientsStudiesFieldsCommand { get; }
         public DelegateCommand TestingCommand { get; }
         #endregion
 
@@ -119,9 +137,21 @@ namespace DicomReader.WPF.ViewModels
 
         private void RemoveRequestedField()
         {
-            if (_selectedRequestedField.IsNullOrEmpty()) return;
+            if (_selectedRequestedField.IsNullOrEmpty() && !SelectedRequestedFields.Any()) return;
 
-            RequestedFields.Remove(_selectedRequestedField);
+            if (!_selectedRequestedField.IsNullOrEmpty())
+            {
+                RequestedFields.Remove(_selectedRequestedField);
+            }
+
+            if (SelectedRequestedFields.Any())
+            {
+                var selectedFields = new List<string>(SelectedRequestedFields.Where(f => RequestedFields.Contains(f)));
+                foreach (var field in selectedFields)
+                {
+                    RequestedFields.Remove(field);
+                }
+            }
             RaisePropertyChanged(nameof(IsQueryExecutable));
         }
 
@@ -147,6 +177,10 @@ namespace DicomReader.WPF.ViewModels
             }
 
             var dicomResults = await _dicomQueryService.ExecuteDicomQuery(this, pacsConfiguration);
+            if (!dicomResults.IsNullOrEmpty())
+            {
+                ResultChanged?.Invoke(this, new ResultChangedEventArgs(dicomResults));
+            }
         }
 
         private bool CanExecuteQuery() =>
@@ -155,13 +189,21 @@ namespace DicomReader.WPF.ViewModels
              !AccessionNumber.IsNullOrEmpty()) &&
             RequestedFields.Count > 0;
 
-        private void AddPatientStudiesFields() => AddToRequestedFieldsIfNotExistant(new[] { nameof(DicomTag.PatientID), nameof(DicomTag.StudyDescription) });
+        private void AddPatientStandardFields() => AddToRequestedFieldsIfNotExistant(RequestedFieldSets.PatientStandardFields);
+
+        private void AddStudyFields() => AddToRequestedFieldsIfNotExistant(RequestedFieldSets.StudyFields);
+
+        private void AddSeriesStandardFields() => AddToRequestedFieldsIfNotExistant(RequestedFieldSets.SeriesStandardFields);
+
+        private void AddPatientExtendedFields() => AddToRequestedFieldsIfNotExistant(RequestedFieldSets.PatientExtendedFields);
+
+        private void AddSeriesExtendedFields() => AddToRequestedFieldsIfNotExistant(RequestedFieldSets.SeriesExtendedFields);
+
+        private void AddPatientsStudiesFields() => AddToRequestedFieldsIfNotExistant(RequestedFieldSets.PatientsStudiesFields);
 
         private void Testing()
         {
-            StudyInstanceUid = "1.3.6.1.4.1.24930.2.64893540834227.1862430";
-            AddPatientStudiesFields();
-            RetrieveLevel = DicomQueryRetrieveLevel.Study;
+            StudyInstanceUid = "1.3.46.670589.11.70679.5.0.11244.2020012313442758012";
         }
         #endregion
 
@@ -174,6 +216,7 @@ namespace DicomReader.WPF.ViewModels
                     RequestedFields.Add(field);
                 }
             }
+            RaisePropertyChanged(nameof(IsQueryExecutable));
         }
     }
 }

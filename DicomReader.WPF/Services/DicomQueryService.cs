@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Threading.Tasks;
 using Dicom;
 using Dicom.Network;
 using DicomReader.WPF.Extensions;
+using DicomReader.WPF.Helpers;
 using DicomReader.WPF.Interfaces;
 using DicomReader.WPF.Models;
 using DicomReader.WPF.ViewModels;
@@ -23,7 +25,7 @@ namespace DicomReader.WPF.Services
             _dicomTagProvider = dicomTagProvider;
         }
 
-        public async Task<List<List<DicomResult>>> ExecuteDicomQuery(QueryPanelTabUserControlViewModel viewModel, PacsConfiguration pacsConfiguration)
+        public async Task<List<DicomResultSet>> ExecuteDicomQuery(QueryPanelTabUserControlViewModel viewModel, PacsConfiguration pacsConfiguration)
         {
             var findRequest = CreateFindRequest(viewModel);
 
@@ -32,20 +34,20 @@ namespace DicomReader.WPF.Services
 
         private DicomCFindRequest CreateFindRequest(QueryPanelTabUserControlViewModel viewModel)
         {
-            var request = new DicomCFindRequest(viewModel.RetrieveLevel);
+            var findRequest = new DicomCFindRequest(viewModel.RetrieveLevel);
 
             switch (viewModel.RetrieveLevel)
             {
                 case DicomQueryRetrieveLevel.Patient:
-                    request.Dataset.AddOrUpdate(DicomTag.PatientID, viewModel.PatientId ?? Empty);
+                    findRequest.Dataset.AddOrUpdate(DicomTag.PatientID, viewModel.PatientId ?? Empty);
                     break;
                 case DicomQueryRetrieveLevel.Study:
-                    request.Dataset.AddOrUpdate(DicomTag.PatientID, viewModel.PatientId ?? Empty);
-                    request.Dataset.AddOrUpdate(DicomTag.StudyInstanceUID, viewModel.StudyInstanceUid ?? Empty);
-                    request.Dataset.AddOrUpdate(DicomTag.AccessionNumber, viewModel.AccessionNumber ?? Empty);
+                    findRequest.Dataset.AddOrUpdate(DicomTag.PatientID, viewModel.PatientId ?? Empty);
+                    findRequest.Dataset.AddOrUpdate(DicomTag.StudyInstanceUID, viewModel.StudyInstanceUid ?? Empty);
+                    findRequest.Dataset.AddOrUpdate(DicomTag.AccessionNumber, viewModel.AccessionNumber ?? Empty);
                     break;
                 case DicomQueryRetrieveLevel.Series:
-                    request.Dataset.AddOrUpdate(DicomTag.StudyInstanceUID, viewModel.StudyInstanceUid ?? Empty);
+                    findRequest.Dataset.AddOrUpdate(DicomTag.StudyInstanceUID, viewModel.StudyInstanceUid ?? Empty);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -54,15 +56,17 @@ namespace DicomReader.WPF.Services
             foreach (var keywordOrHexCode in viewModel.RequestedFields.Select(r => r.Trim()).Where(r => !r.IsNullOrEmpty()))
             {
                 _dicomTagProvider.ProvideDicomTag(keywordOrHexCode)
-                    .OnSuccess(dicomTag => AddDicomTagToRequest(request, dicomTag))
+                    .OnSuccess(dicomTag => AddDicomTagToRequestIfNotExist(findRequest, dicomTag))
                     .OnException(exception => throw exception);
             }
 
-            return request;
+            return findRequest;
         }
 
-        private static void AddDicomTagToRequest(DicomCFindRequest findRequest, DicomTag tag)
+        private static void AddDicomTagToRequestIfNotExist(DicomCFindRequest findRequest, DicomTag tag)
         {
+            if (findRequest.Dataset.Contains(tag)) return;
+
             var accordingEntry = DicomDictionary.Default.FirstOrDefault(_ => _.Tag == tag);
             if (accordingEntry == null) return;
 
@@ -76,7 +80,7 @@ namespace DicomReader.WPF.Services
 
         private static void DatasetAddGeneric<T>(DicomCFindRequest findRequest, DicomTag tag) => findRequest.Dataset.AddOrUpdate<T>(tag);
 
-        private static async Task<List<List<DicomResult>>> SendFindRequestAndCollectResult(DicomCFindRequest findRequest, PacsConfiguration pacsConfiguration)
+        private static async Task<List<DicomResultSet>> SendFindRequestAndCollectResult(DicomCFindRequest findRequest, PacsConfiguration pacsConfiguration)
         {
             try
             {
@@ -85,15 +89,24 @@ namespace DicomReader.WPF.Services
                     pacsConfiguration.CalledAet);
                 client.NegotiateAsyncOps();
 
-                var result = new List<List<DicomResult>>();
+                var result = new List<DicomResultSet>();
                 findRequest.OnResponseReceived = (_, response) =>
                 {
+                    Console.WriteLine("findRequest.OnResponseReceived");
                     if (!response.HasDataset || response.Dataset == null) return;
+                    Console.WriteLine("findRequest.OnResponseReceived - with data");
 
                     var dataSetValues = new List<DicomResult>();
                     dataSetValues.AddRange(response.Dataset.Select(entry =>
-                        DicomResult.Create(entry.Tag.DictionaryEntry.Keyword, response.Dataset.GetString(entry.Tag))));
-                    result.Add(dataSetValues);
+                        new DicomResult
+                        {
+                            Name = entry.Tag.DictionaryEntry.Name,
+                            Keyword = entry.Tag.DictionaryEntry.Keyword,
+                            HexCode = $"{entry.Tag.Group:X4}:{entry.Tag.Element:X4}",
+                            ValueRepresentation = entry.Tag.DictionaryEntry.ValueRepresentations.FirstOrDefault()?.Name ?? Empty,
+                            StringValue = response.Dataset.GetString(entry.Tag)
+                        }));
+                    result.Add(new DicomResultSet(dataSetValues));
                 };
                 findRequest.OnTimeout = (_, args) =>
                 {
@@ -126,6 +139,19 @@ namespace DicomReader.WPF.Services
                 await client.SendAsync();
 
                 return result;
+            }
+            catch (SocketException exception)
+            {
+                if (exception.Message.Contains("not properly respond"))
+                {
+                    MessageBoxHelper.ShowError("Error", "Connection to PACS server could not be established");
+
+                    return default;
+                }
+                else
+                {
+                    throw;
+                }
             }
             catch (Exception exception)
             {

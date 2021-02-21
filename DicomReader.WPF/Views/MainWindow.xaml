@@ -4,9 +4,9 @@
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                  xmlns:mvvm="http://prismlibrary.com/"
                  WindowStartupLocation="CenterScreen"
-                 ResizeMode="NoResize"
+                 ResizeMode="CanResizeWithGrip"
                  mvvm:ViewModelLocator.AutoWireViewModel="True"
-                 Title="{Binding Title}" Height="550" Width="725">
+                 Title="{Binding Title}" MinHeight="700" Height="700" MinWidth="950" Width="950">
     <Grid>
         <TabControl mvvm:RegionManager.RegionName="TabRegion" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
     </Grid>

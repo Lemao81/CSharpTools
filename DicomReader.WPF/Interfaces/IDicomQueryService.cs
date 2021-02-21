@@ -7,7 +7,7 @@ namespace DicomReader.WPF.Interfaces
 {
     public interface IDicomQueryService
     {
-        Task<List<List<DicomResult>>> ExecuteDicomQuery(QueryPanelTabUserControlViewModel viewModel,
+        Task<List<DicomResultSet>> ExecuteDicomQuery(QueryPanelTabUserControlViewModel viewModel,
             PacsConfiguration pacsConfiguration);
     }
 }

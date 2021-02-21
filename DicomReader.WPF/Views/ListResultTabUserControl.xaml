@@ -9,6 +9,21 @@
              mc:Ignorable="d" x:Name="List"
              d:DesignHeight="550" d:DesignWidth="725">
     <Grid>
-        <TextBlock Text="List Result"></TextBlock>
+        <ListView ItemsSource="{Binding Results}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <DataGrid ItemsSource="{Binding Results}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
+                              CanUserResizeRows="False" IsReadOnly="True" GridLinesVisibility="Horizontal" Margin="0, 16, 0, 0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
+                            <DataGridTextColumn Header="Keyword" Binding="{Binding Keyword}" />
+                            <DataGridTextColumn Header="Hex Code" Binding="{Binding HexCode}" />
+                            <DataGridTextColumn Header="VR" Binding="{Binding ValueRepresentation}" />
+                            <DataGridTextColumn Header="Value" Binding="{Binding StringValue}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </Grid>
 </UserControl>

@@ -24,14 +24,15 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+        <!-- query inputs -->
         <StackPanel Grid.Column="0" Grid.Row="0">
-            <StackPanel Width="250" Margin="8" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <StackPanel Width="350" Margin="8" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <TextBlock Text="PatientId" />
-                <TextBox Text="{Binding PatientId, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,0" />
+                <TextBox Text="{Binding PatientId, UpdateSourceTrigger=PropertyChanged}" Width="200" HorizontalAlignment="Left" Margin="0,4,0,0" />
                 <TextBlock Text="StudyInstanceUid" Margin="0, 8, 0, 0" />
                 <TextBox Text="{Binding StudyInstanceUid, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,0" />
                 <TextBlock Text="AccessionNumber" Margin="0, 8, 0, 0" />
-                <TextBox Text="{Binding AccessionNumber, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,0" />
+                <TextBox Text="{Binding AccessionNumber, UpdateSourceTrigger=PropertyChanged}" Width="200" HorizontalAlignment="Left" Margin="0,4,0,0" />
             </StackPanel>
             <StackPanel Width="130" Margin="8" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <TextBlock Text="Retrieve Level" />
@@ -50,7 +51,8 @@
             </StackPanel>
             <Button Content="Testing" Command="{Binding TestingCommand}" Width="100" Margin="0, 16, 0, 0" />
         </StackPanel>
-        <Grid Grid.Column="1" Grid.Row="0" Margin="8">
+        <!-- requested fields list -->
+        <Grid Grid.Column="1" Grid.Row="0" Margin="32, 8, 8, 8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="3*" />
                 <ColumnDefinition Width="1*" />
@@ -59,7 +61,7 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <ListView Name="lstRequestedFields" ItemsSource="{Binding RequestedFields}" SelectedItem="{Binding SelectedRequestedField}"
+            <ListView ItemsSource="{Binding RequestedFields}" SelectedItem="{Binding SelectedRequestedField}" SelectionChanged="Selector_OnSelectionChanged"
                       Grid.Column="0" Grid.Row="0" BorderThickness="0.5" />
             <Grid Grid.Column="0" Grid.Row="1" Margin="0, 4, 0, 0">
                 <Grid.ColumnDefinitions>
@@ -74,12 +76,17 @@
                 <Button Grid.Column="2" Content="Remove" Command="{Binding RemoveRequestedFieldCommand}" Margin="4, 0, 0, 0" />
                 <Button Grid.Column="3" Content="Clear" Command="{Binding ClearRequestedFieldsCommand}" Margin="4, 0, 0, 0" />
             </Grid>
+            <!-- add requested fields buttons -->
             <StackPanel Grid.Column="1" Grid.Row="0" Margin="8, 0, 0, 0">
-                <Button Content="Patient studies" Command="{Binding AddPatientStudiesFieldsCommand}" />
+                <Button Content="Patient Std" Command="{Binding AddPatientStandardFieldsCommand}" />
+                <Button Content="Study" Command="{Binding AddStudyFieldsCommand}" Margin="0, 8, 0, 0" />
+                <Button Content="Series Std" Command="{Binding AddSeriesStandardFieldsCommand}" Margin="0, 8, 0, 0" />
+                <Button Content="Patient Ext" Command="{Binding AddPatientExtendedFieldsCommand}" Margin="0, 8, 0, 0" />
+                <Button Content="Series Ext" Command="{Binding AddSeriesExtendedFieldsCommand}" Margin="0, 8, 0, 0" />
+                <Button Content="Patients Studies" Command="{Binding AddPatientsStudiesFieldsCommand}" Margin="0, 8, 0, 0" />
             </StackPanel>
         </Grid>
-        <Button Name="btnQuery" Content="Query" Command="{Binding ExecuteQueryCommand}" Height="40" Width="150" HorizontalAlignment="Center" Grid.Column="0"
-                Grid.Row="2" Grid.ColumnSpan="2"
-                Margin="8" />
+        <Button Content="Query" Command="{Binding ExecuteQueryCommand}" Height="60" Width="150" HorizontalAlignment="Center" Grid.Column="0"
+                Grid.Row="2" Grid.ColumnSpan="2" Margin="8, 32, 8, 8" />
     </Grid>
 </UserControl>
