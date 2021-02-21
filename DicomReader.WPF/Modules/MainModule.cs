@@ -20,9 +20,12 @@ namespace DicomReader.WPF.Modules
         public void OnInitialized(IContainerProvider containerProvider)
         {
             var regionManager = containerProvider.Resolve<IRegionManager>();
+            // TODO change main tab name
             regionManager.RegisterViewWithRegion(Regions.Tab, typeof(QueryPanelTabUserControl));
             regionManager.RegisterViewWithRegion(Regions.Tab, typeof(QueryResultTabUserControl));
             regionManager.RegisterViewWithRegion(Regions.Tab, typeof(ConfigurationTabUserControl));
+            regionManager.RegisterViewWithRegion(Regions.ResultTab, typeof(ListResultTabUserControl));
+            regionManager.RegisterViewWithRegion(Regions.ResultTab, typeof(TreeResultTabUserControl));
         }
     }
 }

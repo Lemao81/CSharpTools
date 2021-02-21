@@ -7,6 +7,7 @@ using DicomReader.WPF.Extensions;
 using DicomReader.WPF.Interfaces;
 using Prism.Commands;
 using Prism.Mvvm;
+using Prism.Regions;
 
 namespace DicomReader.WPF.ViewModels
 {

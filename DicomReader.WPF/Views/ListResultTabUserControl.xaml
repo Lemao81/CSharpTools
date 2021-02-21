@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="DicomReader.WPF.Views.QueryResultTabUserControl"
+﻿<UserControl x:Class="DicomReader.WPF.Views.ListResultTabUserControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -6,10 +6,9 @@
              xmlns:local="clr-namespace:DicomReader.WPF.Views"
              xmlns:mvvm="http://prismlibrary.com/"
              mvvm:ViewModelLocator.AutoWireViewModel="True"
-             mc:Ignorable="d" x:Name="Result"
+             mc:Ignorable="d" x:Name="List"
              d:DesignHeight="550" d:DesignWidth="725">
     <Grid>
-        <TabControl mvvm:RegionManager.RegionName="ResultTabRegion" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="8"
-                    TabStripPlacement="Left" />
+        <TextBlock Text="List Result"></TextBlock>
     </Grid>
 </UserControl>
