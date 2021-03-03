@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using static SourceFileEditor.Helper;
 
@@ -9,7 +10,7 @@ namespace SourceFileEditor
     {
         public static void AddGeneratedControllerAttribute()
         {
-            var pageTypeFiles = GetSourceFiles("*Page").WithoutPart("KneeMRT").Matches(@"RadioReport\..+\.Domain\\Models.+Page");
+            var pageTypeFiles = GetSourceFiles("*Page").WithoutPathPart("KneeMRT").PathMatches(@"RadioReport\..+\.Domain\\Models.+Page");
 
             var notMatched = new List<Match>();
             foreach (var file in pageTypeFiles)
@@ -71,6 +72,40 @@ namespace SourceFileEditor
                         throw new InvalidOperationException($"!!! Unequal !!! {controllerRoute} - {attributeRoute}");
                     }
                 }
+            }
+        }
+
+        public static void PrintTypesWithImage()
+        {
+            var imagePageControllerFiles = GetSourceFiles("*Controller")
+                .ContainsLineWith("PageWithImageBaseController<")
+                .ContainsLineWith("[Route(");
+            var routeAndTypes = imagePageControllerFiles.Select(f =>
+            {
+                var lines = f.ReadLines();
+
+                return (lines.LineWith("[Route(").Extract("\"api\\/v1\\/(.*)\""), lines.LineWith("public class").Extract(",\\s(.*)>"));
+            });
+            foreach (var (route, type) in routeAndTypes)
+            {
+                Print(route);
+                Print(type);
+                Print();
+            }
+        }
+
+        public static void ReplaceGeneratedControllerAttribute()
+        {
+            var imagePageControllerFiles = GetSourceFiles("*Controller")
+                .ContainsLineWith("PageWithImageBaseController")
+                .ContainsLineWith("[Route(");
+            var routes = imagePageControllerFiles.Select(f => f.ReadLines().LineWith("[Route(").Extract("\"api\\/v1\\/(.*)\"")).ToList();
+
+            var pageTypeFiles = GetSourceFiles("*Page").ContainsLineWith("[GeneratedControllerPageModel(");
+            var filtered = pageTypeFiles.Where(f => routes.Contains(f.ReadLines().LineWith("GeneratedControllerPageModel").Extract("\"(.*)\"")));
+            foreach (var file in filtered)
+            {
+                file.ReplaceInLine("GeneratedControllerPageModel", "GeneratedControllerPageWithImageModel");
             }
         }
     }

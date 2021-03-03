@@ -8,14 +8,20 @@ namespace SourceFileEditor
 {
     public static class Extensions
     {
-        public static List<FileInfo> WithoutPart(this IEnumerable<FileInfo> files, string part) =>
+        public static List<FileInfo> WithoutPathPart(this IEnumerable<FileInfo> files, string part) =>
             files.Where(f => !f.FullName.Contains(part)).ToList();
 
-        public static List<FileInfo> WithPart(this IEnumerable<FileInfo> files, string part) =>
+        public static List<FileInfo> WithPathPart(this IEnumerable<FileInfo> files, string part) =>
             files.Where(f => f.FullName.Contains(part)).ToList();
 
-        public static List<FileInfo> Matches(this IEnumerable<FileInfo> files, string pattern) =>
+        public static List<FileInfo> PathMatches(this IEnumerable<FileInfo> files, string pattern) =>
             files.Where(f => Regex.IsMatch(f.FullName, pattern)).ToList();
+
+        public static List<FileInfo> ContainsLineWith(this IEnumerable<FileInfo> files, string part) =>
+            files.Where(f => f.ReadLines().Any(l => l.Contains(part))).ToList();
+
+        public static List<FileInfo> MissingLineWith(this IEnumerable<FileInfo> files, string part) =>
+            files.Where(f => f.ReadLines().All(l => !l.Contains(part))).ToList();
 
         public static Match Match(this FileInfo file, string pattern) => Regex.Match(file.FullName, pattern);
 
@@ -29,7 +35,7 @@ namespace SourceFileEditor
 
         public static List<string> ReadLines(this FileInfo file) => File.ReadLines(file.FullName).ToList();
 
-        public static List<FileInfo> OfModule(this IEnumerable<FileInfo> files, string moduleName) => files.WithPart($".{moduleName}.").ToList();
+        public static List<FileInfo> OfModule(this IEnumerable<FileInfo> files, string moduleName) => files.WithPathPart($".{moduleName}.").ToList();
 
         public static string LineWith(this List<string> lines, string part) => lines.SingleOrDefault(l => l.Contains(part)) ?? string.Empty;
 
@@ -42,5 +48,18 @@ namespace SourceFileEditor
         }
 
         public static List<FileInfo> SortByName(this List<FileInfo> files) => files.OrderBy(f => f.Name).ToList();
+
+        public static void ReplaceInLine(this FileInfo fileInfo, string searched, string replacement)
+        {
+            var lines = fileInfo.ReadLines();
+            for (var i = 0; i < lines.Count; i++)
+            {
+                if (lines[i].Contains(searched))
+                {
+                    lines[i] = lines[i].Replace(searched, replacement);
+                }
+            }
+            lines.WriteAll(fileInfo);
+        }
     }
 }

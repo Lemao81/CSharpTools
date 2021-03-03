@@ -14,6 +14,12 @@ namespace SourceFileEditor
         public static IEnumerable<string> GetModuleNames(params ModuleType[] exclude) =>
             exclude.Length == 0 ? Enum.GetNames(typeof(ModuleType)) : Enum.GetNames(typeof(ModuleType)).Where(n => exclude.All(m => m.ToString() != n));
 
-        public static void Print(string str) => Console.WriteLine(str);
+        public static void Print(string str = null)
+        {
+            if (string.IsNullOrEmpty(str))
+                Console.WriteLine();
+            else
+                Console.WriteLine(str);
+        }
     }
 }
