@@ -5,6 +5,7 @@ using DicomReader.WPF.Constants;
 using DicomReader.WPF.Extensions;
 using DicomReader.WPF.Interfaces;
 using DicomReader.WPF.Models;
+using DicomReader.WPF.Models.Event;
 using Prism.Commands;
 using Prism.Mvvm;
 
@@ -20,7 +21,7 @@ namespace DicomReader.WPF.ViewModels
         private bool _isConfigurationChanged;
         private string _configurationName;
 
-        public static event EventHandler<ConfigurationChangedArgs> ConfigurationChanged;
+        public static event EventHandler<ConfigurationChangedEventArgs> ConfigurationChanged;
 
         public ConfigurationTabUserControlViewModel(IFileSystemService fileSystemService)
         {
@@ -171,7 +172,7 @@ namespace DicomReader.WPF.ViewModels
             CalledAet = configuration.CalledAet;
             CallingAet = configuration.CallingAet;
 
-            ConfigurationChanged?.Invoke(this, new ConfigurationChangedArgs(configuration));
+            ConfigurationChanged?.Invoke(this, new ConfigurationChangedEventArgs(configuration));
         }
 
         #region command handlers

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace DicomReader.WPF.Models
+namespace DicomReader.WPF.Models.Event
 {
     public class ResultChangedEventArgs : EventArgs
     {

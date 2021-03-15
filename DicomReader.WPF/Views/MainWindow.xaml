@@ -8,6 +8,6 @@
                  mvvm:ViewModelLocator.AutoWireViewModel="True"
                  Title="{Binding Title}" MinHeight="800" Height="800" MinWidth="1100" Width="1100">
     <Grid>
-        <TabControl mvvm:RegionManager.RegionName="TabRegion" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        <TabControl mvvm:RegionManager.RegionName="TabRegion" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SelectedIndex="{Binding SelectedIndex}" />
     </Grid>
 </mah:MetroWindow>

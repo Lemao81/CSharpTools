@@ -9,11 +9,11 @@
              mc:Ignorable="d" x:Name="List"
              d:DesignHeight="550" d:DesignWidth="725">
     <Grid>
-        <ListView ItemsSource="{Binding Results}">
+        <ListView ItemsSource="{Binding Results}" BorderThickness="0.5" Margin="8">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <DataGrid ItemsSource="{Binding Results}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
-                              CanUserResizeRows="False" IsReadOnly="True" GridLinesVisibility="Horizontal" Margin="0, 16, 0, 0">
+                              CanUserResizeRows="False" IsReadOnly="True" GridLinesVisibility="Horizontal" Margin="0, 16, 0, 0" BorderThickness="0.5">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
                             <DataGridTextColumn Header="Keyword" Binding="{Binding Keyword}" />

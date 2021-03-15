@@ -7,6 +7,7 @@ using DicomReader.WPF.Constants;
 using DicomReader.WPF.Extensions;
 using DicomReader.WPF.Interfaces;
 using DicomReader.WPF.Models;
+using DicomReader.WPF.Models.Event;
 using Prism.Commands;
 using Prism.Mvvm;
 
@@ -183,6 +184,7 @@ namespace DicomReader.WPF.ViewModels
             if (!dicomResults.IsNullOrEmpty())
             {
                 ResultChanged?.Invoke(this, new ResultChangedEventArgs(dicomResults));
+                MainWindowViewModel.EmitSwitchTab(1);
             }
         }
 
