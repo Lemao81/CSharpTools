@@ -36,7 +36,6 @@ namespace DicomReader.WPF.Models
         public static Result<PacsConfiguration> Create(ConfigurationTabUserControlViewModel viewModel) =>
             Create(viewModel.ConfigurationName, viewModel.Host, viewModel.Port, viewModel.CallingAet, viewModel.CalledAet);
 
-        public static Result<PacsConfiguration> Map(PacsConfigurationDto dto) =>
-            PacsConfiguration.Create(dto.Name, dto.Host, dto.Port.ToString(), dto.CallingAet, dto.CalledAet);
+        public static Result<PacsConfiguration> Map(PacsConfigurationDto dto) => Create(dto.Name, dto.Host, dto.Port.ToString(), dto.CallingAet, dto.CalledAet);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using DicomReader.WPF.Constants;
 using DicomReader.WPF.Extensions;
@@ -25,6 +26,8 @@ namespace DicomReader.WPF.ViewModels
         {
             _fileSystemService = fileSystemService;
             SaveConfigurationCommand = new DelegateCommand(SaveConfiguration).ObservesCanExecute(() => IsConfigurationChanged);
+            ChangeConfigurationCommand = new DelegateCommand<string>(ChangeConfiguration);
+            ConfigurationNames = new ObservableCollection<string>();
             Initialize();
         }
 
@@ -33,13 +36,28 @@ namespace DicomReader.WPF.ViewModels
             LoadAppConfig()
                 .OnFailureOrException(InitializeNew)
                 .OnSuccess(InitializeWithLoaded);
+            IsConfigurationChanged = false;
+        }
+
+        public AppConfiguration AppConfiguration { get; set; }
+
+        public bool IsConfigurationChanged
+        {
+            get => _isConfigurationChanged;
+            set => SetProperty(ref _isConfigurationChanged, value);
         }
 
         #region bound properties
+        public ObservableCollection<string> ConfigurationNames { get; set; }
+
         public string ConfigurationName
         {
             get => _configurationName;
-            set => SetProperty(ref _configurationName, value);
+            set
+            {
+                SetProperty(ref _configurationName, value);
+                IsConfigurationChanged = true;
+            }
         }
 
         public string Host
@@ -91,16 +109,10 @@ namespace DicomReader.WPF.ViewModels
         }
         #endregion
 
-        public bool IsConfigurationChanged
-        {
-            get => _isConfigurationChanged;
-            set => SetProperty(ref _isConfigurationChanged, value);
-        }
-
-        public PacsConfiguration SelectedConfiguration => PacsConfiguration.Create(ConfigurationName, Host, Port, CallingAet, CalledAet).Value;
-
         #region bound commands
         public DelegateCommand SaveConfigurationCommand { get; }
+        public DelegateCommand<string> ChangeConfigurationCommand { get; }
+        public DelegateCommand<string> ChangeConfigurationNameCommand { get; }
         #endregion
 
         private Result<AppConfiguration> LoadAppConfig()
@@ -112,29 +124,21 @@ namespace DicomReader.WPF.ViewModels
                     .Select(AppConfiguration.Parse);
             }
 
-            var emptyConfig = AppConfiguration.CreateEmpty();
-            emptyConfig.PacsConfigurations["Staging"] = PacsConfiguration.Create("Staging", "192.168.35.50", "4242", "", "ORTHANC").Value;
+            InitializeNew();
 
-            return _fileSystemService.WriteFile(Consts.ConfigFileName, emptyConfig.AsIndentedJson())
+            return _fileSystemService.WriteFile(Consts.ConfigFileName, AppConfiguration.AsIndentedJson())
                 .ShowErrorIfNoSuccess("Creating config file failed")
-                .Select(emptyConfig);
+                .Select(AppConfiguration);
         }
 
         private void InitializeWithLoaded(AppConfiguration appConfig)
         {
             if (appConfig.PacsConfigurations.Any())
             {
-                var (_, value) = appConfig.PacsConfigurations.First();
-                ConfigurationName = value.Name;
-                Host = value.Host;
-                Port = value.Port.ToString();
-                CallingAet = value.CallingAet;
-                CalledAet = value.CalledAet;
-
-                ConfigurationChanged?.Invoke(this, new ConfigurationChangedArgs
-                {
-                    PacsConfiguration = value
-                });
+                var configuration = appConfig.LastLoadedConfiguration.IsNullOrEmpty()
+                    ? appConfig.PacsConfigurations.First()
+                    : appConfig.PacsConfigurations.Single(c => c.Name == appConfig.LastLoadedConfiguration);
+                SetAppAndSelectedConfiguration(appConfig, configuration);
             }
             else
             {
@@ -144,7 +148,30 @@ namespace DicomReader.WPF.ViewModels
 
         private void InitializeNew()
         {
-            ConfigurationName = "Staging";
+            var appConfig = AppConfiguration.CreateEmpty();
+            var configuration = PacsConfiguration.Create("Staging", "192.168.35.50", "4242", "", "ORTHANC").Value;
+            appConfig.PacsConfigurations.Add(configuration);
+
+            SetAppAndSelectedConfiguration(appConfig, configuration);
+        }
+
+        private void SetAppAndSelectedConfiguration(AppConfiguration appConfig, PacsConfiguration selectedConfiguration)
+        {
+            AppConfiguration = appConfig;
+            ConfigurationNames.Clear();
+            ConfigurationNames.AddRange(AppConfiguration.PacsConfigurations.Select(c => c.Name));
+            SetConfiguration(selectedConfiguration);
+        }
+
+        private void SetConfiguration(PacsConfiguration configuration)
+        {
+            ConfigurationName = configuration.Name;
+            Host = configuration.Host;
+            Port = configuration.Port.ToString();
+            CalledAet = configuration.CalledAet;
+            CallingAet = configuration.CallingAet;
+
+            ConfigurationChanged?.Invoke(this, new ConfigurationChangedArgs(configuration));
         }
 
         #region command handlers
@@ -156,12 +183,33 @@ namespace DicomReader.WPF.ViewModels
                     LoadAppConfig()
                         .Select(appConfig =>
                         {
-                            appConfig.PacsConfigurations[ConfigurationName] = pacsConfig;
+                            var configToUpdate = appConfig.PacsConfigurations.SingleOrDefault(c => c.Name == pacsConfig.Name);
+                            if (configToUpdate != null)
+                            {
+                                var index = appConfig.PacsConfigurations.IndexOf(configToUpdate);
+                                appConfig.PacsConfigurations.RemoveAt(index);
+                                appConfig.PacsConfigurations.Insert(index, pacsConfig);
+                            }
+                            else
+                            {
+                                appConfig.PacsConfigurations.Add(pacsConfig);
+                            }
+                            appConfig.LastLoadedConfiguration = pacsConfig.Name;
 
                             return _fileSystemService.WriteFile(Consts.ConfigFileName, appConfig.AsIndentedJson());
                         }))
                 .ShowErrorIfNoSuccess("Saving config file failed")
                 .OnSuccess(() => _isConfigurationChanged = false);
+        }
+
+        private void ChangeConfiguration(string configurationName)
+        {
+            var configuration = AppConfiguration.PacsConfigurations.SingleOrDefault(c => c.Name == configurationName);
+            if (configuration == null) return;
+
+            SetConfiguration(configuration);
+            SaveConfiguration();
+            IsConfigurationChanged = false;
         }
         #endregion
     }

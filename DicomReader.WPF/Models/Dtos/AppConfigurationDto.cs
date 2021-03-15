@@ -5,6 +5,7 @@ namespace DicomReader.WPF.Models.Dtos
 {
     public class AppConfigurationDto : IDto
     {
-        public Dictionary<string, PacsConfigurationDto> PacsConfigurations { get; set; }
+        public IEnumerable<PacsConfigurationDto> PacsConfigurations { get; set; }
+        public string LastLoadedConfiguration { get; set; }
     }
 }

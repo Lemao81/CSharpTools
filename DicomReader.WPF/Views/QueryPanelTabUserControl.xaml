@@ -22,34 +22,38 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="3*" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <!-- query inputs -->
         <StackPanel Grid.Column="0" Grid.Row="0">
             <StackPanel Width="350" Margin="8" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <TextBlock Text="PatientId" />
-                <TextBox Text="{Binding PatientId, UpdateSourceTrigger=PropertyChanged}" Width="200" HorizontalAlignment="Left" Margin="0,4,0,0" />
+                <TextBox Text="{Binding PatientId, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,0" />
                 <TextBlock Text="StudyInstanceUid" Margin="0, 8, 0, 0" />
                 <TextBox Text="{Binding StudyInstanceUid, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,0" />
                 <TextBlock Text="AccessionNumber" Margin="0, 8, 0, 0" />
-                <TextBox Text="{Binding AccessionNumber, UpdateSourceTrigger=PropertyChanged}" Width="200" HorizontalAlignment="Left" Margin="0,4,0,0" />
+                <TextBox Text="{Binding AccessionNumber, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,0" />
             </StackPanel>
-            <StackPanel Width="130" Margin="8" HorizontalAlignment="Left" VerticalAlignment="Top">
-                <TextBlock Text="Retrieve Level" />
-                <RadioButton Content="Patient" GroupName="RetrieveLevel" Margin="0, 4, 0, 0"
-                             IsChecked="{Binding Path=RetrieveLevel, Mode=TwoWay, 
+            <StackPanel Orientation="Horizontal">
+                <StackPanel Width="130" Margin="8" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <TextBlock Text="Retrieve Level" />
+                    <RadioButton Content="Patient" GroupName="RetrieveLevel" Margin="0, 4, 0, 0"
+                                 IsChecked="{Binding Path=RetrieveLevel, Mode=TwoWay, 
                                  Converter={StaticResource enumConverter},
                                  ConverterParameter=Patient}" />
-                <RadioButton Content="Study" GroupName="RetrieveLevel" Margin="0, 4, 0, 0"
-                             IsChecked="{Binding Path=RetrieveLevel, Mode=TwoWay, 
+                    <RadioButton Content="Study" GroupName="RetrieveLevel" Margin="0, 4, 0, 0"
+                                 IsChecked="{Binding Path=RetrieveLevel, Mode=TwoWay, 
                                  Converter={StaticResource enumConverter},
                                  ConverterParameter=Study}" />
-                <RadioButton Content="Series" GroupName="RetrieveLevel" Margin="0, 4, 0, 0"
-                             IsChecked="{Binding Path=RetrieveLevel, Mode=TwoWay, 
+                    <RadioButton Content="Series" GroupName="RetrieveLevel" Margin="0, 4, 0, 0"
+                                 IsChecked="{Binding Path=RetrieveLevel, Mode=TwoWay, 
                                  Converter={StaticResource enumConverter},
                                  ConverterParameter=Series}" />
+                </StackPanel>
+                <StackPanel Margin="8">
+                    <Button Content="Testing" Command="{Binding TestingCommand}" Width="100" />
+                </StackPanel>
             </StackPanel>
-            <Button Content="Testing" Command="{Binding TestingCommand}" Width="100" Margin="0, 16, 0, 0" />
+            <Button Content="Query" Command="{Binding ExecuteQueryCommand}" Height="40" Width="100" HorizontalAlignment="Left" Margin="8, 16, 8, 8" />
         </StackPanel>
         <!-- requested fields list -->
         <Grid Grid.Column="1" Grid.Row="0" Margin="32, 8, 8, 8">
@@ -86,7 +90,7 @@
                 <Button Content="Patients Studies" Command="{Binding AddPatientsStudiesFieldsCommand}" Margin="0, 8, 0, 0" />
             </StackPanel>
         </Grid>
-        <Button Content="Query" Command="{Binding ExecuteQueryCommand}" Height="60" Width="150" HorizontalAlignment="Center" Grid.Column="0"
-                Grid.Row="2" Grid.ColumnSpan="2" Margin="8, 32, 8, 8" />
+        <!-- logs -->
+        <ListView Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding LogEntries}" Margin="8" BorderThickness="0.5"  />
     </Grid>
 </UserControl>

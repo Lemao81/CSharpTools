@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Windows;
 using Dicom;
 using Dicom.Network;
 using DicomReader.WPF.Extensions;
@@ -92,9 +93,12 @@ namespace DicomReader.WPF.Services
                 var result = new List<DicomResultSet>();
                 findRequest.OnResponseReceived = (_, response) =>
                 {
-                    Console.WriteLine("findRequest.OnResponseReceived");
-                    if (!response.HasDataset || response.Dataset == null) return;
-                    Console.WriteLine("findRequest.OnResponseReceived - with data");
+                    if (!response.HasDataset || response.Dataset == null)
+                    {
+                        EmitLogEntry($"RESPONSE RECEIVED WITHOUT DATA. Status: {response.Status}");
+                        return;
+                    }
+                    EmitLogEntry($"RESPONSE RECEIVED WITH DATA. Status: {response.Status}");
 
                     var dataSetValues = new List<DicomResult>();
                     dataSetValues.AddRange(response.Dataset.Select(entry =>
@@ -108,32 +112,22 @@ namespace DicomReader.WPF.Services
                         }));
                     result.Add(new DicomResultSet(dataSetValues));
                 };
-                findRequest.OnTimeout = (_, args) =>
-                {
-                    Console.WriteLine("findRequest.OnTimeout");
-                };
-                client.StateChanged += (sender, args) =>
-                {
-                    Console.WriteLine($"State: {args.NewState}");
-                };
-                client.AssociationAccepted += (sender, args) =>
-                {
-                    Console.WriteLine("client.AssociationAccepted");
-                };
+                findRequest.OnTimeout = (_, args) => EmitLogEntry("REQUEST TIMED OUT");
+                client.StateChanged += (sender, args) => EmitLogEntry(args.NewState.ToString());
+                client.AssociationAccepted += (sender, args) => EmitLogEntry($"ASSOCIATION ACCEPTED. Host: {args.Association.RemoteHost} " +
+                                                                             $"Port: {args.Association.RemotePort} CalledAE: {args.Association.CalledAE} " +
+                                                                             $"CallingAE: {args.Association.CallingAE}");
                 client.AssociationRejected += (sender, args) =>
                 {
-                    Console.WriteLine("client.AssociationRejected");
+                    EmitLogEntry($"ASSOCIATION REJECTED. Reason: {args.Reason}");
                     throw new ApplicationException(args.Reason.ToString());
                 };
                 client.RequestTimedOut += (sender, args) =>
                 {
-                    Console.WriteLine("client.RequestTimedOut");
+                    EmitLogEntry("CLIENT TIMED OUT");
                     throw new ApplicationException(args.ToString());
                 };
-                client.AssociationReleased += (sender, args) =>
-                {
-                    Console.WriteLine("client.AssociationReleased");
-                };
+                client.AssociationReleased += (sender, args) => EmitLogEntry("ASSOCIATION RELEASED");
 
                 await client.AddRequestAsync(findRequest);
                 await client.SendAsync();
@@ -142,22 +136,21 @@ namespace DicomReader.WPF.Services
             }
             catch (SocketException exception)
             {
-                if (exception.Message.Contains("not properly respond"))
-                {
-                    MessageBoxHelper.ShowError("Error", "Connection to PACS server could not be established");
+                if (!exception.Message.Contains("not properly respond")) throw;
 
-                    return default;
-                }
-                else
-                {
-                    throw;
-                }
+                MessageBoxHelper.ShowError("Error", "Connection to PACS server could not be established");
+
+                return default;
             }
             catch (Exception exception)
             {
-                Console.WriteLine("Exception during dicom query");
+                EmitLogEntry($"Exception during dicom query. {exception.Message}");
                 throw new ApplicationException("Dicom query failed", exception);
             }
         }
+
+        private static void EmitLogEntry(string logEntry) => DispatchOnMainThread(() => MainWindowViewModel.EmitLogEntry(logEntry));
+
+        private static void DispatchOnMainThread(Action action) => Application.Current.Dispatcher.Invoke(action);
     }
 }

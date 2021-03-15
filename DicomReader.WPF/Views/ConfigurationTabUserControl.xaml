@@ -5,13 +5,23 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:DicomReader.WPF.Views"
              xmlns:mvvm="http://prismlibrary.com/"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              mvvm:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d" x:Name="Configuration"
              d:DesignHeight="550" d:DesignWidth="725">
     <Grid VerticalAlignment="Top">
         <StackPanel Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8">
             <TextBlock Text="Name" />
-            <TextBox Text="{Binding ConfigurationName}" Margin="0,4,0,0" IsReadOnly="True" />
+            <ComboBox x:Name="comboBox" IsEditable="True" Text="{Binding ConfigurationName}" SelectedItem="{Binding ConfigurationName}"
+                      ItemsSource="{Binding ConfigurationNames}"
+                      Margin="0,4,0,0">
+                <b:Interaction.Triggers>
+                    <b:EventTrigger EventName="SelectionChanged">
+                        <b:InvokeCommandAction Command="{Binding ChangeConfigurationCommand}"
+                                               CommandParameter="{Binding ElementName=comboBox, Path=SelectedItem}" />
+                    </b:EventTrigger>
+                </b:Interaction.Triggers>
+            </ComboBox>
             <TextBlock Text="Host" />
             <TextBox Text="{Binding Host, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,0" />
             <TextBlock Text="Port" Margin="0,8,0,0" />

@@ -6,7 +6,7 @@
                  WindowStartupLocation="CenterScreen"
                  ResizeMode="CanResizeWithGrip"
                  mvvm:ViewModelLocator.AutoWireViewModel="True"
-                 Title="{Binding Title}" MinHeight="700" Height="700" MinWidth="950" Width="950">
+                 Title="{Binding Title}" MinHeight="800" Height="800" MinWidth="1100" Width="1100">
     <Grid>
         <TabControl mvvm:RegionManager.RegionName="TabRegion" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
     </Grid>

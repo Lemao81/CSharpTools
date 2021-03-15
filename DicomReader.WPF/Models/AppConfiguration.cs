@@ -9,10 +9,11 @@ namespace DicomReader.WPF.Models
     {
         private AppConfiguration()
         {
-            PacsConfigurations = new Dictionary<string, PacsConfiguration>();
+            PacsConfigurations = new List<PacsConfiguration>();
         }
 
-        public Dictionary<string, PacsConfiguration> PacsConfigurations { get; protected set; }
+        public List<PacsConfiguration> PacsConfigurations { get; protected set; }
+        public string LastLoadedConfiguration { get; set; }
 
         public static Result<AppConfiguration> Parse(string serializedString)
         {
@@ -33,14 +34,15 @@ namespace DicomReader.WPF.Models
         public static Result<AppConfiguration> Map(AppConfigurationDto dto)
         {
             var appConfig = new AppConfiguration();
-            foreach (var (key, value) in dto.PacsConfigurations)
+            foreach (var configurationDto in dto.PacsConfigurations)
             {
-                var pacsConfiguration = PacsConfiguration.Map(value);
+                var pacsConfiguration = PacsConfiguration.Map(configurationDto);
                 if (pacsConfiguration.IsSuccess)
                 {
-                    appConfig.PacsConfigurations.Add(key, pacsConfiguration.Value);
+                    appConfig.PacsConfigurations.Add(pacsConfiguration.Value);
                 }
             }
+            appConfig.LastLoadedConfiguration = dto.LastLoadedConfiguration;
 
             return appConfig;
         }

@@ -27,9 +27,11 @@ namespace DicomReader.WPF.ViewModels
         {
             _dicomQueryService = dicomQueryService;
             RequestedFields = new ObservableCollection<string>();
+            LogEntries = new ObservableCollection<string>();
             SelectedRequestedFields = new List<string>();
             RetrieveLevel = DicomQueryRetrieveLevel.Study;
             RequestedFields.CollectionChanged += (s, e) => ClearRequestedFieldsCommand.RaiseCanExecuteChanged();
+            MainWindowViewModel.LogEntryEmitted += (s, e) => LogEntries.Add(e.LogEntry);
 
             AddRequestedFieldCommand = new DelegateCommand(AddRequestedField, CanAddRequestedField).ObservesProperty(() => RequestedField);
             RemoveRequestedFieldCommand = new DelegateCommand(RemoveRequestedField, CanRemoveRequestedField).ObservesProperty(() => SelectedRequestedField);
@@ -90,6 +92,7 @@ namespace DicomReader.WPF.ViewModels
         }
 
         public ObservableCollection<string> RequestedFields { get; }
+        public ObservableCollection<string> LogEntries { get; }
 
         public string SelectedRequestedField
         {
@@ -203,7 +206,11 @@ namespace DicomReader.WPF.ViewModels
 
         private void Testing()
         {
-            StudyInstanceUid = "1.3.46.670589.11.70679.5.0.11244.2020012313442758012";
+            StudyInstanceUid = "1.2.276.0.33.1.0.4.192.168.56.148.20200331.1192945.88622.2";
+            RetrieveLevel = DicomQueryRetrieveLevel.Series;
+            AddPatientStandardFields();
+            AddStudyFields();
+            AddSeriesStandardFields();
         }
         #endregion
 
