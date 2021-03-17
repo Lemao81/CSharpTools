@@ -17,8 +17,8 @@ namespace SourceFileEditor
         public static List<FileInfo> PathMatches(this IEnumerable<FileInfo> files, string pattern) =>
             files.Where(f => Regex.IsMatch(f.FullName, pattern)).ToList();
 
-        public static List<FileInfo> ContainsLineWith(this IEnumerable<FileInfo> files, string part) =>
-            files.Where(f => f.ReadLines().Any(l => l.Contains(part))).ToList();
+        public static List<FileInfo> ContainsLineWith(this IEnumerable<FileInfo> files, params string[] parts) =>
+            files.Where(f => f.ReadLines().Any(l => parts.Any(l.Contains))).ToList();
 
         public static List<FileInfo> MissingLineWith(this IEnumerable<FileInfo> files, string part) =>
             files.Where(f => f.ReadLines().All(l => !l.Contains(part))).ToList();
@@ -57,6 +57,19 @@ namespace SourceFileEditor
                 if (lines[i].Contains(searched))
                 {
                     lines[i] = lines[i].Replace(searched, replacement);
+                }
+            }
+            lines.WriteAll(fileInfo);
+        }
+
+        public static void ReplaceInLineRegex(this FileInfo fileInfo, string pattern, string replacement)
+        {
+            var lines = fileInfo.ReadLines();
+            for (var i = 0; i < lines.Count; i++)
+            {
+                if (Regex.IsMatch(lines[i], pattern))
+                {
+                    lines[i] = Regex.Replace(lines[i], pattern, replacement);
                 }
             }
             lines.WriteAll(fileInfo);

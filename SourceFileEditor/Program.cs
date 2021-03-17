@@ -12,6 +12,5 @@ namespace SourceFileEditor
         public static void Main(string[] args)
         {
         }
-
     }
 }

@@ -108,5 +108,16 @@ namespace SourceFileEditor
                 file.ReplaceInLine("GeneratedControllerPageModel", "GeneratedControllerPageWithImageModel");
             }
         }
+        
+        public static void AddPageModelGeneric()
+        {
+            var sourceFiles = GetSourceFiles("*Page").ContainsLineWith(" : PageModelBase", ": PageModelBase", " :PageModelBase", ":PageModelBase");
+            foreach (var file in sourceFiles)
+            {
+                var classLine = file.ReadLines().LineWith("PageModelBase");
+                var typeName = classLine.Extract(@"public\s+class\s+(.*)\s*:").Trim();
+                file.ReplaceInLine("PageModelBase", $"PageModelBase<{typeName}>");
+            }
+        }
     }
 }
