@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DicomReader.WPF", "DicomRea
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceFileEditor", "SourceFileEditor\SourceFileEditor.csproj", "{40F06496-7DE3-4177-AC63-1E65E24C9B8C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DicomReader.Avalonia", "DicomReader.Avalonia\DicomReader.Avalonia.csproj", "{940A0B1C-A8A3-4C55-A5FF-298CFB3DC473}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,10 @@ Global
 		{40F06496-7DE3-4177-AC63-1E65E24C9B8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40F06496-7DE3-4177-AC63-1E65E24C9B8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40F06496-7DE3-4177-AC63-1E65E24C9B8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{940A0B1C-A8A3-4C55-A5FF-298CFB3DC473}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{940A0B1C-A8A3-4C55-A5FF-298CFB3DC473}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{940A0B1C-A8A3-4C55-A5FF-298CFB3DC473}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{940A0B1C-A8A3-4C55-A5FF-298CFB3DC473}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
