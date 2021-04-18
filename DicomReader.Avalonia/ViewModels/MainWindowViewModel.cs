@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DicomReader.Avalonia.ViewModels
+﻿namespace DicomReader.Avalonia.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        public string Greeting => "Welcome to Avalonia!";
+        public string Greeting { get; set; } = "From Runtime";
     }
 }
