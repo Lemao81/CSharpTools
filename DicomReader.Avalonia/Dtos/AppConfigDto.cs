@@ -7,6 +7,10 @@ namespace DicomReader.Avalonia.Dtos
 {
     public class AppConfigDto
     {
+        public AppConfigDto()
+        {
+        }
+
         public AppConfigDto(AppConfig appConfig)
         {
             LastLoadedPacsConfiguration = appConfig.LastLoadedPacsConfiguration;

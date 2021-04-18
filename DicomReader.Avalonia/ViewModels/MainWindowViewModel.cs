@@ -25,11 +25,32 @@ namespace DicomReader.Avalonia.ViewModels
         public DicomQueryViewModel DicomQueryViewModel { get; }
         public QueryResultViewModel QueryResultViewModel { get; }
         public PacsConfigurationViewModel PacsConfigurationViewModel { get; }
-        public AppConfig AppConfig { get; protected set; } = new();
+        public AppConfig AppConfig { get; protected set; } = AppConfig.Empty;
 
         public void Initialize()
         {
             CreateConfigFileIfNotExist();
+            InitializeAppConfig();
+            AddSubscriptions();
+            PacsConfigurationViewModel.Initialize(AppConfig);
+        }
+
+        private void CreateConfigFileIfNotExist()
+        {
+            if (!_fileSystemService.FileExists(Consts.AppConfigFileName))
+            {
+                _fileSystemService.WriteFile(Consts.AppConfigFileName, new AppConfigDto(AppConfig).AsIndentedJson());
+            }
+        }
+
+        private void InitializeAppConfig()
+        {
+            var appConfigDto = _fileSystemService.ReadFile(Consts.AppConfigFileName).FromJson<AppConfigDto>();
+            AppConfig = appConfigDto != null ? new AppConfig(appConfigDto) : AppConfig;
+        }
+
+        private void AddSubscriptions()
+        {
             PacsConfigurationViewModel.SavePacsConfiguration?.Subscribe(editedConfiguration =>
             {
                 var existingConfiguration = AppConfig.PacsConfigurations.SingleOrDefault(c => c.Name.EqualsIgnoringCase(editedConfiguration.Name));
@@ -43,17 +64,8 @@ namespace DicomReader.Avalonia.ViewModels
                 }
 
                 WriteAppconfigToFile();
+                PacsConfigurationViewModel.Initialize(AppConfig);
             });
-        }
-
-        private void CreateConfigFileIfNotExist()
-        {
-            if (!_fileSystemService.FileExists(Consts.AppConfigFileName))
-            {
-                _fileSystemService.WriteFile(Consts.AppConfigFileName, new AppConfigDto(AppConfig).AsIndentedJson());
-            }
-
-            AppConfig = _fileSystemService.ReadFile(Consts.AppConfigFileName).FromJson<AppConfig>() ?? AppConfig;
         }
 
         private void WriteAppconfigToFile() => _fileSystemService.WriteFile(Consts.AppConfigFileName, new AppConfigDto(AppConfig).AsIndentedJson());

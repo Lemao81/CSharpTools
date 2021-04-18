@@ -5,6 +5,7 @@ using System.Reactive;
 using Common.Extensions;
 using DicomReader.Avalonia.Enums;
 using DicomReader.Avalonia.Models;
+using DynamicData;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using ReactiveUI;
@@ -19,6 +20,7 @@ namespace DicomReader.Avalonia.ViewModels
         private string _callingAe = string.Empty;
         private string _calledAe = string.Empty;
         private PacsConfigurationViewMode _viewMode;
+        private PacsConfiguration? _selectedConfiguration;
 
         private readonly IEnumerable<string> _viewModeDependantProperties =
             new[] { nameof(AreSelectedModeButtonsVisible), nameof(AreEditingModeButtonsVisible) };
@@ -29,7 +31,19 @@ namespace DicomReader.Avalonia.ViewModels
             ConfigureSavePacsConfigurationButton();
         }
 
-        public ObservableCollection<string> PacsConfigurationNames { get; } = new();
+        public void Initialize(AppConfig appConfig)
+        {
+            PacsConfigurations.Clear();
+            PacsConfigurations.AddRange(appConfig.PacsConfigurations);
+        }
+
+        public ObservableCollection<PacsConfiguration> PacsConfigurations { get; } = new();
+
+        public PacsConfiguration? SelectedConfiguration
+        {
+            get => _selectedConfiguration;
+            set => this.RaiseAndSetIfChanged(ref _selectedConfiguration, value);
+        }
 
         public PacsConfigurationViewMode ViewMode
         {

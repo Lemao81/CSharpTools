@@ -9,7 +9,14 @@
     <DockPanel>
         <Grid Width="400" DockPanel.Dock="Top" HorizontalAlignment="Left" ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
               Margin="16">
-            <ComboBox Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Items="{Binding PacsConfigurationNames}" HorizontalAlignment="Stretch" Margin="4" />
+            <ComboBox Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Items="{Binding PacsConfigurations}"
+                      SelectedItem="{Binding SelectedConfiguration}" HorizontalAlignment="Stretch" Margin="4">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
             <Button Grid.Column="2" Grid.Row="0" Grid.ColumnSpan="2" Content="Add" Command="{Binding AddPacsConfiguration}"
                     HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
             <TextBlock Grid.Column="0" Grid.Row="1" Text="Name" Margin="4" />

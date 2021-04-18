@@ -41,16 +41,13 @@ namespace DicomReader.Avalonia.Models
 
             if (!int.TryParse(dto.Port, out var port)) throw new ArgumentException(nameof(dto.Port));
 
-            var pacsConfiguration = new PacsConfiguration
-            {
-                Name = dto.Name ?? string.Empty,
-                Host = dto.Host ?? string.Empty,
-                Port = port,
-                CallingAe = dto.CallingAe ?? string.Empty,
-                CalledAe = dto.CalledAe ?? string.Empty
-            };
+            Name = dto.Name ?? string.Empty;
+            Host = dto.Host ?? string.Empty;
+            Port = port;
+            CallingAe = dto.CallingAe ?? string.Empty;
+            CalledAe = dto.CalledAe ?? string.Empty;
 
-            ValidatePacsConfiguration(pacsConfiguration);
+            ValidatePacsConfiguration(this);
         }
 
         private static void ValidatePacsConfiguration(PacsConfiguration pacsConfiguration)

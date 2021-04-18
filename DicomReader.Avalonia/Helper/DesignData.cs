@@ -1,4 +1,5 @@
-﻿using DicomReader.Avalonia.Services;
+﻿using DicomReader.Avalonia.Models;
+using DicomReader.Avalonia.Services;
 using DicomReader.Avalonia.ViewModels;
 using DynamicData;
 
@@ -23,7 +24,7 @@ namespace DicomReader.Avalonia.Helper
                 CallingAe = "RRNEOQ",
                 CalledAe = "ORTHANC"
             };
-            viewModel.PacsConfigurationNames.AddRange(new[] { "Staging", "Med360", "Potsdam" });
+            viewModel.PacsConfigurations.AddRange(new[] { new PacsConfiguration(viewModel) });
 
             return viewModel;
         }

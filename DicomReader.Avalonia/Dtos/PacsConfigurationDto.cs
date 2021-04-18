@@ -1,11 +1,18 @@
-﻿using DicomReader.Avalonia.Models;
+﻿using System;
+using DicomReader.Avalonia.Models;
 
 namespace DicomReader.Avalonia.Dtos
 {
     public class PacsConfigurationDto
     {
+        public PacsConfigurationDto()
+        {
+        }
+
         public PacsConfigurationDto(PacsConfiguration pacsConfiguration)
         {
+            if (pacsConfiguration == null) throw new ArgumentNullException(nameof(pacsConfiguration));
+
             Name = pacsConfiguration.Name;
             Host = pacsConfiguration.Host;
             Port = pacsConfiguration.Port.ToString();
