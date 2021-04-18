@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace DicomReader.Avalonia.Views
 {
-    public class PacsConfigurationUserControl : UserControl
+    public class PacsConfigurationView : UserControl
     {
-        public PacsConfigurationUserControl()
+        public PacsConfigurationView()
         {
             InitializeComponent();
         }

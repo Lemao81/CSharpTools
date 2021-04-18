@@ -4,7 +4,7 @@
              xmlns:dd="clr-namespace:DicomReader.Avalonia.Helper;assembly=DicomReader.Avalonia"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="800"
-             d:DataContext="{x:Static dd:DesignData.DesignQueryResultViewModel}"
-             x:Class="DicomReader.Avalonia.Views.QueryResultUserControl">
-  Welcome to QueryResultUserControl!
+             d:DataContext="{x:Static dd:DesignData.DesignDicomQueryViewModel}"
+             x:Class="DicomReader.Avalonia.Views.DicomQueryView">
+  Welcome to DicomQueryUserControl!
 </UserControl>

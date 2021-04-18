@@ -11,4 +11,10 @@
         Icon="/Assets/dicom.ico"
         Title="DicomReader" MinHeight="800" Height="800" MinWidth="1100" Width="1100">
 
+    <TabControl>
+        <TabItem Header="Query" VerticalAlignment="Center" Content="{Binding DicomQueryViewModel}" />
+        <TabItem Header="Result" VerticalAlignment="Center" Content="{Binding QueryResultViewModel}" />
+        <TabItem Header="Configuration" VerticalAlignment="Center" Content="{Binding PacsConfigurationViewModel}" />
+    </TabControl>
+
 </Window>

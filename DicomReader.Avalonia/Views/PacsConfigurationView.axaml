@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="800"
              d:DataContext="{x:Static dd:DesignData.DesignPacsConfigurationViewModel}"
-             x:Class="DicomReader.Avalonia.Views.PacsConfigurationUserControl">
+             x:Class="DicomReader.Avalonia.Views.PacsConfigurationView">
     <DockPanel>
         <Grid Width="400" DockPanel.Dock="Top" HorizontalAlignment="Left" ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
               Margin="16">

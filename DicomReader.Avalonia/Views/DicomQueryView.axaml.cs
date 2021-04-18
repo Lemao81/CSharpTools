@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace DicomReader.Avalonia.Views
 {
-    public class QueryResultUserControl : UserControl
+    public class DicomQueryView : UserControl
     {
-        public QueryResultUserControl()
+        public DicomQueryView()
         {
             InitializeComponent();
         }
