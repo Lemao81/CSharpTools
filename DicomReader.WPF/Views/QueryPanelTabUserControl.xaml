@@ -88,6 +88,7 @@
                 <Button Content="Patient Ext" Command="{Binding AddPatientExtendedFieldsCommand}" Margin="0, 8, 0, 0" />
                 <Button Content="Series Ext" Command="{Binding AddSeriesExtendedFieldsCommand}" Margin="0, 8, 0, 0" />
                 <Button Content="Patients Studies" Command="{Binding AddPatientsStudiesFieldsCommand}" Margin="0, 8, 0, 0" />
+                <Button Content="Device Info" Command="{Binding AddDeviceInfoFieldsCommand}" Margin="0, 8, 0, 0" />
             </StackPanel>
         </Grid>
         <!-- logs -->

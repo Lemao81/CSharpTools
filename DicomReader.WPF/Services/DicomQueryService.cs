@@ -12,6 +12,7 @@ using DicomReader.WPF.Helpers;
 using DicomReader.WPF.Interfaces;
 using DicomReader.WPF.Models;
 using DicomReader.WPF.ViewModels;
+using Newtonsoft.Json;
 using static System.String;
 using DicomClient = Dicom.Network.Client.DicomClient;
 

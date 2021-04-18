@@ -61,5 +61,22 @@ namespace DicomReader.WPF.Constants
             nameof(DicomTag.PatientID),
             nameof(DicomTag.StudyDescription)
         };
+
+        public static readonly IEnumerable<string> DeviceInfoFields = new[]
+        {
+            nameof(DicomTag.DeviceSerialNumber),
+            nameof(DicomTag.DeviceUID),
+            nameof(DicomTag.DeviceID),
+            nameof(DicomTag.DeviceDescription),
+            nameof(DicomTag.LongDeviceDescription),
+            nameof(DicomTag.UniqueDeviceIdentifier),
+            nameof(DicomTag.Manufacturer),
+            nameof(DicomTag.SoftwareVersions),
+            nameof(DicomTag.ManufacturerRelatedModelGroup),
+            nameof(DicomTag.ManufacturerModelName),
+            nameof(DicomTag.ManufacturerModelVersion),
+            nameof(DicomTag.ManufacturerDeviceIdentifier),
+            nameof(DicomTag.ManufacturerDeviceClassUID)
+        };
     }
 }

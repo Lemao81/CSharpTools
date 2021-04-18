@@ -6,7 +6,6 @@ using Dicom.Network;
 using DicomReader.WPF.Constants;
 using DicomReader.WPF.Extensions;
 using DicomReader.WPF.Interfaces;
-using DicomReader.WPF.Models;
 using DicomReader.WPF.Models.Event;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -44,6 +43,7 @@ namespace DicomReader.WPF.ViewModels
             AddPatientExtendedFieldsCommand = new DelegateCommand(AddPatientExtendedFields);
             AddSeriesExtendedFieldsCommand = new DelegateCommand(AddSeriesExtendedFields);
             AddPatientsStudiesFieldsCommand = new DelegateCommand(AddPatientsStudiesFields);
+            AddDeviceInfoFieldsCommand = new DelegateCommand(AddDeviceInfoFields);
             TestingCommand = new DelegateCommand(Testing);
         }
 
@@ -123,6 +123,7 @@ namespace DicomReader.WPF.ViewModels
         public DelegateCommand AddPatientExtendedFieldsCommand { get; }
         public DelegateCommand AddSeriesExtendedFieldsCommand { get; }
         public DelegateCommand AddPatientsStudiesFieldsCommand { get; }
+        public DelegateCommand AddDeviceInfoFieldsCommand { get; }
         public DelegateCommand TestingCommand { get; }
         #endregion
 
@@ -188,11 +189,7 @@ namespace DicomReader.WPF.ViewModels
             }
         }
 
-        private bool CanExecuteQuery() =>
-            (!PatientId.IsNullOrEmpty() ||
-             !StudyInstanceUid.IsNullOrEmpty() ||
-             !AccessionNumber.IsNullOrEmpty()) &&
-            RequestedFields.Count > 0;
+        private bool CanExecuteQuery() => RequestedFields.Count > 0;
 
         private void AddPatientStandardFields() => AddToRequestedFieldsIfNotExistant(RequestedFieldSets.PatientStandardFields);
 
@@ -205,6 +202,8 @@ namespace DicomReader.WPF.ViewModels
         private void AddSeriesExtendedFields() => AddToRequestedFieldsIfNotExistant(RequestedFieldSets.SeriesExtendedFields);
 
         private void AddPatientsStudiesFields() => AddToRequestedFieldsIfNotExistant(RequestedFieldSets.PatientsStudiesFields);
+
+        private void AddDeviceInfoFields() => AddToRequestedFieldsIfNotExistant(RequestedFieldSets.DeviceInfoFields);
 
         private void Testing()
         {
