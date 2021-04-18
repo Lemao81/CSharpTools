@@ -10,7 +10,8 @@
         <Grid Width="400" DockPanel.Dock="Top" HorizontalAlignment="Left" ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
               Margin="16">
             <ComboBox Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Items="{Binding PacsConfigurationNames}" HorizontalAlignment="Stretch" Margin="4" />
-            <Button Grid.Column="2" Grid.Row="0" Grid.ColumnSpan="2" Content="Add" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
+            <Button Grid.Column="2" Grid.Row="0" Grid.ColumnSpan="2" Content="Add" Command="{Binding AddPacsConfiguration}"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
             <TextBlock Grid.Column="0" Grid.Row="1" Text="Name" Margin="4" />
             <TextBox Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding Name}" Margin="4" />
             <TextBlock Grid.Column="0" Grid.Row="3" Text="Host" Margin="4" />
@@ -21,10 +22,14 @@
             <TextBox Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2" Text="{Binding CallingAe}" Margin="4" />
             <TextBlock Grid.Column="2" Grid.Row="5" Text="CalledAe" Margin="4" />
             <TextBox Grid.Column="2" Grid.Row="6" Grid.ColumnSpan="2" Text="{Binding CalledAe}" Margin="4" />
-            <Button Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2" Content="Edit" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                    Margin="4" />
-            <Button Grid.Column="2" Grid.Row="7" Grid.ColumnSpan="2" Content="Remove" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                    Margin="4" />
+            <Button Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2" Content="Edit" IsVisible="{Binding AreSelectedModeButtonsVisible}"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
+            <Button Grid.Column="2" Grid.Row="7" Grid.ColumnSpan="2" Content="Remove" IsVisible="{Binding AreSelectedModeButtonsVisible}"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
+            <Button Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2" Content="Save" IsVisible="{Binding AreEditingModeButtonsVisible}"
+                    Command="{Binding SavePacsConfiguration}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
+            <Button Grid.Column="2" Grid.Row="7" Grid.ColumnSpan="2" Content="Cancel" IsVisible="{Binding AreEditingModeButtonsVisible}"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
         </Grid>
     </DockPanel>
 </UserControl>

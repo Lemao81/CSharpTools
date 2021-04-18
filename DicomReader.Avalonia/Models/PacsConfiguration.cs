@@ -11,8 +11,28 @@ namespace DicomReader.Avalonia.Models
         {
         }
 
+        public PacsConfiguration(PacsConfiguration configuration)
+        {
+            if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+
+            Name = configuration.Name;
+            Host = configuration.Host;
+            Port = configuration.Port;
+            CallingAe = configuration.CallingAe;
+            CalledAe = configuration.CalledAe;
+        }
+
         public PacsConfiguration(PacsConfigurationViewModel viewModel)
         {
+            if (viewModel == null) throw new ArgumentNullException(nameof(viewModel));
+
+            if (!int.TryParse(viewModel.Port, out var port)) throw new ArgumentException(nameof(viewModel.Port));
+
+            Name = viewModel.Name;
+            Host = viewModel.Host;
+            Port = port;
+            CallingAe = viewModel.CallingAe;
+            CalledAe = viewModel.CalledAe;
         }
 
         public PacsConfiguration(PacsConfigurationDto dto)
