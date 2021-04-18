@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using DicomReader.Avalonia.Services;
 using DicomReader.Avalonia.ViewModels;
 using DicomReader.Avalonia.Views;
 
@@ -17,10 +18,12 @@ namespace DicomReader.Avalonia
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
+                var mainWindowViewModel = new MainWindowViewModel(new FileSystemService());
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel(),
+                    DataContext = mainWindowViewModel,
                 };
+                mainWindowViewModel.Initialize();
             }
 
             base.OnFrameworkInitializationCompleted();

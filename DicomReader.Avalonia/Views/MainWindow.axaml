@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="clr-namespace:DicomReader.Avalonia.Views"
         xmlns:vm="using:DicomReader.Avalonia.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:dd="clr-namespace:DicomReader.Avalonia.Helper;assembly=DicomReader.Avalonia"
@@ -9,7 +10,5 @@
         d:DataContext="{x:Static dd:DesignData.DesignMainViewModel}"
         Icon="/Assets/dicom.ico"
         Title="DicomReader" MinHeight="800" Height="800" MinWidth="1100" Width="1100">
-
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
 </Window>

@@ -12,6 +12,7 @@ namespace DicomReader.Avalonia.Views
 #if DEBUG
             this.AttachDevTools();
 #endif
+            System.Diagnostics.Trace.TraceInformation("Started");
         }
 
         private void InitializeComponent()

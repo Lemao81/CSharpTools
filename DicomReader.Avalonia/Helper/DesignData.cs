@@ -1,24 +1,16 @@
-﻿using DicomReader.Avalonia.ViewModels;
+﻿using DicomReader.Avalonia.Services;
+using DicomReader.Avalonia.ViewModels;
 
 namespace DicomReader.Avalonia.Helper
 {
     public static class DesignData
     {
-        public static MainWindowViewModel DesignMainViewModel { get; set; } = new MainWindowViewModel
-        {
-            Greeting = "From DesignData"
-        };
+        public static MainWindowViewModel DesignMainViewModel { get; set; } = new MainWindowViewModel(new FileSystemService());
 
-        public static DicomQueryViewModel DesignDicomQueryViewModel { get; set; } = new DicomQueryViewModel
-        {
-        };
+        public static DicomQueryViewModel DesignDicomQueryViewModel { get; set; } = new DicomQueryViewModel();
 
-        public static QueryResultViewModel DesignQueryResultViewModel { get; set; } = new QueryResultViewModel
-        {
-        };
+        public static QueryResultViewModel DesignQueryResultViewModel { get; set; } = new QueryResultViewModel();
 
-        public static PacsConfigurationViewModel DesignPacsConfigurationViewModel { get; set; } = new PacsConfigurationViewModel
-        {
-        };
+        public static PacsConfigurationViewModel DesignPacsConfigurationViewModel { get; set; } = new PacsConfigurationViewModel();
     }
 }
