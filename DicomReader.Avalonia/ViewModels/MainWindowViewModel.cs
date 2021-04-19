@@ -65,6 +65,7 @@ namespace DicomReader.Avalonia.ViewModels
 
                 WriteAppconfigToFile();
                 PacsConfigurationViewModel.Initialize(AppConfig);
+                PacsConfigurationViewModel.SelectedConfiguration = editedConfiguration;
             });
         }
 

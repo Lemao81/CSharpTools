@@ -21,14 +21,16 @@ namespace DicomReader.Avalonia.ViewModels
         private string _calledAe = string.Empty;
         private PacsConfigurationViewMode _viewMode;
         private PacsConfiguration? _selectedConfiguration;
+        private PacsConfiguration? _selectedConvifugrationBeforeEditing;
 
         private readonly IEnumerable<string> _viewModeDependantProperties =
-            new[] { nameof(AreSelectedModeButtonsVisible), nameof(AreEditingModeButtonsVisible) };
+            new[] { nameof(IsSelectedMode), nameof(IsEditingMode) };
 
         public PacsConfigurationViewModel()
         {
             ConfigureAddPacsConfigurationButton();
             ConfigureSavePacsConfigurationButton();
+            ConfigureCancelEditingButton();
         }
 
         public void Initialize(AppConfig appConfig)
@@ -42,7 +44,18 @@ namespace DicomReader.Avalonia.ViewModels
         public PacsConfiguration? SelectedConfiguration
         {
             get => _selectedConfiguration;
-            set => this.RaiseAndSetIfChanged(ref _selectedConfiguration, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _selectedConfiguration, value);
+                if (value == null) return;
+
+                Name = value.Name;
+                Host = value.Host;
+                Port = value.Port.ToString();
+                CallingAe = value.CallingAe;
+                CalledAe = value.CalledAe;
+                ViewMode = PacsConfigurationViewMode.Selected;
+            }
         }
 
         public PacsConfigurationViewMode ViewMode
@@ -85,31 +98,30 @@ namespace DicomReader.Avalonia.ViewModels
             set => this.RaiseAndSetIfChanged(ref _calledAe, value);
         }
 
-        public bool AreSelectedModeButtonsVisible => ViewMode == PacsConfigurationViewMode.Selected;
+        public bool IsSelectedMode => ViewMode == PacsConfigurationViewMode.Selected;
 
-        public bool AreEditingModeButtonsVisible => ViewMode == PacsConfigurationViewMode.Add || ViewMode == PacsConfigurationViewMode.Edit;
+        public bool IsEditingMode => ViewMode == PacsConfigurationViewMode.Add || ViewMode == PacsConfigurationViewMode.Edit;
 
         public ReactiveCommand<Unit, Unit>? AddPacsConfiguration { get; protected set; }
 
         public ReactiveCommand<Unit, PacsConfiguration>? SavePacsConfiguration { get; protected set; }
 
+        public ReactiveCommand<Unit, Unit>? CancelEditing { get; protected set; }
+
         private void ConfigureAddPacsConfigurationButton()
         {
-            var addPacsConfigurationEnabled = this.WhenAnyValue(v => v.ViewMode, m => m != PacsConfigurationViewMode.Add);
+            var enabledObservable = this.WhenAnyValue(v => v.ViewMode, m => m != PacsConfigurationViewMode.Add);
             AddPacsConfiguration = ReactiveCommand.Create(() =>
             {
-                Name = string.Empty;
-                Host = string.Empty;
-                Port = string.Empty;
-                CallingAe = string.Empty;
-                CalledAe = string.Empty;
+                EmptyInputFields();
                 ViewMode = PacsConfigurationViewMode.Add;
-            }, addPacsConfigurationEnabled);
+                SelectedConfiguration = null;
+            }, enabledObservable);
         }
 
         private void ConfigureSavePacsConfigurationButton()
         {
-            var savePacsConfigurationEnabled =
+            var enabledObservable =
                 this.WhenAnyValue(v => v.ViewMode, m => m == PacsConfigurationViewMode.Add || m == PacsConfigurationViewMode.Edit);
             SavePacsConfiguration = ReactiveCommand.Create(() =>
             {
@@ -122,7 +134,25 @@ namespace DicomReader.Avalonia.ViewModels
                 ViewMode = PacsConfigurationViewMode.None;
 
                 return new PacsConfiguration(this);
-            }, savePacsConfigurationEnabled);
+            }, enabledObservable);
+        }
+
+        private void ConfigureCancelEditingButton()
+        {
+            var enabledObservable = this.WhenAnyValue(v => v.IsEditingMode);
+            CancelEditing = ReactiveCommand.Create(() =>
+            {
+                if (_selectedConvifugrationBeforeEditing != null)
+                {
+                    SelectedConfiguration = _selectedConvifugrationBeforeEditing;
+                    ViewMode = PacsConfigurationViewMode.Selected;
+
+                    return;
+                }
+
+                EmptyInputFields();
+                ViewMode = PacsConfigurationViewMode.None;
+            }, enabledObservable);
         }
 
         private string ValidatePacsConfigurationInput()
@@ -147,5 +177,14 @@ namespace DicomReader.Avalonia.ViewModels
                 ButtonDefinitions = ButtonEnum.Ok,
                 Style = Style.Windows
             }).Show();
+
+        private void EmptyInputFields()
+        {
+            Name = string.Empty;
+            Host = string.Empty;
+            Port = string.Empty;
+            CallingAe = string.Empty;
+            CalledAe = string.Empty;
+        }
     }
 }
