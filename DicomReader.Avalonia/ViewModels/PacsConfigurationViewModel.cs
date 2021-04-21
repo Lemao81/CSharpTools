@@ -103,9 +103,7 @@ namespace DicomReader.Avalonia.ViewModels
         public bool IsEditingMode => ViewMode == PacsConfigurationViewMode.Add || ViewMode == PacsConfigurationViewMode.Edit;
 
         public ReactiveCommand<Unit, Unit>? AddPacsConfiguration { get; protected set; }
-
         public ReactiveCommand<Unit, PacsConfiguration>? SavePacsConfiguration { get; protected set; }
-
         public ReactiveCommand<Unit, Unit>? CancelEditing { get; protected set; }
 
         private void ConfigureAddPacsConfigurationButton()

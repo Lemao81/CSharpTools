@@ -6,46 +6,60 @@
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="800"
              d:DataContext="{x:Static dd:DesignData.DesignDicomQueryViewModel}"
              x:Class="DicomReader.Avalonia.Views.DicomQueryView">
-  <Grid ColumnDefinitions="*,*" HorizontalAlignment="Stretch">
-    <Grid Grid.Column="0" Grid.Row="0" ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" Margin="16">
-      <TextBlock Grid.Column="0" Grid.Row="0" Text="PatientId" Margin="4" />
-      <TextBox Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding }" IsReadOnly="{Binding }" Margin="4" />
+    <Grid ColumnDefinitions="*,*" HorizontalAlignment="Stretch">
+        <Grid Grid.Column="0" Grid.Row="0" ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" Margin="16">
+            <TextBlock Grid.Column="0" Grid.Row="0" Text="PatientId" Margin="4" />
+            <TextBox Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding PatientId}" IsReadOnly="{Binding }" Margin="4" />
 
-      <TextBlock Grid.Column="0" Grid.Row="2" Text="AccessionNumber" Margin="4" />
-      <TextBox Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Text="{Binding }" IsReadOnly="{Binding }" Margin="4" />
+            <TextBlock Grid.Column="0" Grid.Row="2" Text="AccessionNumber" Margin="4" />
+            <TextBox Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Text="{Binding AccessionNumber}" IsReadOnly="{Binding }" Margin="4" />
 
-      <TextBlock Grid.Column="0" Grid.Row="4" Text="StudyInstanceUid" Margin="4" />
-      <TextBox Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="3" Text="{Binding }" IsReadOnly="{Binding }" Margin="4,4,4,24" />
+            <TextBlock Grid.Column="0" Grid.Row="4" Text="StudyInstanceUid" Margin="4" />
+            <TextBox Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="3" Text="{Binding StudyInstanceUid}" IsReadOnly="{Binding }" Margin="4,4,4,24" />
 
-      <StackPanel Grid.Column="2" Grid.Row="0" Grid.RowSpan="4" HorizontalAlignment="Center">
-        <TextBlock Text="Retrieve Level" Margin="4" />
-        <RadioButton  GroupName="RetrieveLevel" Content="Patient" Margin="4"/>
-        <RadioButton  GroupName="RetrieveLevel" Content="Study" Margin="4"/>
-        <RadioButton  GroupName="RetrieveLevel" Content="Series" Margin="4"/>
-      </StackPanel>
+            <StackPanel Grid.Column="2" Grid.Row="0" Grid.RowSpan="4" HorizontalAlignment="Center">
+                <TextBlock Text="Retrieve Level" Margin="4" />
+                <RadioButton GroupName="RetrieveLevel" Content="Patient" Margin="4" />
+                <RadioButton GroupName="RetrieveLevel" Content="Study" Margin="4" />
+                <RadioButton GroupName="RetrieveLevel" Content="Series" Margin="4" />
+            </StackPanel>
 
-      <Button Grid.Column="0" Grid.Row="6" Content="Standard Patient" Margin="4" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-      <Button Grid.Column="1" Grid.Row="6" Content="Standard Study" Margin="4" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-      <Button Grid.Column="2" Grid.Row="6" Content="Standard Series" Margin="4" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-      <Button Grid.Column="0" Grid.Row="7" Content="Custom" Margin="4,4,4,16" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+            <Button Grid.Column="0" Grid.Row="6" Content="Standard Patient" Margin="4" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+            <Button Grid.Column="1" Grid.Row="6" Content="Standard Study" Margin="4" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+            <Button Grid.Column="2" Grid.Row="6" Content="Standard Series" Margin="4" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+            <Button Grid.Column="0" Grid.Row="7" Content="Custom" Margin="4,4,4,16" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
 
-      <Button Grid.Column="0" Grid.Row="8" Content="Query" Margin="4" Padding="12" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-      <Button Grid.Column="1" Grid.Row="8" Content="Paged Query" Margin="4" Padding="12" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-      <TextBox Grid.Column="2" Grid.Row="8" Watermark="Page Size" Margin="4" />
+            <Button Grid.Column="0" Grid.Row="8" Content="Query" Margin="4" Padding="12" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+            <Button Grid.Column="1" Grid.Row="8" Content="Paged Query" Margin="4" Padding="12" HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center" />
+            <TextBox Grid.Column="2" Grid.Row="8" Watermark="Page Size" Margin="4" />
+        </Grid>
+
+        <Grid Grid.Column="2" Grid.Row="0" ColumnDefinitions="3*,*" RowDefinitions="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="16">
+            <Grid Grid.Column="0" Grid.Row="0" ColumnDefinitions="*,*,*,*,*" RowDefinitions="*,Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <ListBox Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="5" Items="{Binding RequestedDicomTags}"
+                         SelectedItems="{Binding SelectedRequestedDicomTags}" HorizontalAlignment="Stretch" SelectionMode="Multiple"
+                         VerticalAlignment="Stretch" Margin="4">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Label}" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <TextBox Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding RequestedDicomTagInput}" Margin="4" />
+
+                <Button Grid.Column="2" Grid.Row="1" Content="Add" Command="{Binding AddRequestedDicomTag}" HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center" Margin="4" />
+                <Button Grid.Column="3" Grid.Row="1" Content="Remove" Command="{Binding RemoveRequestedDicomTags}" HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center" Margin="4" />
+                <Button Grid.Column="4" Grid.Row="1" Content="Clear" Command="{Binding ClearRequestedDicomTags}" HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center" Margin="4" />
+            </Grid>
+            <StackPanel Grid.Column="2" Grid.Row="0">
+                <Button Content="Tags 1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
+                <Button Content="Tags 2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
+            </StackPanel>
+        </Grid>
     </Grid>
-
-    <Grid Grid.Column="2" Grid.Row="0" ColumnDefinitions="3*,*" RowDefinitions="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="16">
-      <Grid Grid.Column="0" Grid.Row="0" ColumnDefinitions="*,*,*,*,*" RowDefinitions="*,Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <ListBox Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Margin="4" />
-        <TextBox Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Margin="4" />
-        <Button Grid.Column="2" Grid.Row="1" Content="Add" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
-        <Button Grid.Column="3" Grid.Row="1" Content="Remove" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
-        <Button Grid.Column="4" Grid.Row="1" Content="Clear" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
-      </Grid>
-      <StackPanel Grid.Column="2" Grid.Row="0">
-        <Button Content="Tags 1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
-        <Button Content="Tags 2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
-      </StackPanel>
-    </Grid>
-  </Grid>
 </UserControl>
