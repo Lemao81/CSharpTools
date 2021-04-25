@@ -22,6 +22,10 @@ namespace DicomReader.Avalonia.ViewModels
             DicomQueryViewModel = new DicomQueryViewModel();
             QueryResultViewModel = new QueryResultViewModel();
             PacsConfigurationViewModel = new PacsConfigurationViewModel();
+            // TODO show log messages
+            LogEntry.Stream.Subscribe(_ =>
+            {
+            });
         }
 
         public DicomQueryViewModel DicomQueryViewModel { get; }
@@ -69,9 +73,12 @@ namespace DicomReader.Avalonia.ViewModels
                 PacsConfigurationViewModel.Initialize(AppConfig);
                 PacsConfigurationViewModel.SelectedConfiguration = editedConfiguration;
             });
-            DicomQueryViewModel.StartQuery?.Subscribe(queryParamter =>
+            DicomQueryViewModel.StartQuery.Subscribe(async queryInputs =>
             {
-                // await _dicomQueryService.ExecuteDicomQuery()
+                if (PacsConfigurationViewModel.SelectedConfiguration == null)
+                    throw new InvalidOperationException("Dicom query started without selected pacs configuration");
+
+                await _dicomQueryService.ExecuteDicomQuery(queryInputs, PacsConfigurationViewModel.SelectedConfiguration);
             });
         }
 

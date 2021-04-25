@@ -18,7 +18,12 @@ namespace DicomReader.Avalonia
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var mainWindowViewModel = new MainWindowViewModel(new FileSystemService());
+                var fileSystemService = new FileSystemService();
+                var dicomTagProvider = new DicomTagProvider();
+                var dicomRequestFactoryProvider = new DicomRequestFactoryProvider(dicomTagProvider);
+                var dicomQueryService = new DicomQueryService(dicomRequestFactoryProvider);
+
+                var mainWindowViewModel = new MainWindowViewModel(fileSystemService, dicomQueryService);
                 desktop.MainWindow = new MainWindow
                 {
                     DataContext = mainWindowViewModel,

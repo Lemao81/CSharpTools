@@ -16,6 +16,7 @@ namespace DicomReader.Avalonia.ViewModels
         private string _patientId = string.Empty;
         private string _accessionNumber = string.Empty;
         private string _studyInstanceUid = string.Empty;
+        private DicomRequestType _dicomRequestType;
 
         public DicomQueryViewModel()
         {
@@ -54,7 +55,12 @@ namespace DicomReader.Avalonia.ViewModels
             set => this.RaiseAndSetIfChanged(ref _studyInstanceUid, value);
         }
 
-        public DicomRequestType DicomRequestType { get; set; }
+        public DicomRequestType DicomRequestType
+        {
+            get => _dicomRequestType;
+            set => this.RaiseAndSetIfChanged(ref _dicomRequestType, value);
+        }
+
         public DicomQueryRetrieveLevel RetrieveLevel { get; set; }
         public ObservableCollection<DicomTagItem> RequestedDicomTags { get; } = new();
         public ObservableCollection<DicomTagItem> SelectedRequestedDicomTags { get; set; } = new();
@@ -113,8 +119,7 @@ namespace DicomReader.Avalonia.ViewModels
         private void ConfigureStartQueryButton()
         {
             StartQuery = ReactiveCommand.Create(() =>
-            {
-            });
+                new DicomQueryInputs(DicomRequestType, RetrieveLevel, PatientId, StudyInstanceUid, AccessionNumber, RequestedDicomTags, false, null));
         }
     }
 }

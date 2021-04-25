@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DicomReader.Avalonia.Models;
+using Newtonsoft.Json;
 
 namespace DicomReader.Avalonia.Extensions
 {
@@ -9,5 +10,7 @@ namespace DicomReader.Avalonia.Extensions
         public static string AsIndentedJson(this object obj) => JsonConvert.SerializeObject(obj, Formatting.Indented);
 
         public static T? FromJson<T>(this string str) => JsonConvert.DeserializeObject<T>(str);
+        
+        public static void Emit(this LogEntry logEntry) => LogEntry.Emit(logEntry);
     }
 }
