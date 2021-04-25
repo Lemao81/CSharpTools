@@ -20,6 +20,6 @@ namespace DicomReader.Avalonia.Models
 
         public string Name { get; set; }
         public string HexCode { get; set; }
-        public string Label => Name.IsNullOrEmpty() ? HexCode : Name;
+        public string Content => Name.IsNullOrEmpty() ? HexCode : Name;
     }
 }
