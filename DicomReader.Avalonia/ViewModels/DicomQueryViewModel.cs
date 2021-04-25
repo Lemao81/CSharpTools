@@ -2,6 +2,8 @@
 using System.Collections.ObjectModel;
 using System.Reactive;
 using Common.Extensions;
+using Dicom.Network;
+using DicomReader.Avalonia.Enums;
 using DicomReader.Avalonia.Models;
 using DynamicData;
 using ReactiveUI;
@@ -20,6 +22,10 @@ namespace DicomReader.Avalonia.ViewModels
             ConfigureAddRequestedDicomTagButton();
             ConfigureRemoveRequestedDicomTagsButton();
             ConfigureClearRequestedDicomTagsButton();
+            ConfigureArrangeStandardPatientQueryButton();
+            ConfigureArrangeStandardStudyQueryButton();
+            ConfigureArrangeStandardSeriesQueryButton();
+            ConfigureStartQueryButton();
 
             AddRequestedDicomTag?.Subscribe(dicomTag => RequestedDicomTags.Add(dicomTag));
         }
@@ -48,11 +54,18 @@ namespace DicomReader.Avalonia.ViewModels
             set => this.RaiseAndSetIfChanged(ref _studyInstanceUid, value);
         }
 
+        public DicomRequestType DicomRequestType { get; set; }
+        public DicomQueryRetrieveLevel RetrieveLevel { get; set; }
         public ObservableCollection<DicomTagItem> RequestedDicomTags { get; } = new();
         public ObservableCollection<DicomTagItem> SelectedRequestedDicomTags { get; set; } = new();
+
         public ReactiveCommand<Unit, DicomTagItem>? AddRequestedDicomTag { get; protected set; }
         public ReactiveCommand<Unit, Unit>? RemoveRequestedDicomTags { get; protected set; }
         public ReactiveCommand<Unit, Unit>? ClearRequestedDicomTags { get; protected set; }
+        public ReactiveCommand<Unit, Unit> ArrangeStandardPatientQuery { get; protected set; }
+        public ReactiveCommand<Unit, Unit> ArrangeStandardStudyQuery { get; protected set; }
+        public ReactiveCommand<Unit, Unit> ArrangeStandardSeriesQuery { get; protected set; }
+        public ReactiveCommand<Unit, DicomQueryInputs> StartQuery { get; protected set; }
 
         private void ConfigureAddRequestedDicomTagButton()
         {
@@ -74,6 +87,34 @@ namespace DicomReader.Avalonia.ViewModels
         private void ConfigureClearRequestedDicomTagsButton()
         {
             ClearRequestedDicomTags = ReactiveCommand.Create(() => RequestedDicomTags.Clear());
+        }
+
+        private void ConfigureArrangeStandardPatientQueryButton()
+        {
+            ArrangeStandardPatientQuery = ReactiveCommand.Create(() =>
+            {
+            });
+        }
+
+        private void ConfigureArrangeStandardStudyQueryButton()
+        {
+            ArrangeStandardStudyQuery = ReactiveCommand.Create(() =>
+            {
+            });
+        }
+
+        private void ConfigureArrangeStandardSeriesQueryButton()
+        {
+            ArrangeStandardSeriesQuery = ReactiveCommand.Create(() =>
+            {
+            });
+        }
+
+        private void ConfigureStartQueryButton()
+        {
+            StartQuery = ReactiveCommand.Create(() =>
+            {
+            });
         }
     }
 }

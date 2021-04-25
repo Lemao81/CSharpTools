@@ -13,10 +13,12 @@ namespace DicomReader.Avalonia.ViewModels
     public class MainWindowViewModel : ViewModelBase
     {
         private readonly IFileSystemService _fileSystemService;
+        private readonly IDicomQueryService _dicomQueryService;
 
-        public MainWindowViewModel(IFileSystemService fileSystemService)
+        public MainWindowViewModel(IFileSystemService fileSystemService, IDicomQueryService dicomQueryService)
         {
             _fileSystemService = fileSystemService;
+            _dicomQueryService = dicomQueryService;
             DicomQueryViewModel = new DicomQueryViewModel();
             QueryResultViewModel = new QueryResultViewModel();
             PacsConfigurationViewModel = new PacsConfigurationViewModel();
@@ -66,6 +68,10 @@ namespace DicomReader.Avalonia.ViewModels
                 WriteAppconfigToFile();
                 PacsConfigurationViewModel.Initialize(AppConfig);
                 PacsConfigurationViewModel.SelectedConfiguration = editedConfiguration;
+            });
+            DicomQueryViewModel.StartQuery?.Subscribe(queryParamter =>
+            {
+                // await _dicomQueryService.ExecuteDicomQuery()
             });
         }
 
