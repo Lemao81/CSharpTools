@@ -3,17 +3,12 @@ using System.Linq;
 using Common.Extensions;
 using Dicom;
 using Dicom.Network;
-using DicomReader.Avalonia.Interfaces;
 using DicomReader.Avalonia.Models;
 
 namespace DicomReader.Avalonia.Factories
 {
     public class CustomPatientDicomRequestFactory : CustomDicomRequestFactory
     {
-        public CustomPatientDicomRequestFactory(IDicomTagProvider dicomTagProvider) : base(dicomTagProvider)
-        {
-        }
-
         protected override DicomCFindRequest CreateRequestInternal(DicomQueryParams queryParams)
         {
             if (queryParams.PatientId.IsNullOrEmpty()) throw new InvalidOperationException("Standard patient query needs a patient id");

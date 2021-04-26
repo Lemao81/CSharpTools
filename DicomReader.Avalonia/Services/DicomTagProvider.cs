@@ -10,20 +10,22 @@ namespace DicomReader.Avalonia.Services
 {
     public class DicomTagProvider : IDicomTagProvider
     {
-        private FieldInfo[] _knownDicomTagFields;
+        private FieldInfo[]? _knownDicomTagFields;
 
-        public FieldInfo[] KnownDicomTagFields => _knownDicomTagFields;
+        public FieldInfo[] KnownDicomTagFields => _knownDicomTagFields ??= typeof(DicomTag).GetFields(BindingFlags.Public | BindingFlags.Static);
 
         public Result<DicomTag> ProvideDicomTag(string keywordOrHexCode) =>
             IsHexCode(keywordOrHexCode)
                 ? ParseDicomTagHexCode(keywordOrHexCode)
                 : FindKnownDicomTag(keywordOrHexCode);
 
-        public bool IsHexCode(string keywordOrHexCode) => keywordOrHexCode.Contains(':');
+        public static bool IsHexCode(string keywordOrHexCode) => keywordOrHexCode.Contains(':');
 
-        public Result<DicomTag> ParseDicomTagHexCode(string hexCode)
+        public static Result<DicomTag> ParseDicomTagHexCode(string hexCode)
         {
             var split = hexCode.Split(':');
+            if (split.Length != 2) return Result<DicomTag>.Fail();
+
             try
             {
                 var group = ushort.Parse(split[0].Trim(), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
@@ -42,10 +44,9 @@ namespace DicomReader.Avalonia.Services
             try
             {
                 var foundDicomTagField = KnownDicomTagFields.FirstOrDefault(f => f.Name.Equals(tagName, StringComparison.OrdinalIgnoreCase));
+                var foundDicomTag = foundDicomTagField != null ? (DicomTag?) foundDicomTagField.GetValue(null) : null;
 
-                return foundDicomTagField != null
-                    ? (DicomTag) foundDicomTagField.GetValue(null)
-                    : Result<DicomTag>.Fail();
+                return foundDicomTag ?? Result<DicomTag>.Fail();
             }
             catch (Exception exception)
             {

@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using DicomReader.Avalonia.Interfaces;
 using DicomReader.Avalonia.Services;
 using DicomReader.Avalonia.ViewModels;
 using DicomReader.Avalonia.Views;
@@ -18,12 +19,9 @@ namespace DicomReader.Avalonia
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var fileSystemService = new FileSystemService();
-                var dicomTagProvider = new DicomTagProvider();
-                var dicomRequestFactoryProvider = new DicomRequestFactoryProvider(dicomTagProvider);
-                var dicomQueryService = new DicomQueryService(dicomRequestFactoryProvider);
+                RegisterAppServices();
 
-                var mainWindowViewModel = new MainWindowViewModel(fileSystemService, dicomQueryService);
+                var mainWindowViewModel = new MainWindowViewModel();
                 desktop.MainWindow = new MainWindow
                 {
                     DataContext = mainWindowViewModel,
@@ -32,6 +30,15 @@ namespace DicomReader.Avalonia
             }
 
             base.OnFrameworkInitializationCompleted();
+        }
+
+        private static void RegisterAppServices()
+        {
+            AvaloniaLocator.CurrentMutable.Bind<IFileSystemService>().ToTransient<FileSystemService>();
+            AvaloniaLocator.CurrentMutable.Bind<IDicomRequestFactoryProvider>().ToTransient<DicomRequestFactoryProvider>();
+            AvaloniaLocator.CurrentMutable.Bind<IDicomQueryService>().ToTransient<DicomQueryService>();
+
+            AvaloniaLocator.CurrentMutable.Bind<IDicomTagProvider>().ToSingleton<DicomTagProvider>();
         }
     }
 }

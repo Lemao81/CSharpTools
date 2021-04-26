@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Avalonia;
 using Common.Extensions;
 using DicomReader.Avalonia.Constants;
 using DicomReader.Avalonia.Dtos;
@@ -12,13 +13,8 @@ namespace DicomReader.Avalonia.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private readonly IFileSystemService _fileSystemService;
-        private readonly IDicomQueryService _dicomQueryService;
-
-        public MainWindowViewModel(IFileSystemService fileSystemService, IDicomQueryService dicomQueryService)
+        public MainWindowViewModel()
         {
-            _fileSystemService = fileSystemService;
-            _dicomQueryService = dicomQueryService;
             DicomQueryViewModel = new DicomQueryViewModel();
             QueryResultViewModel = new QueryResultViewModel();
             PacsConfigurationViewModel = new PacsConfigurationViewModel();
@@ -43,20 +39,22 @@ namespace DicomReader.Avalonia.ViewModels
 
         private void CreateConfigFileIfNotExist()
         {
-            if (!_fileSystemService.FileExists(Consts.AppConfigFileName))
+            var fileSystemService = AvaloniaLocator.Current.GetService<IFileSystemService>();
+            if (!fileSystemService.FileExists(Consts.AppConfigFileName))
             {
-                _fileSystemService.WriteFile(Consts.AppConfigFileName, new AppConfigDto(AppConfig).AsIndentedJson());
+                fileSystemService.WriteFile(Consts.AppConfigFileName, new AppConfigDto(AppConfig).AsIndentedJson());
             }
         }
 
         private void InitializeAppConfig()
         {
-            var appConfigDto = _fileSystemService.ReadFile(Consts.AppConfigFileName).FromJson<AppConfigDto>();
+            var appConfigDto = AvaloniaLocator.Current.GetService<IFileSystemService>().ReadFile(Consts.AppConfigFileName).FromJson<AppConfigDto>();
             AppConfig = appConfigDto != null ? new AppConfig(appConfigDto) : AppConfig;
         }
 
         private void AddSubscriptions()
         {
+            var fileSystemService = AvaloniaLocator.Current.GetService<IFileSystemService>();
             PacsConfigurationViewModel.SavePacsConfiguration?.Subscribe(editedConfiguration =>
             {
                 var existingConfiguration = AppConfig.PacsConfigurations.SingleOrDefault(c => c.Name.EqualsIgnoringCase(editedConfiguration.Name));
@@ -69,7 +67,7 @@ namespace DicomReader.Avalonia.ViewModels
                     AppConfig.PacsConfigurations.Add(editedConfiguration);
                 }
 
-                WriteAppconfigToFile();
+                fileSystemService.WriteFile(Consts.AppConfigFileName, new AppConfigDto(AppConfig).AsIndentedJson());
                 PacsConfigurationViewModel.Initialize(AppConfig);
                 PacsConfigurationViewModel.SelectedConfiguration = editedConfiguration;
             });
@@ -78,10 +76,8 @@ namespace DicomReader.Avalonia.ViewModels
                 if (PacsConfigurationViewModel.SelectedConfiguration == null)
                     throw new InvalidOperationException("Dicom query started without selected pacs configuration");
 
-                await _dicomQueryService.ExecuteDicomQuery(queryInputs, PacsConfigurationViewModel.SelectedConfiguration);
+                await AvaloniaLocator.Current.GetService<IDicomQueryService>().ExecuteDicomQuery(queryInputs, PacsConfigurationViewModel.SelectedConfiguration);
             });
         }
-
-        private void WriteAppconfigToFile() => _fileSystemService.WriteFile(Consts.AppConfigFileName, new AppConfigDto(AppConfig).AsIndentedJson());
     }
 }

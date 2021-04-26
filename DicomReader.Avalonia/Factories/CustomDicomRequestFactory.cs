@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Avalonia;
 using Dicom;
 using Dicom.Network;
 using DicomReader.Avalonia.Extensions;
@@ -11,17 +12,10 @@ namespace DicomReader.Avalonia.Factories
 {
     public abstract class CustomDicomRequestFactory : IDicomRequestFactory
     {
-        private readonly IDicomTagProvider _dicomTagProvider;
-
-        protected CustomDicomRequestFactory(IDicomTagProvider dicomTagProvider)
-        {
-            _dicomTagProvider = dicomTagProvider;
-        }
-
         public DicomCFindRequest CreateCFindRequest(DicomQueryParams queryParams)
         {
             var request = CreateRequestInternal(queryParams);
-            
+
             // check if necessary
             request.Dataset.AddOrUpdate(new DicomTag(0x8, 0x5), "ISO_IR 100");
 
@@ -36,7 +30,7 @@ namespace DicomReader.Avalonia.Factories
         {
             foreach (var tagContent in requestedDicomTags.Select(t => t.Content.Trim()))
             {
-                _dicomTagProvider.ProvideDicomTag(tagContent)
+                AvaloniaLocator.Current.GetService<IDicomTagProvider>().ProvideDicomTag(tagContent)
                     .OnSuccess(dicomTag => AddDicomTagToRequestIfNotExist(request, dicomTag))
                     .OnException(exception => throw exception);
             }

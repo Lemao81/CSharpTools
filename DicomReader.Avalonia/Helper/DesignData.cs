@@ -1,5 +1,4 @@
 ﻿using DicomReader.Avalonia.Models;
-using DicomReader.Avalonia.Services;
 using DicomReader.Avalonia.ViewModels;
 using DynamicData;
 
@@ -7,8 +6,7 @@ namespace DicomReader.Avalonia.Helper
 {
     public static class DesignData
     {
-        public static MainWindowViewModel DesignMainViewModel { get; set; } = new MainWindowViewModel(new FileSystemService(),
-            new DicomQueryService(new DicomRequestFactoryProvider(new DicomTagProvider())));
+        public static MainWindowViewModel DesignMainViewModel { get; set; } = new MainWindowViewModel();
 
         public static DicomQueryViewModel DesignDicomQueryViewModel { get; set; } = new DicomQueryViewModel();
 

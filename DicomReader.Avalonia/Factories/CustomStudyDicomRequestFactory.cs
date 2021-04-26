@@ -2,17 +2,12 @@
 using Common.Extensions;
 using Dicom;
 using Dicom.Network;
-using DicomReader.Avalonia.Interfaces;
 using DicomReader.Avalonia.Models;
 
 namespace DicomReader.Avalonia.Factories
 {
     public class CustomStudyDicomRequestFactory : CustomDicomRequestFactory
     {
-        public CustomStudyDicomRequestFactory(IDicomTagProvider dicomTagProvider) : base(dicomTagProvider)
-        {
-        }
-
         protected override DicomCFindRequest CreateRequestInternal(DicomQueryParams queryParams)
         {
             if (queryParams.RetrieveLevel != DicomQueryRetrieveLevel.Study) throw new InvalidOperationException("Retrieve level must be study");

@@ -9,34 +9,16 @@ namespace DicomReader.Avalonia.Services
 {
     public class DicomRequestFactoryProvider : IDicomRequestFactoryProvider
     {
-        private readonly IDicomTagProvider _dicomTagProvider;
-
-        public DicomRequestFactoryProvider(IDicomTagProvider dicomTagProvider)
-        {
-            _dicomTagProvider = dicomTagProvider;
-        }
-
-        public IDicomRequestFactory ProvideFactory(DicomQueryInputs inputs)
-        {
-            if (inputs.DicomRequestType == DicomRequestType.StandardPatient)
-                return new StandardPatientDicomRequestFactory();
-
-            if (inputs.DicomRequestType == DicomRequestType.StandardStudy)
-                return new StandardStudyDicomRequestFactory();
-
-            if (inputs.DicomRequestType == DicomRequestType.StandardSeries)
-                return new StandardSeriesDicomRequestFactory();
-
-            if (inputs.DicomRequestType == DicomRequestType.Custom && inputs.DicomQueryParams.RetrieveLevel == DicomQueryRetrieveLevel.Patient)
-                return new CustomPatientDicomRequestFactory(_dicomTagProvider);
-
-            if (inputs.DicomRequestType == DicomRequestType.Custom && inputs.DicomQueryParams.RetrieveLevel == DicomQueryRetrieveLevel.Study)
-                return new CustomStudyDicomRequestFactory(_dicomTagProvider);
-
-            if (inputs.DicomRequestType == DicomRequestType.Custom && inputs.DicomQueryParams.RetrieveLevel == DicomQueryRetrieveLevel.Series)
-                return new CustomSeriesDicomRequestFactory(_dicomTagProvider);
-
-            throw new InvalidOperationException("Dicom request strategy couldn't be evaluated");
-        }
+        public IDicomRequestFactory ProvideFactory(DicomQueryInputs inputs) =>
+            inputs.DicomRequestType switch
+            {
+                DicomRequestType.StandardPatient => new StandardPatientDicomRequestFactory(),
+                DicomRequestType.StandardStudy => new StandardStudyDicomRequestFactory(),
+                DicomRequestType.StandardSeries => new StandardSeriesDicomRequestFactory(),
+                DicomRequestType.Custom when inputs.DicomQueryParams.RetrieveLevel == DicomQueryRetrieveLevel.Patient => new CustomPatientDicomRequestFactory(),
+                DicomRequestType.Custom when inputs.DicomQueryParams.RetrieveLevel == DicomQueryRetrieveLevel.Study => new CustomStudyDicomRequestFactory(),
+                DicomRequestType.Custom when inputs.DicomQueryParams.RetrieveLevel == DicomQueryRetrieveLevel.Series => new CustomSeriesDicomRequestFactory(),
+                _ => throw new InvalidOperationException("Dicom request factory couldn't be evaluated")
+            };
     }
 }
