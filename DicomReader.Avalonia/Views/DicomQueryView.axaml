@@ -3,15 +3,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:dd="clr-namespace:DicomReader.Avalonia.Helper;assembly=DicomReader.Avalonia"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:converter="clr-namespace:DicomReader.Avalonia.Converters"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="800"
              d:DataContext="{x:Static dd:DesignData.DesignDicomQueryViewModel}"
              x:Class="DicomReader.Avalonia.Views.DicomQueryView">
-    <UserControl.Resources>
-        <converter:EnumMatchToBooleanConverter x:Key="enumConverter" />
-    </UserControl.Resources>
     <Grid ColumnDefinitions="*,*" HorizontalAlignment="Stretch">
-        <Grid Grid.Column="0" Grid.Row="0" ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" Margin="16">
+        <Grid Grid.Column="0" Grid.Row="0" ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,*" Margin="16">
+            <!-- query params -->
             <TextBlock Grid.Column="0" Grid.Row="0" Text="PatientId" Margin="4" />
             <TextBox Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding PatientId}" IsReadOnly="{Binding }" Margin="4" />
 
@@ -21,47 +18,42 @@
             <TextBlock Grid.Column="0" Grid.Row="4" Text="StudyInstanceUid" Margin="4" />
             <TextBox Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="3" Text="{Binding StudyInstanceUid}" IsReadOnly="{Binding }" Margin="4,4,4,24" />
 
+            <!-- retrieve level -->
             <StackPanel Grid.Column="2" Grid.Row="0" Grid.RowSpan="4" HorizontalAlignment="Center">
                 <TextBlock Text="Retrieve Level" Margin="4" />
-                <RadioButton GroupName="RetrieveLevel" Content="Patient"
-                             IsChecked="{Binding RetrieveLevel, TwoWay, Converter={StaticResource enumConverter}, ConverterParameter=Patient}"
-                             Margin="4" />
-                <RadioButton GroupName="RetrieveLevel" Content="Study"
-                             IsChecked="{Binding RetrieveLevel, TwoWay, Converter={StaticResource enumConverter}, ConverterParameter=Study}"
-                             Margin="4" />
-                <RadioButton GroupName="RetrieveLevel" Content="Series"
-                             IsChecked="{Binding RetrieveLevel, TwoWay, Converter={StaticResource enumConverter}, ConverterParameter=Series}"
-                             Margin="4" />
+                <ToggleButton Content="Patient" IsChecked="{Binding IsPatientLevel}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                              Margin="4" />
+                <ToggleButton Content="Study" IsChecked="{Binding IsStudyLevel}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
+                <ToggleButton Content="Series" IsChecked="{Binding IsSeriesLevel}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
             </StackPanel>
 
-            <RadioButton Grid.Column="0" Grid.Row="6" GroupName="RequestType" Content="Patient"
-                         IsChecked="{Binding DicomRequestType, TwoWay, Converter={StaticResource enumConverter}, ConverterParameter=StandardPatient}"
-                         Styles="{StaticResource {x:Type ToggleButton}}" Margin="4" />
-            <RadioButton Grid.Column="1" Grid.Row="6" GroupName="RequestType" Content="Study"
-                         IsChecked="{Binding DicomRequestType, TwoWay, Converter={StaticResource enumConverter}, ConverterParameter=StandardStudy}"
-                         Styles="{StaticResource {x:Type ToggleButton}}" Margin="4" />
-            <RadioButton Grid.Column="2" Grid.Row="6" GroupName="RequestType" Content="Series"
-                         IsChecked="{Binding DicomRequestType, TwoWay, Converter={StaticResource enumConverter}, ConverterParameter=StandardSeries}"
-                         Styles="{StaticResource {x:Type ToggleButton}}" Margin="4" />
-            <RadioButton Grid.Column="0" Grid.Row="7" GroupName="RequestType" Content="Custom"
-                         IsChecked="{Binding DicomRequestType, TwoWay, Converter={StaticResource enumConverter}, ConverterParameter=Custom}"
-                         Styles="{StaticResource {x:Type ToggleButton}}" Margin="4" />
+            <!-- request type -->
+            <ToggleButton Grid.Column="0" Grid.Row="6" Content="Standard Patient" Command="{Binding ArrangeStandardPatientQuery}" Margin="4"
+                          IsChecked="{Binding IsStandardPatientRequest}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+            <ToggleButton Grid.Column="1" Grid.Row="6" Content="Standard Study" Command="{Binding ArrangeStandardStudyQuery}" Margin="4"
+                          IsChecked="{Binding IsStandardStudyRequest}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+            <ToggleButton Grid.Column="2" Grid.Row="6" Content="Standard Series" Command="{Binding ArrangeStandardSeriesQuery}" Margin="4"
+                          IsChecked="{Binding IsStandardSeriesRequest}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+            <ToggleButton Grid.Column="0" Grid.Row="7" Content="Custom" Command="{Binding ArrangeCustomQuery}" Margin="4,4,4,16"
+                          IsChecked="{Binding IsCustomRequest}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
 
-            <!-- <Button Grid.Column="0" Grid.Row="6" Content="Standard Patient" Command="{Binding ArrangeStandardPatientQuery}" Margin="4" -->
-            <!--         HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" /> -->
-            <!-- <Button Grid.Column="1" Grid.Row="6" Content="Standard Study" Command="{Binding ArrangeStandardStudyQuery}" Margin="4" -->
-            <!--         HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" /> -->
-            <!-- <Button Grid.Column="2" Grid.Row="6" Content="Standard Series" Command="{Binding ArrangeStandardSeriesQuery}" Margin="4" -->
-            <!--         HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" /> -->
-            <!-- <Button Grid.Column="0" Grid.Row="7" Content="Custom" Margin="4,4,4,16" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" /> -->
-
+            <!-- start query -->
             <Button Grid.Column="0" Grid.Row="8" Content="Query" Margin="4" Padding="12" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
             <Button Grid.Column="1" Grid.Row="8" Content="Paged Query" Margin="4" Padding="12" HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Center" />
             <TextBox Grid.Column="2" Grid.Row="8" Watermark="Page Size" Margin="4" />
+
+            <ListBox Grid.Column="0" Grid.Row="9" Grid.ColumnSpan="3" Items="{Binding AuditTrail}" SelectionMode="Single" Margin="4,32,4,4">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Message}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </Grid>
 
-        <Grid Grid.Column="2" Grid.Row="0" ColumnDefinitions="3*,*" RowDefinitions="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="16">
+        <Grid Grid.Column="1" Grid.Row="0" ColumnDefinitions="3*,*" RowDefinitions="*" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="16">
+            <!-- requested tags -->
             <Grid Grid.Column="0" Grid.Row="0" ColumnDefinitions="*,*,*,*,*" RowDefinitions="*,Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <ListBox Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="5" Items="{Binding RequestedDicomTags}"
                          SelectedItems="{Binding SelectedRequestedDicomTags}" HorizontalAlignment="Stretch" SelectionMode="Multiple"
@@ -82,10 +74,14 @@
                 <Button Grid.Column="4" Grid.Row="1" Content="Clear" Command="{Binding ClearRequestedDicomTags}" HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Center" Margin="4" />
             </Grid>
-            <StackPanel Grid.Column="2" Grid.Row="0">
+
+            <!-- tag add btns -->
+            <StackPanel Grid.Column="1" Grid.Row="0">
                 <Button Content="Tags 1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
                 <Button Content="Tags 2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
             </StackPanel>
+
         </Grid>
+
     </Grid>
 </UserControl>

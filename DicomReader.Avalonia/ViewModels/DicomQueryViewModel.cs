@@ -17,6 +17,7 @@ namespace DicomReader.Avalonia.ViewModels
         private string _accessionNumber = string.Empty;
         private string _studyInstanceUid = string.Empty;
         private DicomRequestType _dicomRequestType;
+        private DicomQueryRetrieveLevel _retrieveLevel = DicomQueryRetrieveLevel.NotApplicable;
 
         public DicomQueryViewModel()
         {
@@ -26,9 +27,11 @@ namespace DicomReader.Avalonia.ViewModels
             ConfigureArrangeStandardPatientQueryButton();
             ConfigureArrangeStandardStudyQueryButton();
             ConfigureArrangeStandardSeriesQueryButton();
+            ConfigureArrangeCustomQueryButton();
             ConfigureStartQueryButton();
 
             AddRequestedDicomTag?.Subscribe(dicomTag => RequestedDicomTags.Add(dicomTag));
+            AuditTrailEntry.Stream.Subscribe(entry => AuditTrail.Add(entry));
         }
 
         public string RequestedDicomTagInput
@@ -55,15 +58,76 @@ namespace DicomReader.Avalonia.ViewModels
             set => this.RaiseAndSetIfChanged(ref _studyInstanceUid, value);
         }
 
+        public DicomQueryRetrieveLevel RetrieveLevel
+        {
+            get => _retrieveLevel;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _retrieveLevel, value);
+                this.RaisePropertyChanged(nameof(IsPatientLevel));
+                this.RaisePropertyChanged(nameof(IsStudyLevel));
+                this.RaisePropertyChanged(nameof(IsSeriesLevel));
+            }
+        }
+
         public DicomRequestType DicomRequestType
         {
             get => _dicomRequestType;
-            set => this.RaiseAndSetIfChanged(ref _dicomRequestType, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _dicomRequestType, value);
+                this.RaisePropertyChanged(nameof(IsStandardPatientRequest));
+                this.RaisePropertyChanged(nameof(IsStandardStudyRequest));
+                this.RaisePropertyChanged(nameof(IsStandardSeriesRequest));
+                this.RaisePropertyChanged(nameof(IsCustomRequest));
+            }
         }
 
-        public DicomQueryRetrieveLevel RetrieveLevel { get; set; }
+        public bool IsPatientLevel
+        {
+            get => RetrieveLevel == DicomQueryRetrieveLevel.Patient;
+            set => RetrieveLevel = DicomQueryRetrieveLevel.Patient;
+        }
+
+        public bool IsStudyLevel
+        {
+            get => RetrieveLevel == DicomQueryRetrieveLevel.Study;
+            set => RetrieveLevel = DicomQueryRetrieveLevel.Study;
+        }
+
+        public bool IsSeriesLevel
+        {
+            get => RetrieveLevel == DicomQueryRetrieveLevel.Series;
+            set => RetrieveLevel = DicomQueryRetrieveLevel.Series;
+        }
+
+        public bool IsStandardPatientRequest
+        {
+            get => DicomRequestType == DicomRequestType.StandardPatient;
+            set => DicomRequestType = DicomRequestType.StandardPatient;
+        }
+
+        public bool IsStandardStudyRequest
+        {
+            get => DicomRequestType == DicomRequestType.StandardStudy;
+            set => DicomRequestType = DicomRequestType.StandardStudy;
+        }
+
+        public bool IsStandardSeriesRequest
+        {
+            get => DicomRequestType == DicomRequestType.StandardSeries;
+            set => DicomRequestType = DicomRequestType.StandardSeries;
+        }
+
+        public bool IsCustomRequest
+        {
+            get => DicomRequestType == DicomRequestType.Custom;
+            set => DicomRequestType = DicomRequestType.Custom;
+        }
+
         public ObservableCollection<DicomTagItem> RequestedDicomTags { get; } = new();
         public ObservableCollection<DicomTagItem> SelectedRequestedDicomTags { get; set; } = new();
+        public ObservableCollection<AuditTrailEntry> AuditTrail { get; set; } = new();
 
         public ReactiveCommand<Unit, DicomTagItem>? AddRequestedDicomTag { get; protected set; }
         public ReactiveCommand<Unit, Unit>? RemoveRequestedDicomTags { get; protected set; }
@@ -71,6 +135,7 @@ namespace DicomReader.Avalonia.ViewModels
         public ReactiveCommand<Unit, Unit> ArrangeStandardPatientQuery { get; protected set; }
         public ReactiveCommand<Unit, Unit> ArrangeStandardStudyQuery { get; protected set; }
         public ReactiveCommand<Unit, Unit> ArrangeStandardSeriesQuery { get; protected set; }
+        public ReactiveCommand<Unit, Unit> ArrangeCustomQuery { get; protected set; }
         public ReactiveCommand<Unit, DicomQueryInputs> StartQuery { get; protected set; }
 
         private void ConfigureAddRequestedDicomTagButton()
@@ -116,10 +181,21 @@ namespace DicomReader.Avalonia.ViewModels
             });
         }
 
+        private void ConfigureArrangeCustomQueryButton()
+        {
+            ArrangeCustomQuery = ReactiveCommand.Create(() =>
+            {
+            });
+        }
+
         private void ConfigureStartQueryButton()
         {
             StartQuery = ReactiveCommand.Create(() =>
-                new DicomQueryInputs(DicomRequestType, RetrieveLevel, PatientId, StudyInstanceUid, AccessionNumber, RequestedDicomTags, false, null));
+            {
+                AuditTrail.Clear();
+
+                return new DicomQueryInputs(DicomRequestType, RetrieveLevel, PatientId, StudyInstanceUid, AccessionNumber, RequestedDicomTags, false, null);
+            });
         }
     }
 }
