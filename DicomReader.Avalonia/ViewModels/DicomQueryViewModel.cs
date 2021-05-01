@@ -19,6 +19,14 @@ namespace DicomReader.Avalonia.ViewModels
         private DicomRequestType _requestType;
         private DicomQueryRetrieveLevel _retrieveLevel = DicomQueryRetrieveLevel.NotApplicable;
 
+        private bool IsQueryPossible => IsRetrieveLevelSet && IsRequestTypeSet && IsAnyQueryParameterSet;
+        private bool IsRetrieveLevelSet => RetrieveLevel is DicomQueryRetrieveLevel.Patient or DicomQueryRetrieveLevel.Study or DicomQueryRetrieveLevel.Series;
+
+        private bool IsRequestTypeSet =>
+            RequestType is DicomRequestType.StandardPatient or DicomRequestType.StandardStudy or DicomRequestType.StandardSeries or DicomRequestType.Custom;
+
+        private bool IsAnyQueryParameterSet => !PatientId.IsNullOrEmpty() || !StudyInstanceUid.IsNullOrEmpty() || !AccessionNumber.IsNullOrEmpty();
+
         public DicomQueryViewModel()
         {
             ConfigureAddRequestedDicomTagButton();
@@ -44,19 +52,31 @@ namespace DicomReader.Avalonia.ViewModels
         public string PatientId
         {
             get => _patientId;
-            set => this.RaiseAndSetIfChanged(ref _patientId, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _patientId, value);
+                this.RaisePropertyChanged(nameof(IsQueryPossible));
+            }
         }
 
         public string AccessionNumber
         {
             get => _accessionNumber;
-            set => this.RaiseAndSetIfChanged(ref _accessionNumber, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _accessionNumber, value);
+                this.RaisePropertyChanged(nameof(IsQueryPossible));
+            }
         }
 
         public string StudyInstanceUid
         {
             get => _studyInstanceUid;
-            set => this.RaiseAndSetIfChanged(ref _studyInstanceUid, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _studyInstanceUid, value);
+                this.RaisePropertyChanged(nameof(IsQueryPossible));
+            }
         }
 
         public DicomQueryRetrieveLevel RetrieveLevel
@@ -68,6 +88,7 @@ namespace DicomReader.Avalonia.ViewModels
                 this.RaisePropertyChanged(nameof(IsPatientLevel));
                 this.RaisePropertyChanged(nameof(IsStudyLevel));
                 this.RaisePropertyChanged(nameof(IsSeriesLevel));
+                this.RaisePropertyChanged(nameof(IsQueryPossible));
             }
         }
 
@@ -81,6 +102,7 @@ namespace DicomReader.Avalonia.ViewModels
                 this.RaisePropertyChanged(nameof(IsStandardStudyRequest));
                 this.RaisePropertyChanged(nameof(IsStandardSeriesRequest));
                 this.RaisePropertyChanged(nameof(IsCustomRequest));
+                this.RaisePropertyChanged(nameof(IsQueryPossible));
             }
         }
 
@@ -192,14 +214,15 @@ namespace DicomReader.Avalonia.ViewModels
 
         private void ConfigureStartQueryButton()
         {
+            var enabledObservable = this.WhenAnyValue(vm => vm.IsQueryPossible);
             StartQuery = ReactiveCommand.Create(() =>
             {
                 AuditTrail.Clear();
 
                 return new DicomQueryInputs(RequestType, RetrieveLevel, PatientId, StudyInstanceUid, AccessionNumber, RequestedDicomTags, false, null);
-            });
+            }, enabledObservable);
         }
-        
+
         private void ConfigureTestButton()
         {
             Test = ReactiveCommand.Create(() =>
@@ -209,11 +232,5 @@ namespace DicomReader.Avalonia.ViewModels
                 StudyInstanceUid = "1.2.276.0.33.1.0.4.192.168.56.148.20200331.1192945.88622.2";
             });
         }
-
-        private static bool IsRetrieveLevelSet(DicomQueryRetrieveLevel r) =>
-            r is DicomQueryRetrieveLevel.Patient or DicomQueryRetrieveLevel.Study or DicomQueryRetrieveLevel.Series;
-
-        private static bool IsRequestTypeSet(DicomRequestType r) =>
-            r is DicomRequestType.StandardPatient or DicomRequestType.StandardStudy or DicomRequestType.StandardSeries or DicomRequestType.Custom;
     }
 }
