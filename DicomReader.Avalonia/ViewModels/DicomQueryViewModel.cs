@@ -17,7 +17,7 @@ namespace DicomReader.Avalonia.ViewModels
         private string _accessionNumber = string.Empty;
         private string _studyInstanceUid = string.Empty;
         private DicomRequestType _requestType;
-        private DicomQueryRetrieveLevel _retrieveLevel = DicomQueryRetrieveLevel.NotApplicable;
+        private DicomQueryRetrieveLevel _retrieveLevel;
 
         private bool IsQueryPossible => IsRetrieveLevelSet && IsRequestTypeSet && IsAnyQueryParameterSet;
         private bool IsRetrieveLevelSet => RetrieveLevel is DicomQueryRetrieveLevel.Patient or DicomQueryRetrieveLevel.Study or DicomQueryRetrieveLevel.Series;

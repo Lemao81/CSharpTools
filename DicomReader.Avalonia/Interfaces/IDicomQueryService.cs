@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DicomReader.Avalonia.Models;
 
 namespace DicomReader.Avalonia.Interfaces
 {
     public interface IDicomQueryService
     {
-        Task<List<DicomResultSet>> ExecuteDicomQuery(DicomQueryInputs queryInputs, PacsConfiguration pacsConfiguration);
+        Task<TResult> ExecuteDicomQuery<TResult>(DicomQueryInputs queryInputs, PacsConfiguration pacsConfiguration, int? take = null);
     }
 }

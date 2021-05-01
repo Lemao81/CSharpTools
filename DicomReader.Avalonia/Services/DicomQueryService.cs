@@ -2,16 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
-using Avalonia.Threading;
 using Common.Extensions;
+using Dicom;
 using Dicom.Network;
 using Dicom.Network.Client.EventArguments;
-using DicomReader.Avalonia.Extensions;
 using DicomReader.Avalonia.Interfaces;
 using DicomReader.Avalonia.Models;
-using static System.String;
 using AssociationAcceptedEventArgs = Dicom.Network.Client.EventArguments.AssociationAcceptedEventArgs;
 using AssociationRejectedEventArgs = Dicom.Network.Client.EventArguments.AssociationRejectedEventArgs;
 using DicomClient = Dicom.Network.Client.DicomClient;
@@ -20,15 +19,18 @@ namespace DicomReader.Avalonia.Services
 {
     public class DicomQueryService : IDicomQueryService
     {
-        public async Task<List<DicomResultSet>> ExecuteDicomQuery(DicomQueryInputs queryInputs, PacsConfiguration pacsConfiguration)
+        public async Task<TResult> ExecuteDicomQuery<TResult>(DicomQueryInputs queryInputs, PacsConfiguration pacsConfiguration, int? take = null)
         {
-            var requestFactory = AvaloniaLocator.Current.GetService<IDicomRequestFactoryProvider>().ProvideFactory(queryInputs);
+            var dicomRequestFactoryProvider = AvaloniaLocator.Current.GetService<IDicomRequestFactoryProvider>();
+            var requestFactory = dicomRequestFactoryProvider.ProvideFactory(queryInputs);
             var findRequest = requestFactory.CreateCFindRequest(queryInputs.DicomQueryParams);
+            var responseDatasets = await SendFindRequest(findRequest, pacsConfiguration, take);
+            var responseProcessingStrategy = AvaloniaLocator.Current.GetService<IDicomResponseProcessingStrategy<TResult>>();
 
-            return await SendFindRequestAndCollectResult(findRequest, pacsConfiguration);
+            return responseProcessingStrategy.ProcessResponse(responseDatasets);
         }
 
-        private static async Task<List<DicomResultSet>> SendFindRequestAndCollectResult(DicomCFindRequest findRequest, PacsConfiguration configuration)
+        private static async Task<List<DicomDataset>> SendFindRequest(DicomCFindRequest findRequest, PacsConfiguration configuration, int? take)
         {
             try
             {
@@ -36,8 +38,10 @@ namespace DicomReader.Avalonia.Services
                 var client = new DicomClient(configuration.Host, configuration.Port, false, callingAe, configuration.CalledAe);
                 client.NegotiateAsyncOps();
 
-                var result = new List<DicomResultSet>();
-                findRequest.OnResponseReceived = (_, response) => OnResponseReceived(response, result);
+                var responseCount = 0;
+                var responseDatasets = new List<DicomDataset>();
+                var cancelToken = new CancellationTokenSource();
+                findRequest.OnResponseReceived = (_, response) => OnResponseReceived(response, responseDatasets, ref responseCount, take, cancelToken);
                 findRequest.OnTimeout = (_, _) => OnTimeout();
                 client.StateChanged += (_, args) => OnStateChanged(args);
                 client.AssociationAccepted += (_, args) => OnAssociationAccepted(args);
@@ -46,45 +50,40 @@ namespace DicomReader.Avalonia.Services
                 client.AssociationReleased += (_, _) => OnAssociationReleased();
 
                 await client.AddRequestAsync(findRequest);
-                await client.SendAsync();
+                await client.SendAsync(cancelToken.Token);
 
-                return result;
+                return responseDatasets;
             }
             catch (SocketException exception)
             {
                 if (!exception.Message.Contains("not properly respond")) throw;
 
-                Log("Connection to PACS server could not be established");
+                LogEntry.Emit(new LogEntry("Connection to PACS server could not be established"));
 
-                return Enumerable.Empty<DicomResultSet>().ToList();
+                return Enumerable.Empty<DicomDataset>().ToList();
             }
             catch (Exception exception)
             {
-                Log($"Exception during dicom query. {exception.Message}");
+                LogEntry.Emit(new LogEntry($"Exception during dicom query. {exception.Message}"));
                 throw new ApplicationException("Dicom query failed", exception);
             }
         }
 
-        private static void OnResponseReceived(DicomCFindResponse response, List<DicomResultSet> result)
+        private static void OnResponseReceived(DicomCFindResponse response, ICollection<DicomDataset> responseDatasets, ref int responseCount, int? take,
+            CancellationTokenSource cancelToken)
         {
             if (!response.HasDataset || response.Dataset == null)
             {
                 AuditTrailEntry.Emit($"RESPONSE RECEIVED WITHOUT DATA. Status: {response.Status}");
+
                 return;
             }
-            AuditTrailEntry.Emit($"RESPONSE RECEIVED WITH DATA. Status: {response.Status}");
 
-            var dataSetValues = new List<DicomResult>();
-            dataSetValues.AddRange(response.Dataset.Select(entry =>
-                new DicomResult
-                {
-                    Name = entry.Tag.DictionaryEntry.Name,
-                    Keyword = entry.Tag.DictionaryEntry.Keyword,
-                    HexCode = $"{entry.Tag.Group:X4}:{entry.Tag.Element:X4}",
-                    ValueRepresentation = entry.Tag.DictionaryEntry.ValueRepresentations.FirstOrDefault()?.Name ?? Empty,
-                    StringValue = response.Dataset.GetString(entry.Tag)
-                }));
-            result.Add(new DicomResultSet(dataSetValues));
+            AuditTrailEntry.Emit($"RESPONSE RECEIVED WITH DATA. Status: {response.Status}");
+            responseCount++;
+            responseDatasets.Add(response.Dataset);
+
+            if (take.HasValue && responseCount >= take.Value) cancelToken.Cancel();
         }
 
         private static void OnTimeout() => AuditTrailEntry.Emit("REQUEST TIMED OUT");
@@ -109,13 +108,5 @@ namespace DicomReader.Avalonia.Services
         }
 
         private static void OnAssociationReleased() => AuditTrailEntry.Emit("ASSOCIATION RELEASED");
-
-        private static void Log(string? text)
-        {
-            if (!text.IsNullOrEmpty())
-            {
-                Dispatcher.UIThread.InvokeAsync(() => new LogEntry(text!).Emit());
-            }
-        }
     }
 }

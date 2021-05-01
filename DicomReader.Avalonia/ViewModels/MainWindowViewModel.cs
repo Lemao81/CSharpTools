@@ -84,7 +84,7 @@ namespace DicomReader.Avalonia.ViewModels
                 if (PacsConfigurationViewModel.SelectedConfiguration == null)
                     throw new InvalidOperationException("Dicom query started without selected pacs configuration");
 
-                await dicomQueryService.ExecuteDicomQuery(queryInputs, PacsConfigurationViewModel.SelectedConfiguration);
+                var resultSet = await dicomQueryService.ExecuteDicomQuery<DicomResultSet>(queryInputs, PacsConfigurationViewModel.SelectedConfiguration);
             });
         }
 
