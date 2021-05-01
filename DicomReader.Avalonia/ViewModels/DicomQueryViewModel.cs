@@ -16,7 +16,7 @@ namespace DicomReader.Avalonia.ViewModels
         private string _patientId = string.Empty;
         private string _accessionNumber = string.Empty;
         private string _studyInstanceUid = string.Empty;
-        private DicomRequestType _dicomRequestType;
+        private DicomRequestType _requestType;
         private DicomQueryRetrieveLevel _retrieveLevel = DicomQueryRetrieveLevel.NotApplicable;
 
         public DicomQueryViewModel()
@@ -29,6 +29,7 @@ namespace DicomReader.Avalonia.ViewModels
             ConfigureArrangeStandardSeriesQueryButton();
             ConfigureArrangeCustomQueryButton();
             ConfigureStartQueryButton();
+            ConfigureTestButton();
 
             AddRequestedDicomTag?.Subscribe(dicomTag => RequestedDicomTags.Add(dicomTag));
             AuditTrailEntry.Stream.Subscribe(entry => AuditTrail.Add(entry));
@@ -70,12 +71,12 @@ namespace DicomReader.Avalonia.ViewModels
             }
         }
 
-        public DicomRequestType DicomRequestType
+        public DicomRequestType RequestType
         {
-            get => _dicomRequestType;
+            get => _requestType;
             set
             {
-                this.RaiseAndSetIfChanged(ref _dicomRequestType, value);
+                this.RaiseAndSetIfChanged(ref _requestType, value);
                 this.RaisePropertyChanged(nameof(IsStandardPatientRequest));
                 this.RaisePropertyChanged(nameof(IsStandardStudyRequest));
                 this.RaisePropertyChanged(nameof(IsStandardSeriesRequest));
@@ -103,26 +104,26 @@ namespace DicomReader.Avalonia.ViewModels
 
         public bool IsStandardPatientRequest
         {
-            get => DicomRequestType == DicomRequestType.StandardPatient;
-            set => DicomRequestType = DicomRequestType.StandardPatient;
+            get => RequestType == DicomRequestType.StandardPatient;
+            set => RequestType = DicomRequestType.StandardPatient;
         }
 
         public bool IsStandardStudyRequest
         {
-            get => DicomRequestType == DicomRequestType.StandardStudy;
-            set => DicomRequestType = DicomRequestType.StandardStudy;
+            get => RequestType == DicomRequestType.StandardStudy;
+            set => RequestType = DicomRequestType.StandardStudy;
         }
 
         public bool IsStandardSeriesRequest
         {
-            get => DicomRequestType == DicomRequestType.StandardSeries;
-            set => DicomRequestType = DicomRequestType.StandardSeries;
+            get => RequestType == DicomRequestType.StandardSeries;
+            set => RequestType = DicomRequestType.StandardSeries;
         }
 
         public bool IsCustomRequest
         {
-            get => DicomRequestType == DicomRequestType.Custom;
-            set => DicomRequestType = DicomRequestType.Custom;
+            get => RequestType == DicomRequestType.Custom;
+            set => RequestType = DicomRequestType.Custom;
         }
 
         public ObservableCollection<DicomTagItem> RequestedDicomTags { get; } = new();
@@ -132,11 +133,12 @@ namespace DicomReader.Avalonia.ViewModels
         public ReactiveCommand<Unit, DicomTagItem>? AddRequestedDicomTag { get; protected set; }
         public ReactiveCommand<Unit, Unit>? RemoveRequestedDicomTags { get; protected set; }
         public ReactiveCommand<Unit, Unit>? ClearRequestedDicomTags { get; protected set; }
-        public ReactiveCommand<Unit, Unit> ArrangeStandardPatientQuery { get; protected set; }
-        public ReactiveCommand<Unit, Unit> ArrangeStandardStudyQuery { get; protected set; }
-        public ReactiveCommand<Unit, Unit> ArrangeStandardSeriesQuery { get; protected set; }
-        public ReactiveCommand<Unit, Unit> ArrangeCustomQuery { get; protected set; }
-        public ReactiveCommand<Unit, DicomQueryInputs> StartQuery { get; protected set; }
+        public ReactiveCommand<Unit, Unit>? ArrangeStandardPatientQuery { get; protected set; }
+        public ReactiveCommand<Unit, Unit>? ArrangeStandardStudyQuery { get; protected set; }
+        public ReactiveCommand<Unit, Unit>? ArrangeStandardSeriesQuery { get; protected set; }
+        public ReactiveCommand<Unit, Unit>? ArrangeCustomQuery { get; protected set; }
+        public ReactiveCommand<Unit, DicomQueryInputs>? StartQuery { get; protected set; }
+        public ReactiveCommand<Unit, Unit>? Test { get; protected set; }
 
         private void ConfigureAddRequestedDicomTagButton()
         {
@@ -194,8 +196,24 @@ namespace DicomReader.Avalonia.ViewModels
             {
                 AuditTrail.Clear();
 
-                return new DicomQueryInputs(DicomRequestType, RetrieveLevel, PatientId, StudyInstanceUid, AccessionNumber, RequestedDicomTags, false, null);
+                return new DicomQueryInputs(RequestType, RetrieveLevel, PatientId, StudyInstanceUid, AccessionNumber, RequestedDicomTags, false, null);
             });
         }
+        
+        private void ConfigureTestButton()
+        {
+            Test = ReactiveCommand.Create(() =>
+            {
+                RetrieveLevel = DicomQueryRetrieveLevel.Series;
+                RequestType = DicomRequestType.StandardSeries;
+                StudyInstanceUid = "1.2.276.0.33.1.0.4.192.168.56.148.20200331.1192945.88622.2";
+            });
+        }
+
+        private static bool IsRetrieveLevelSet(DicomQueryRetrieveLevel r) =>
+            r is DicomQueryRetrieveLevel.Patient or DicomQueryRetrieveLevel.Study or DicomQueryRetrieveLevel.Series;
+
+        private static bool IsRequestTypeSet(DicomRequestType r) =>
+            r is DicomRequestType.StandardPatient or DicomRequestType.StandardStudy or DicomRequestType.StandardSeries or DicomRequestType.Custom;
     }
 }

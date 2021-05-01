@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reactive;
+using System.Reactive.Linq;
 using Common.Extensions;
 using DicomReader.Avalonia.Enums;
 using DicomReader.Avalonia.Models;
@@ -22,21 +24,25 @@ namespace DicomReader.Avalonia.ViewModels
         private PacsConfigurationViewMode _viewMode;
         private PacsConfiguration? _selectedConfiguration;
         private PacsConfiguration? _selectedConvifugrationBeforeEditing;
-
-        private readonly IEnumerable<string> _viewModeDependantProperties =
-            new[] { nameof(IsSelectedMode), nameof(IsEditingMode) };
+        private readonly List<IObserver<string>> _selectedConfigurationNameStreamObservers = new();
+        private readonly IEnumerable<string> _viewModeDependantProperties = new[] { nameof(IsSelectedMode), nameof(IsEditingMode) };
 
         public PacsConfigurationViewModel()
         {
             ConfigureAddPacsConfigurationButton();
             ConfigureSavePacsConfigurationButton();
             ConfigureCancelEditingButton();
+            ConfigureSelectedConfigurationNameStream();
         }
 
         public void Initialize(AppConfig appConfig)
         {
             PacsConfigurations.Clear();
             PacsConfigurations.AddRange(appConfig.PacsConfigurations);
+            if (!appConfig.LastLoadedPacsConfiguration.IsNullOrEmpty())
+            {
+                SelectedConfiguration = PacsConfigurations.Single(config => config.Name == appConfig.LastLoadedPacsConfiguration);
+            }
         }
 
         public ObservableCollection<PacsConfiguration> PacsConfigurations { get; } = new();
@@ -55,6 +61,7 @@ namespace DicomReader.Avalonia.ViewModels
                 CallingAe = value.CallingAe;
                 CalledAe = value.CalledAe;
                 ViewMode = PacsConfigurationViewMode.Selected;
+                _selectedConfigurationNameStreamObservers.ForEach(obs => obs.OnNext(value.Name));
             }
         }
 
@@ -99,9 +106,8 @@ namespace DicomReader.Avalonia.ViewModels
         }
 
         public bool IsSelectedMode => ViewMode == PacsConfigurationViewMode.Selected;
-
-        public bool IsEditingMode => ViewMode == PacsConfigurationViewMode.Add || ViewMode == PacsConfigurationViewMode.Edit;
-
+        public bool IsEditingMode => ViewMode is PacsConfigurationViewMode.Add or PacsConfigurationViewMode.Edit;
+        public IObservable<string> SelectedConfigurationNameStream { get; protected set; }
         public ReactiveCommand<Unit, Unit>? AddPacsConfiguration { get; protected set; }
         public ReactiveCommand<Unit, PacsConfiguration>? SavePacsConfiguration { get; protected set; }
         public ReactiveCommand<Unit, Unit>? CancelEditing { get; protected set; }
@@ -151,6 +157,16 @@ namespace DicomReader.Avalonia.ViewModels
                 EmptyInputFields();
                 ViewMode = PacsConfigurationViewMode.None;
             }, enabledObservable);
+        }
+
+        private void ConfigureSelectedConfigurationNameStream()
+        {
+            SelectedConfigurationNameStream = Observable.Create<string>(observer =>
+            {
+                _selectedConfigurationNameStreamObservers.Add(observer);
+
+                return new ObserverDisposable<string>(observer, _selectedConfigurationNameStreamObservers);
+            });
         }
 
         private string ValidatePacsConfigurationInput()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
+using Common.Extensions;
 
 namespace DicomReader.Avalonia.Models
 {
@@ -19,18 +20,17 @@ namespace DicomReader.Avalonia.Models
         {
             AuditTrailObservers.Add(observer);
 
-            return new Disposable(observer);
+            return new ObserverDisposable<AuditTrailEntry>(observer, AuditTrailObservers);
         });
 
         public static void Emit(AuditTrailEntry auditTrail) => AuditTrailObservers.ForEach(o => o.OnNext(auditTrail));
 
-        public class Disposable : IDisposable
+        public static void Emit(string? message)
         {
-            private readonly IObserver<AuditTrailEntry> _observer;
-
-            public Disposable(IObserver<AuditTrailEntry> observer) => _observer = observer;
-
-            public void Dispose() => AuditTrailObservers.Remove(_observer);
+            if (!message.IsNullOrEmpty())
+            {
+                Emit(new AuditTrailEntry(message));
+            }
         }
     }
 }

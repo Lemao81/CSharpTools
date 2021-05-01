@@ -18,6 +18,11 @@ namespace DicomReader.Avalonia.ViewModels
             DicomQueryViewModel = new DicomQueryViewModel();
             QueryResultViewModel = new QueryResultViewModel();
             PacsConfigurationViewModel = new PacsConfigurationViewModel();
+            PacsConfigurationViewModel.SelectedConfigurationNameStream.Subscribe(configName =>
+            {
+                AppConfig = new AppConfig(AppConfig, configName);
+                SaveAppConfig();
+            });
             // TODO show log messages
             LogEntry.Stream.Subscribe(_ =>
             {
@@ -54,9 +59,11 @@ namespace DicomReader.Avalonia.ViewModels
 
         private void AddSubscriptions()
         {
-            var fileSystemService = AvaloniaLocator.Current.GetService<IFileSystemService>();
+            var dicomQueryService = AvaloniaLocator.Current.GetService<IDicomQueryService>();
+
             PacsConfigurationViewModel.SavePacsConfiguration?.Subscribe(editedConfiguration =>
             {
+                AppConfig = new AppConfig(AppConfig, editedConfiguration.Name);
                 var existingConfiguration = AppConfig.PacsConfigurations.SingleOrDefault(c => c.Name.EqualsIgnoringCase(editedConfiguration.Name));
                 if (existingConfiguration != null)
                 {
@@ -67,17 +74,24 @@ namespace DicomReader.Avalonia.ViewModels
                     AppConfig.PacsConfigurations.Add(editedConfiguration);
                 }
 
-                fileSystemService.WriteFile(Consts.AppConfigFileName, new AppConfigDto(AppConfig).AsIndentedJson());
+                SaveAppConfig();
                 PacsConfigurationViewModel.Initialize(AppConfig);
                 PacsConfigurationViewModel.SelectedConfiguration = editedConfiguration;
             });
-            DicomQueryViewModel.StartQuery.Subscribe(async queryInputs =>
+
+            DicomQueryViewModel.StartQuery?.Subscribe(async queryInputs =>
             {
                 if (PacsConfigurationViewModel.SelectedConfiguration == null)
                     throw new InvalidOperationException("Dicom query started without selected pacs configuration");
 
-                await AvaloniaLocator.Current.GetService<IDicomQueryService>().ExecuteDicomQuery(queryInputs, PacsConfigurationViewModel.SelectedConfiguration);
+                await dicomQueryService.ExecuteDicomQuery(queryInputs, PacsConfigurationViewModel.SelectedConfiguration);
             });
+        }
+
+        private void SaveAppConfig()
+        {
+            var fileSystemService = AvaloniaLocator.Current.GetService<IFileSystemService>();
+            fileSystemService.WriteFile(Consts.AppConfigFileName, new AppConfigDto(AppConfig).AsIndentedJson());
         }
     }
 }

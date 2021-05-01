@@ -29,7 +29,7 @@ namespace DicomReader.Avalonia.Models
         {
             LogEntryObservers.Add(observer);
 
-            return new Disposable(observer);
+            return new ObserverDisposable<LogEntry>(observer, LogEntryObservers);
         });
 
         public static void Emit(LogEntry logEntry) => LogEntryObservers.ForEach(o => o.OnNext(logEntry));
@@ -47,15 +47,6 @@ namespace DicomReader.Avalonia.Models
             }
 
             return text;
-        }
-
-        public class Disposable : IDisposable
-        {
-            private readonly IObserver<LogEntry> _observer;
-
-            public Disposable(IObserver<LogEntry> observer) => _observer = observer;
-
-            public void Dispose() => LogEntryObservers.Remove(_observer);
         }
     }
 }

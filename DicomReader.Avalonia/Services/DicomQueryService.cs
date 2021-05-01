@@ -69,10 +69,10 @@ namespace DicomReader.Avalonia.Services
         {
             if (!response.HasDataset || response.Dataset == null)
             {
-                Log($"RESPONSE RECEIVED WITHOUT DATA. Status: {response.Status}");
+                AuditTrailEntry.Emit($"RESPONSE RECEIVED WITHOUT DATA. Status: {response.Status}");
                 return;
             }
-            Log($"RESPONSE RECEIVED WITH DATA. Status: {response.Status}");
+            AuditTrailEntry.Emit($"RESPONSE RECEIVED WITH DATA. Status: {response.Status}");
 
             var dataSetValues = new List<DicomResult>();
             dataSetValues.AddRange(response.Dataset.Select(entry =>
@@ -87,28 +87,28 @@ namespace DicomReader.Avalonia.Services
             result.Add(new DicomResultSet(dataSetValues));
         }
 
-        private static void OnTimeout() => Log("REQUEST TIMED OUT");
+        private static void OnTimeout() => AuditTrailEntry.Emit("REQUEST TIMED OUT");
 
-        private static void OnStateChanged(StateChangedEventArgs args) => Log(args?.NewState?.ToString());
+        private static void OnStateChanged(StateChangedEventArgs args) => AuditTrailEntry.Emit(args?.NewState?.ToString());
 
         private static void OnAssociationAccepted(AssociationAcceptedEventArgs args) =>
-            Log($"ASSOCIATION ACCEPTED. Host: {args.Association.RemoteHost} " +
-                $"Port: {args.Association.RemotePort} CalledAE: {args.Association.CalledAE} " +
-                $"CallingAE: {args.Association.CallingAE}");
+            AuditTrailEntry.Emit($"ASSOCIATION ACCEPTED. Host: {args.Association.RemoteHost} " +
+                                 $"Port: {args.Association.RemotePort} CalledAE: {args.Association.CalledAE} " +
+                                 $"CallingAE: {args.Association.CallingAE}");
 
         private static void OnAssociationRejected(AssociationRejectedEventArgs args)
         {
-            Log($"ASSOCIATION REJECTED. Reason: {args.Reason}");
+            AuditTrailEntry.Emit($"ASSOCIATION REJECTED. Reason: {args.Reason}");
             throw new ApplicationException(args.Reason.ToString());
         }
 
         private static void OnRequestTimedOut(RequestTimedOutEventArgs args)
         {
-            Log("CLIENT TIMED OUT");
+            AuditTrailEntry.Emit("CLIENT TIMED OUT");
             throw new ApplicationException(args.ToString());
         }
 
-        private static void OnAssociationReleased() => Log("ASSOCIATION RELEASED");
+        private static void OnAssociationReleased() => AuditTrailEntry.Emit("ASSOCIATION RELEASED");
 
         private static void Log(string? text)
         {

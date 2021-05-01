@@ -22,6 +22,14 @@ namespace DicomReader.Avalonia.Models
             }
         }
 
+        public AppConfig(AppConfig appConfig, string lastLoaded)
+        {
+            if (appConfig == null) throw new ArgumentNullException(nameof(appConfig));
+
+            LastLoadedPacsConfiguration = lastLoaded;
+            PacsConfigurations.AddRange(appConfig.PacsConfigurations);
+        }
+
         public static AppConfig Empty = new();
 
         public string LastLoadedPacsConfiguration { get; } = string.Empty;

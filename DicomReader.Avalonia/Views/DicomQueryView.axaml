@@ -38,7 +38,8 @@
                           IsChecked="{Binding IsCustomRequest}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
 
             <!-- start query -->
-            <Button Grid.Column="0" Grid.Row="8" Content="Query" Margin="4" Padding="12" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+            <Button Grid.Column="0" Grid.Row="8" Content="Query" Margin="4" Padding="12" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    Command="{Binding StartQuery}" />
             <Button Grid.Column="1" Grid.Row="8" Content="Paged Query" Margin="4" Padding="12" HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Center" />
             <TextBox Grid.Column="2" Grid.Row="8" Watermark="Page Size" Margin="4" />
@@ -79,6 +80,7 @@
             <StackPanel Grid.Column="1" Grid.Row="0">
                 <Button Content="Tags 1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
                 <Button Content="Tags 2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
+                <Button Content="Test" Command="{Binding Test}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
             </StackPanel>
 
         </Grid>
