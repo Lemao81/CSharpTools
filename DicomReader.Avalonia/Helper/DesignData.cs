@@ -12,11 +12,11 @@ namespace DicomReader.Avalonia.Helper
 
         public static QueryResultViewModel DesignQueryResultViewModel { get; set; } = new QueryResultViewModel();
 
-        public static PacsConfigurationViewModel DesignPacsConfigurationViewModel { get; set; } = GetDesignPacsConfigurationViewModel();
+        public static ConfigurationViewModel DesignConfigurationViewModel { get; set; } = GetDesignPacsConfigurationViewModel();
 
-        private static PacsConfigurationViewModel GetDesignPacsConfigurationViewModel()
+        private static ConfigurationViewModel GetDesignPacsConfigurationViewModel()
         {
-            var viewModel = new PacsConfigurationViewModel
+            var viewModel = new ConfigurationViewModel
             {
                 Host = "192.168.35.50",
                 Port = "4242",

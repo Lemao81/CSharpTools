@@ -14,7 +14,7 @@ using ReactiveUI;
 
 namespace DicomReader.Avalonia.ViewModels
 {
-    public class PacsConfigurationViewModel : ViewModelBase
+    public class ConfigurationViewModel : ViewModelBase
     {
         private string _name = string.Empty;
         private string _host = string.Empty;
@@ -24,15 +24,16 @@ namespace DicomReader.Avalonia.ViewModels
         private PacsConfigurationViewMode _viewMode;
         private PacsConfiguration? _selectedConfiguration;
         private PacsConfiguration? _selectedConvifugrationBeforeEditing;
-        private readonly List<IObserver<string>> _selectedConfigurationNameStreamObservers = new();
+        private readonly List<IObserver<ConfigurationChangedData>> _configurationChangedStreamObservers = new();
         private readonly IEnumerable<string> _viewModeDependantProperties = new[] { nameof(IsSelectedMode), nameof(IsEditingMode) };
+        private OutputFormat _outputFormat = OutputFormat.JsonSerialized;
 
-        public PacsConfigurationViewModel()
+        public ConfigurationViewModel()
         {
             ConfigureAddPacsConfigurationButton();
             ConfigureSavePacsConfigurationButton();
             ConfigureCancelEditingButton();
-            ConfigureSelectedConfigurationNameStream();
+            ConfigureConfigurationChangedStream();
         }
 
         public void Initialize(AppConfig appConfig)
@@ -43,6 +44,8 @@ namespace DicomReader.Avalonia.ViewModels
             {
                 SelectedConfiguration = PacsConfigurations.Single(config => config.Name == appConfig.LastLoadedPacsConfiguration);
             }
+
+            OutputFormat = appConfig.OutputFormat;
         }
 
         public ObservableCollection<PacsConfiguration> PacsConfigurations { get; } = new();
@@ -61,7 +64,7 @@ namespace DicomReader.Avalonia.ViewModels
                 CallingAe = value.CallingAe;
                 CalledAe = value.CalledAe;
                 ViewMode = PacsConfigurationViewMode.Selected;
-                _selectedConfigurationNameStreamObservers.ForEach(obs => obs.OnNext(value.Name));
+                EmitConfigurationChanged(new ConfigurationChangedData(value.Name));
             }
         }
 
@@ -105,12 +108,39 @@ namespace DicomReader.Avalonia.ViewModels
             set => this.RaiseAndSetIfChanged(ref _calledAe, value);
         }
 
+        public OutputFormat OutputFormat
+        {
+            get => _outputFormat;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _outputFormat, value);
+                this.RaisePropertyChanged(nameof(IsOutputJsonSerialized));
+                this.RaisePropertyChanged(nameof(IsOutputDicomResult));
+                EmitConfigurationChanged(new ConfigurationChangedData(value));
+            }
+        }
+
+        public bool IsOutputJsonSerialized
+        {
+            get => OutputFormat == OutputFormat.JsonSerialized;
+            set => OutputFormat = OutputFormat.JsonSerialized;
+        }
+
+        public bool IsOutputDicomResult
+        {
+            get => OutputFormat == OutputFormat.DicomResult;
+            set => OutputFormat = OutputFormat.DicomResult;
+        }
+
         public bool IsSelectedMode => ViewMode == PacsConfigurationViewMode.Selected;
         public bool IsEditingMode => ViewMode is PacsConfigurationViewMode.Add or PacsConfigurationViewMode.Edit;
-        public IObservable<string> SelectedConfigurationNameStream { get; protected set; }
+        public IObservable<ConfigurationChangedData> ConfigurationChangedStream { get; protected set; }
         public ReactiveCommand<Unit, Unit>? AddPacsConfiguration { get; protected set; }
         public ReactiveCommand<Unit, PacsConfiguration>? SavePacsConfiguration { get; protected set; }
         public ReactiveCommand<Unit, Unit>? CancelEditing { get; protected set; }
+
+        private void EmitConfigurationChanged(ConfigurationChangedData changedData) =>
+            _configurationChangedStreamObservers.ForEach(obs => obs.OnNext(changedData));
 
         private void ConfigureAddPacsConfigurationButton()
         {
@@ -159,13 +189,13 @@ namespace DicomReader.Avalonia.ViewModels
             }, enabledObservable);
         }
 
-        private void ConfigureSelectedConfigurationNameStream()
+        private void ConfigureConfigurationChangedStream()
         {
-            SelectedConfigurationNameStream = Observable.Create<string>(observer =>
+            ConfigurationChangedStream = Observable.Create<ConfigurationChangedData>(observer =>
             {
-                _selectedConfigurationNameStreamObservers.Add(observer);
+                _configurationChangedStreamObservers.Add(observer);
 
-                return new ObserverDisposable<string>(observer, _selectedConfigurationNameStreamObservers);
+                return new ObserverDisposable<ConfigurationChangedData>(observer, _configurationChangedStreamObservers);
             });
         }
 

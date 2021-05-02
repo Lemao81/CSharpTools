@@ -6,5 +6,12 @@
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="800"
              d:DataContext="{x:Static dd:DesignData.DesignQueryResultViewModel}"
              x:Class="DicomReader.Avalonia.Views.QueryResultView">
-  Welcome to QueryResultUserControl!
+    <TabControl TabStripPlacement="Left" Margin="8">
+        <TabItem Header="Json">
+            <TextBox Text="{Binding Json}" TextWrapping="Wrap" IsReadOnly="True" Margin="8" />
+        </TabItem>
+        <TabItem Header="Table">
+            <ListBox Items="{Binding Results}" BorderThickness="0.5" Margin="8" />
+        </TabItem>
+    </TabControl>
 </UserControl>

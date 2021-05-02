@@ -22,7 +22,7 @@ namespace DicomReader.Avalonia.Models
             CalledAe = configuration.CalledAe;
         }
 
-        public PacsConfiguration(PacsConfigurationViewModel viewModel)
+        public PacsConfiguration(ConfigurationViewModel viewModel)
         {
             if (viewModel == null) throw new ArgumentNullException(nameof(viewModel));
 

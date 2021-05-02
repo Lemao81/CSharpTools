@@ -1,13 +1,11 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using DicomReader.Avalonia.ViewModels;
 
 namespace DicomReader.Avalonia.Views
 {
-    public class PacsConfigurationView : UserControl
+    public class ConfigurationView : UserControl
     {
-        public PacsConfigurationView()
+        public ConfigurationView()
         {
             InitializeComponent();
         }

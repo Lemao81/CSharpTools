@@ -1,7 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:views="clr-namespace:DicomReader.Avalonia.Views"
-        xmlns:vm="using:DicomReader.Avalonia.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:dd="clr-namespace:DicomReader.Avalonia.Helper;assembly=DicomReader.Avalonia"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -9,13 +7,12 @@
         x:Class="DicomReader.Avalonia.Views.MainWindow"
         d:DataContext="{x:Static dd:DesignData.DesignMainViewModel}"
         Icon="/Assets/dicom.ico"
-        Title="DicomReader" MinHeight="800" Height="800" MinWidth="1100" Width="1100"
-        >
+        Title="DicomReader" MinHeight="800" Height="800" MinWidth="1100" Width="1100">
 
     <TabControl>
-        <TabItem Header="Query" VerticalAlignment="Center" Content="{Binding DicomQueryViewModel}" />
-        <TabItem Header="Result" VerticalAlignment="Center" Content="{Binding QueryResultViewModel}" />
-        <TabItem Header="Configuration" VerticalAlignment="Center" Content="{Binding PacsConfigurationViewModel}" />
+        <TabItem Header="Query" IsSelected="{Binding IsQueryTabSelected}" Content="{Binding DicomQueryViewModel}" VerticalAlignment="Center" />
+        <TabItem Header="Result" IsSelected="{Binding IsResultTabSelected}" Content="{Binding QueryResultViewModel}" VerticalAlignment="Center" />
+        <TabItem Header="Configuration" IsSelected="{Binding IsConfigurationTabSelected}" Content="{Binding ConfigurationViewModel}" VerticalAlignment="Center" />
     </TabControl>
 
 </Window>
