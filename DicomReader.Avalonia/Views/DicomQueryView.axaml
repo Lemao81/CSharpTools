@@ -38,11 +38,11 @@
                           IsChecked="{Binding IsCustomRequest}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
 
             <!-- start query -->
-            <Button Grid.Column="0" Grid.Row="8" Content="Query" Margin="4" Padding="12" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                    Command="{Binding StartQuery}" />
-            <Button Grid.Column="1" Grid.Row="8" Content="Paged Query" Margin="4" Padding="12" HorizontalAlignment="Stretch"
+            <Button Grid.Column="0" Grid.Row="8" Content="Query" Command="{Binding StartQuery}" Margin="4" Padding="12" HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Center" />
-            <TextBox Grid.Column="2" Grid.Row="8" Watermark="Page Size" Margin="4" />
+            <Button Grid.Column="1" Grid.Row="8" Content="Paged Query" Command="{Binding StartPagedQuery}" Margin="4" Padding="12"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+            <TextBox Grid.Column="2" Grid.Row="8" Watermark="Page Size" Text="{Binding PageSize}" Margin="4" />
 
             <ListBox Grid.Column="0" Grid.Row="9" Grid.ColumnSpan="3" Items="{Binding AuditTrail}" SelectionMode="Single" Margin="4,32,4,4">
                 <ListBox.ItemTemplate>
