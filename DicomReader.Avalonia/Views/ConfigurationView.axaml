@@ -8,7 +8,7 @@
              d:DataContext="{x:Static dd:DesignData.DesignConfigurationViewModel}"
              x:Class="DicomReader.Avalonia.Views.ConfigurationView">
     <UserControl.Resources>
-        <converter:EnumMatchToBooleanConverter x:Key="enumConverter" />
+        <converter:EnumMatchToBooleanConverter x:Key="EnumConverter" />
     </UserControl.Resources>
     <StackPanel>
         <Grid Width="400" HorizontalAlignment="Left" ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
@@ -26,40 +26,49 @@
                     HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
 
             <TextBlock Grid.Column="0" Grid.Row="1" Text="Name" Margin="4" />
-            <TextBox Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding Name}" IsReadOnly="{Binding IsSelectedMode}" Margin="4" />
+            <TextBox Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding Name}"
+                     IsReadOnly="{Binding ViewMode, Mode=OneWay, Converter={StaticResource EnumConverter}, ConverterParameter=Selected}" Margin="4" />
 
             <TextBlock Grid.Column="0" Grid.Row="3" Text="Host" Margin="4" />
-            <TextBox Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="3" Text="{Binding Host}" IsReadOnly="{Binding IsSelectedMode}" Margin="4" />
+            <TextBox Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="3" Text="{Binding Host}"
+                     IsReadOnly="{Binding ViewMode, Mode=OneWay, Converter={StaticResource EnumConverter}, ConverterParameter=Selected}" Margin="4" />
 
             <TextBlock Grid.Column="3" Grid.Row="3" Text="Port" Margin="4" />
-            <TextBox Grid.Column="3" Grid.Row="4" Text="{Binding Port}" IsReadOnly="{Binding IsSelectedMode}" Margin="4" />
+            <TextBox Grid.Column="3" Grid.Row="4" Text="{Binding Port}"
+                     IsReadOnly="{Binding ViewMode, Mode=OneWay, Converter={StaticResource EnumConverter}, ConverterParameter=Selected}" Margin="4" />
 
             <TextBlock Grid.Column="0" Grid.Row="5" Text="CallingAe" Margin="4" />
-            <TextBox Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2" Text="{Binding CallingAe}" IsReadOnly="{Binding IsSelectedMode}" Margin="4" />
+            <TextBox Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2" Text="{Binding CallingAe}"
+                     IsReadOnly="{Binding ViewMode, Mode=OneWay, Converter={StaticResource EnumConverter}, ConverterParameter=Selected}" Margin="4" />
 
             <TextBlock Grid.Column="2" Grid.Row="5" Text="CalledAe" Margin="4" />
-            <TextBox Grid.Column="2" Grid.Row="6" Grid.ColumnSpan="2" Text="{Binding CalledAe}" IsReadOnly="{Binding IsSelectedMode}" Margin="4" />
+            <TextBox Grid.Column="2" Grid.Row="6" Grid.ColumnSpan="2" Text="{Binding CalledAe}"
+                     IsReadOnly="{Binding ViewMode, Mode=OneWay, Converter={StaticResource EnumConverter}, ConverterParameter=Selected}" Margin="4" />
 
-            <Button Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2" Content="Edit" IsVisible="{Binding IsSelectedMode}"
-                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
+            <Button Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2" Content="Edit"
+                    IsVisible="{Binding ViewMode, Mode=OneWay, Converter={StaticResource EnumConverter}, ConverterParameter=Selected}"
+                    Command="{Binding EditPacsConfiguration}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
 
-            <Button Grid.Column="2" Grid.Row="7" Grid.ColumnSpan="2" Content="Remove" IsVisible="{Binding IsSelectedMode}"
-                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
+            <Button Grid.Column="2" Grid.Row="7" Grid.ColumnSpan="2" Content="Remove"
+                    IsVisible="{Binding ViewMode, Mode=OneWay, Converter={StaticResource EnumConverter}, ConverterParameter=Selected}"
+                    Command="{Binding RemovePacsConfiguration}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
 
-            <Button Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2" Content="Save" IsVisible="{Binding IsEditingMode}"
+            <Button Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2" Content="Save"
+                    IsVisible="{Binding ViewMode, Mode=OneWay, Converter={StaticResource EnumConverter}, ConverterParameter=Add:Edit}"
                     Command="{Binding SavePacsConfiguration}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
 
-            <Button Grid.Column="2" Grid.Row="7" Grid.ColumnSpan="2" Content="Cancel" IsVisible="{Binding IsEditingMode}" Command="{Binding CancelEditing}"
-                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
+            <Button Grid.Column="2" Grid.Row="7" Grid.ColumnSpan="2" Content="Cancel"
+                    IsVisible="{Binding ViewMode, Mode=OneWay, Converter={StaticResource EnumConverter}, ConverterParameter=Add:Edit}"
+                    Command="{Binding CancelEditing}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
         </Grid>
 
         <Grid Width="400" HorizontalAlignment="Left" ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="16">
             <TextBlock Grid.Column="0" Grid.Row="0" Text="Output Format" Margin="4" />
             <ToggleButton Grid.Column="0" Grid.Row="1" Content="Json Serialized"
-                          IsChecked="{Binding OutputFormat, Converter={StaticResource enumConverter}, ConverterParameter=JsonSerialized}"
+                          IsChecked="{Binding OutputFormat, Converter={StaticResource EnumConverter}, ConverterParameter=JsonSerialized}"
                           HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
             <ToggleButton Grid.Column="0" Grid.Row="2" Content="Dicom Result"
-                          IsChecked="{Binding OutputFormat, Converter={StaticResource enumConverter}, ConverterParameter=DicomResult}"
+                          IsChecked="{Binding OutputFormat, Converter={StaticResource EnumConverter}, ConverterParameter=DicomResult}"
                           HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
         </Grid>
     </StackPanel>

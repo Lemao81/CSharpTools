@@ -21,7 +21,7 @@ namespace DicomReader.Avalonia.Models
             OutputFormat = dto.OutputFormat.IsNullOrEmpty() ? OutputFormat.None : Enum.Parse<OutputFormat>(dto.OutputFormat!);
             if (dto.PacsConfigurationDtos != null)
             {
-                PacsConfigurations = dto.PacsConfigurationDtos.Select(c => new PacsConfiguration(c)).ToList();
+                PacsConfigurations = new List<PacsConfiguration>(dto.PacsConfigurationDtos.Select(c => new PacsConfiguration(c)));
             }
         }
 

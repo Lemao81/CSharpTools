@@ -6,7 +6,7 @@
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="800"
              d:DataContext="{x:Static dd:DesignData.DesignQueryResultViewModel}"
              x:Class="DicomReader.Avalonia.Views.QueryResultView">
-    <TabControl TabStripPlacement="Left" Margin="8">
+    <TabControl TabStripPlacement="Left" Margin="0,8,8,8">
         <TabItem Header="Json">
             <TextBox Text="{Binding Json}" TextWrapping="Wrap" IsReadOnly="True" Margin="8" />
         </TabItem>

@@ -106,6 +106,12 @@ namespace DicomReader.Avalonia.ViewModels
                 AppConfig = new AppConfig(AppConfig, changedData.OutputFormat.Value);
             }
 
+            if (changedData.IsRemoval.HasValue && changedData.IsRemoval.Value && !changedData.PacsConfigurationNameToRemove.IsNullOrEmpty())
+            {
+                AppConfig = new AppConfig(AppConfig, string.Empty);
+                AppConfig.PacsConfigurations.Remove(AppConfig.PacsConfigurations.Single(c => c.Name == changedData.PacsConfigurationNameToRemove));
+            }
+
             SaveAppConfig();
         }
 
