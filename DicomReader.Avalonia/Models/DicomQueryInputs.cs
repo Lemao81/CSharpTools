@@ -8,11 +8,15 @@ namespace DicomReader.Avalonia.Models
     public class DicomQueryInputs
     {
         public DicomQueryInputs(DicomRequestType requestType, DicomRetrieveLevel retrieveLevel, string patientId, string studyInstanceUid,
-            string accessionNumber, IList<DicomTagItem> requestedDicomTags, bool isPagedQuery, int? pageSize)
+            string accessionNumber, IList<DicomTagItem> requestedDicomTags, bool isPagedQuery, string? pageSizeString)
         {
             if (requestType == DicomRequestType.None) throw new InvalidOperationException("Dicom request type required");
 
             if (!ValidRetrieveLevel(retrieveLevel)) throw new InvalidOperationException("Dicom retrieve level required/not valid");
+
+            var pageSize = -1;
+            if (!pageSizeString.IsNullOrEmpty() && (!int.TryParse(pageSizeString, out pageSize) || pageSize <= 0))
+                throw new InvalidOperationException("Page size must be positive integer");
 
             switch (requestType)
             {
@@ -53,8 +57,6 @@ namespace DicomReader.Avalonia.Models
         public PagedQueryParams PagedQueryParams { get; }
 
         private static bool ValidRetrieveLevel(DicomRetrieveLevel retrieveLevel) =>
-            retrieveLevel == DicomRetrieveLevel.Patient ||
-            retrieveLevel == DicomRetrieveLevel.Study ||
-            retrieveLevel == DicomRetrieveLevel.Series;
+            retrieveLevel is DicomRetrieveLevel.Patient or DicomRetrieveLevel.Study or DicomRetrieveLevel.Series;
     }
 }

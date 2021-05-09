@@ -34,6 +34,8 @@ namespace DicomReader.Avalonia.Models
 
         public static void Emit(LogEntry logEntry) => LogEntryObservers.ForEach(o => o.OnNext(logEntry));
 
+        public static void Emit(string message) => Emit(new LogEntry(message));
+
         public string Message { get; }
         public IEnumerable<string>? Payloads { get; }
         public DateTime CreationDate { get; }

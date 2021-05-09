@@ -46,8 +46,8 @@ namespace DicomReader.Avalonia.Services
                 client.StateChanged += (_, args) => OnStateChanged(args);
                 client.AssociationAccepted += (_, args) => OnAssociationAccepted(args);
                 client.AssociationRejected += (_, args) => OnAssociationRejected(args);
-                client.RequestTimedOut += (_, args) => OnRequestTimedOut(args);
                 client.AssociationReleased += (_, _) => OnAssociationReleased();
+                client.RequestTimedOut += (_, args) => OnRequestTimedOut(args);
 
                 await client.AddRequestAsync(findRequest);
                 await client.SendAsync(cancelToken.Token);
@@ -58,13 +58,13 @@ namespace DicomReader.Avalonia.Services
             {
                 if (!exception.Message.Contains("not properly respond")) throw;
 
-                LogEntry.Emit(new LogEntry("Connection to PACS server could not be established"));
+                LogEntry.Emit("Connection to PACS server could not be established");
 
                 return Enumerable.Empty<DicomDataset>().ToList();
             }
             catch (Exception exception)
             {
-                LogEntry.Emit(new LogEntry($"Exception during dicom query. {exception.Message}"));
+                LogEntry.Emit($"Exception during dicom query. {exception.Message}");
                 throw new ApplicationException("Dicom query failed", exception);
             }
         }
@@ -72,6 +72,17 @@ namespace DicomReader.Avalonia.Services
         private static void OnResponseReceived(DicomCFindResponse response, ICollection<DicomDataset> responseDatasets, ref int responseCount, int? take,
             CancellationTokenSource cancelToken)
         {
+            var pageLimitReached = take.HasValue && responseCount >= take.Value;
+            if (pageLimitReached)
+            {
+                if (cancelToken.IsCancellationRequested) return;
+
+                AuditTrailEntry.Emit("PAGE SIZE LIMIT REACHED");
+                cancelToken.Cancel();
+
+                return;
+            }
+
             if (!response.HasDataset || response.Dataset == null)
             {
                 AuditTrailEntry.Emit($"RESPONSE RECEIVED WITHOUT DATA. Status: {response.Status}");
@@ -82,8 +93,6 @@ namespace DicomReader.Avalonia.Services
             AuditTrailEntry.Emit($"RESPONSE RECEIVED WITH DATA. Status: {response.Status}");
             responseCount++;
             responseDatasets.Add(response.Dataset);
-
-            if (take.HasValue && responseCount >= take.Value) cancelToken.Cancel();
         }
 
         private static void OnTimeout() => AuditTrailEntry.Emit("REQUEST TIMED OUT");

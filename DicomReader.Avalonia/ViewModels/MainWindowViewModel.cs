@@ -92,6 +92,7 @@ namespace DicomReader.Avalonia.ViewModels
         {
             ConfigurationViewModel.SavePacsConfiguration?.Subscribe(HandleSavePacsConfiguration);
             DicomQueryViewModel.StartQuery?.Subscribe(async queryInputs => await HandleStartQuery(queryInputs));
+            DicomQueryViewModel.StartPagedQuery?.Subscribe(async queryInputs => await HandleStartQuery(queryInputs));
         }
 
         private void HandleChangedConfigurationData(ConfigurationChangedData changedData)
@@ -139,14 +140,16 @@ namespace DicomReader.Avalonia.ViewModels
             if (ConfigurationViewModel.SelectedConfiguration == null)
                 throw new InvalidOperationException("Dicom query started without selected pacs configuration");
 
+            var take = queryInputs.PagedQueryParams.IsPaged ? queryInputs.PagedQueryParams.PageSize : null;
+
             switch (AppConfig.OutputFormat)
             {
                 case OutputFormat.JsonSerialized:
-                    var serializedString = await dicomQueryService.ExecuteDicomQuery<string>(queryInputs, ConfigurationViewModel.SelectedConfiguration);
+                    var serializedString = await dicomQueryService.ExecuteDicomQuery<string>(queryInputs, ConfigurationViewModel.SelectedConfiguration, take);
                     QueryResultViewModel.Json = serializedString;
                     break;
                 case OutputFormat.DicomResult:
-                    var resultSet = await dicomQueryService.ExecuteDicomQuery<DicomResultSet>(queryInputs, ConfigurationViewModel.SelectedConfiguration);
+                    var resultSet = await dicomQueryService.ExecuteDicomQuery<DicomResultSet>(queryInputs, ConfigurationViewModel.SelectedConfiguration, take);
                     QueryResultViewModel.Json = resultSet.AsIndentedJson();
                     break;
                 default:

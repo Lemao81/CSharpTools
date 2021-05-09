@@ -33,7 +33,6 @@ namespace DicomReader.Avalonia.ViewModels
             ConfigureStartPagedQueryButton();
             DefineEnabledProperties();
 
-            AddRequestedDicomTag?.Subscribe(dicomTag => RequestedDicomTags.Add(dicomTag));
             AuditTrailEntry.Stream.Subscribe(entry => AuditTrail.Add(entry));
         }
 
@@ -93,7 +92,7 @@ namespace DicomReader.Avalonia.ViewModels
         public ObservableCollection<DicomTagItem> SelectedRequestedDicomTags { get; } = new();
         public ObservableCollection<AuditTrailEntry> AuditTrail { get; } = new();
 
-        public ReactiveCommand<Unit, DicomTagItem>? AddRequestedDicomTag { get; protected set; }
+        public ReactiveCommand<Unit, Unit>? AddRequestedDicomTag { get; protected set; }
         public ReactiveCommand<Unit, Unit>? RemoveRequestedDicomTags { get; protected set; }
         public ReactiveCommand<Unit, DicomQueryInputs>? StartQuery { get; protected set; }
         public ReactiveCommand<Unit, DicomQueryInputs>? StartPagedQuery { get; protected set; }
@@ -106,7 +105,7 @@ namespace DicomReader.Avalonia.ViewModels
         {
             RetrieveLevel = DicomRetrieveLevel.Series;
             RequestType = DicomRequestType.StandardSeries;
-            StudyInstanceUid = "1.2.276.0.33.1.0.4.192.168.56.148.20200331.1192945.88622.2";
+            StudyInstanceUid = "1.3.6.1.4.1.24930.2.64870016549187.1743696";
         }
 
         public void AddPatientTags() => AddRequestedFields(DicomTagItemLists.Patients);
@@ -163,10 +162,8 @@ namespace DicomReader.Avalonia.ViewModels
             var enabledObservable = this.WhenAnyValue(vm => vm.RequestedDicomTagInput, i => !i.IsNullOrEmpty());
             AddRequestedDicomTag = ReactiveCommand.Create(() =>
             {
-                var newItem = new DicomTagItem(RequestedDicomTagInput);
+                RequestedDicomTags.Add(new DicomTagItem(RequestedDicomTagInput));
                 RequestedDicomTagInput = string.Empty;
-
-                return newItem;
             }, enabledObservable);
         }
 
@@ -183,8 +180,7 @@ namespace DicomReader.Avalonia.ViewModels
             {
                 AuditTrail.Clear();
 
-                return new DicomQueryInputs(RequestType, RetrieveLevel, PatientId, StudyInstanceUid, AccessionNumber, RequestedDicomTags, false,
-                    null);
+                return new DicomQueryInputs(RequestType, RetrieveLevel, PatientId, StudyInstanceUid, AccessionNumber, RequestedDicomTags, false, null);
             }, enabledObservable);
         }
 
@@ -195,8 +191,8 @@ namespace DicomReader.Avalonia.ViewModels
             {
                 AuditTrail.Clear();
 
-                return new DicomQueryInputs(RequestType, RetrieveLevel, PatientId, StudyInstanceUid, AccessionNumber, RequestedDicomTags, false,
-                    null);
+                return new DicomQueryInputs(RequestType, RetrieveLevel, PatientId, StudyInstanceUid, AccessionNumber, RequestedDicomTags, true,
+                    PageSize);
             }, enabledObservable);
         }
 
