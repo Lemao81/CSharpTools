@@ -43,9 +43,11 @@
             <ToggleButton Grid.Column="2" Grid.Row="6" Content="Standard Series" Command="{Binding ArrangeStandardSeriesQuery}" Margin="4"
                           IsChecked="{Binding RequestType, Converter={StaticResource EnumConverter}, ConverterParameter=StandardSeries}"
                           HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
-            <ToggleButton Grid.Column="0" Grid.Row="7" Content="Custom" Command="{Binding ArrangeCustomQuery}" Margin="4,4,4,16"
+            <ToggleButton Grid.Column="0" Grid.Row="7" Content="Custom" Margin="4,4,4,16"
                           IsChecked="{Binding RequestType, Converter={StaticResource EnumConverter}, ConverterParameter=Custom}" HorizontalAlignment="Stretch"
                           HorizontalContentAlignment="Center" />
+            <Button Grid.Column="1" Grid.Row="7" Content="Clear" Command="{Binding ClearQueryInput}" Margin="4" HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center" />
 
             <!-- start query -->
             <Button Grid.Column="0" Grid.Row="8" Content="Query" Command="{Binding StartQuery}" Margin="4" Padding="12" HorizontalAlignment="Stretch"
@@ -67,7 +69,8 @@
             <!-- requested tags -->
             <Grid Grid.Column="0" Grid.Row="0" ColumnDefinitions="*,*,*,*,*" RowDefinitions="*,Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <ListBox Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="5" Items="{Binding RequestedDicomTags}"
-                         SelectedItems="{Binding SelectedRequestedDicomTags}" HorizontalAlignment="Stretch" SelectionMode="Multiple"
+                         SelectedItems="{Binding SelectedRequestedDicomTags}" SelectionChanged="SelectingItemsControl_OnSelectionChanged"
+                         HorizontalAlignment="Stretch" SelectionMode="Multiple"
                          VerticalAlignment="Stretch" Margin="4">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
@@ -88,9 +91,20 @@
 
             <!-- tag add btns -->
             <StackPanel Grid.Column="1" Grid.Row="0">
-                <Button Content="Tags 1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
-                <Button Content="Tags 2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
-                <Button Content="Test" Command="{Binding Test}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
+                <TextBlock Text="Add Tags" Margin="4" />
+                <Button Content="Patient" Command="{Binding AddPatientTags}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
+                <Button Content="Study" Command="{Binding AddStudyTags}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
+                <Button Content="Series" Command="{Binding AddSeriesTags}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
+                <Button Content="Patient Studies" Command="{Binding AddPatientStudiesTags}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        Margin="4" />
+                <Button Content="Device Infos" Command="{Binding AddDeviceInfosTags}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        Margin="4" />
+                <Button Content="Test" Command="{Binding InsertTestEntries}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
+                <TextBlock Text="Extended" Margin="4" />
+                <Button Content="Patient Ext" Command="{Binding AddPatientExtendedTags}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        Margin="4" />
+                <Button Content="Series Ext" Command="{Binding AddSeriesExtendedTags}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        Margin="4" />
             </StackPanel>
 
         </Grid>

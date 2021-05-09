@@ -7,7 +7,7 @@
         x:Class="DicomReader.Avalonia.Views.MainWindow"
         d:DataContext="{x:Static dd:DesignData.DesignMainViewModel}"
         Icon="/Assets/dicom.ico"
-        Title="DicomReader" MinHeight="800" Height="800" MinWidth="1100" Width="1100">
+        Title="DicomReader" MinHeight="800" Height="800" MinWidth="1200" Width="1200">
 
     <TabControl>
         <TabItem Header="Query" IsSelected="{Binding IsQueryTabSelected}" Content="{Binding DicomQueryViewModel}" VerticalAlignment="Center" />
