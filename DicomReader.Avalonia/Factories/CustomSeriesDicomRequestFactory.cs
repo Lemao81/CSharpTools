@@ -2,6 +2,7 @@
 using Common.Extensions;
 using Dicom;
 using Dicom.Network;
+using DicomReader.Avalonia.Enums;
 using DicomReader.Avalonia.Models;
 
 namespace DicomReader.Avalonia.Factories
@@ -10,7 +11,7 @@ namespace DicomReader.Avalonia.Factories
     {
         protected override DicomCFindRequest CreateRequestInternal(DicomQueryParams queryParams)
         {
-            if (queryParams.RetrieveLevel != DicomQueryRetrieveLevel.Series) throw new InvalidOperationException("Retrieve level must be series");
+            if (queryParams.RetrieveLevel != DicomRetrieveLevel.Series) throw new InvalidOperationException("Retrieve level must be series");
             if (queryParams.StudyInstanceUid.IsNullOrEmpty())
                 throw new InvalidOperationException("Standard series request requires a study instance uid");
 

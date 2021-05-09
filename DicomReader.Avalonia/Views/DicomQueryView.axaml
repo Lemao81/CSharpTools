@@ -2,10 +2,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:dd="clr-namespace:DicomReader.Avalonia.Helper;assembly=DicomReader.Avalonia"
+             xmlns:converter="clr-namespace:DicomReader.Avalonia.Converters;assembly=DicomReader.Avalonia"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="800"
              d:DataContext="{x:Static dd:DesignData.DesignDicomQueryViewModel}"
              x:Class="DicomReader.Avalonia.Views.DicomQueryView">
+    <UserControl.Resources>
+        <converter:EnumMatchToBooleanConverter x:Key="enumConverter" />
+    </UserControl.Resources>
     <Grid ColumnDefinitions="*,*" HorizontalAlignment="Stretch">
         <Grid Grid.Column="0" Grid.Row="0" ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,*" Margin="16">
             <!-- query params -->
@@ -21,21 +25,27 @@
             <!-- retrieve level -->
             <StackPanel Grid.Column="2" Grid.Row="0" Grid.RowSpan="4" HorizontalAlignment="Center">
                 <TextBlock Text="Retrieve Level" Margin="4" />
-                <ToggleButton Content="Patient" IsChecked="{Binding IsPatientLevel}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                              Margin="4" />
-                <ToggleButton Content="Study" IsChecked="{Binding IsStudyLevel}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
-                <ToggleButton Content="Series" IsChecked="{Binding IsSeriesLevel}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
+                <ToggleButton Content="Patient" IsChecked="{Binding RetrieveLevel, Converter={StaticResource enumConverter}, ConverterParameter=Patient}"
+                              HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
+                <ToggleButton Content="Study" IsChecked="{Binding RetrieveLevel, Converter={StaticResource enumConverter}, ConverterParameter=Study}"
+                              HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
+                <ToggleButton Content="Series" IsChecked="{Binding RetrieveLevel, Converter={StaticResource enumConverter}, ConverterParameter=Series}"
+                              HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
             </StackPanel>
 
             <!-- request type -->
             <ToggleButton Grid.Column="0" Grid.Row="6" Content="Standard Patient" Command="{Binding ArrangeStandardPatientQuery}" Margin="4"
-                          IsChecked="{Binding IsStandardPatientRequest}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+                          IsChecked="{Binding RequestType, Converter={StaticResource enumConverter}, ConverterParameter=StandardPatient}"
+                          HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
             <ToggleButton Grid.Column="1" Grid.Row="6" Content="Standard Study" Command="{Binding ArrangeStandardStudyQuery}" Margin="4"
-                          IsChecked="{Binding IsStandardStudyRequest}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+                          IsChecked="{Binding RequestType, Converter={StaticResource enumConverter}, ConverterParameter=StandardStudy}"
+                          HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
             <ToggleButton Grid.Column="2" Grid.Row="6" Content="Standard Series" Command="{Binding ArrangeStandardSeriesQuery}" Margin="4"
-                          IsChecked="{Binding IsStandardSeriesRequest}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+                          IsChecked="{Binding RequestType, Converter={StaticResource enumConverter}, ConverterParameter=StandardSeries}"
+                          HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
             <ToggleButton Grid.Column="0" Grid.Row="7" Content="Custom" Command="{Binding ArrangeCustomQuery}" Margin="4,4,4,16"
-                          IsChecked="{Binding IsCustomRequest}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+                          IsChecked="{Binding RequestType, Converter={StaticResource enumConverter}, ConverterParameter=Custom}" HorizontalAlignment="Stretch"
+                          HorizontalContentAlignment="Center" />
 
             <!-- start query -->
             <Button Grid.Column="0" Grid.Row="8" Content="Query" Command="{Binding StartQuery}" Margin="4" Padding="12" HorizontalAlignment="Stretch"

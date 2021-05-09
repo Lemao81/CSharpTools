@@ -19,7 +19,7 @@ namespace DicomReader.Avalonia.Converters
             var useValue = (bool) value;
             var targetValue = parameter.ToString();
 
-            return useValue ? Enum.Parse(targetType, targetValue) : null;
+            return useValue ? Enum.Parse(targetType, targetValue) : default;
         }
     }
 }

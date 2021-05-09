@@ -113,28 +113,17 @@ namespace DicomReader.Avalonia.ViewModels
             get => _outputFormat;
             set
             {
+                if (value == default) return;
+
                 this.RaiseAndSetIfChanged(ref _outputFormat, value);
-                this.RaisePropertyChanged(nameof(IsOutputJsonSerialized));
-                this.RaisePropertyChanged(nameof(IsOutputDicomResult));
                 EmitConfigurationChanged(new ConfigurationChangedData(value));
             }
-        }
-
-        public bool IsOutputJsonSerialized
-        {
-            get => OutputFormat == OutputFormat.JsonSerialized;
-            set => OutputFormat = OutputFormat.JsonSerialized;
-        }
-
-        public bool IsOutputDicomResult
-        {
-            get => OutputFormat == OutputFormat.DicomResult;
-            set => OutputFormat = OutputFormat.DicomResult;
         }
 
         public bool IsSelectedMode => ViewMode == PacsConfigurationViewMode.Selected;
         public bool IsEditingMode => ViewMode is PacsConfigurationViewMode.Add or PacsConfigurationViewMode.Edit;
         public IObservable<ConfigurationChangedData> ConfigurationChangedStream { get; protected set; }
+
         public ReactiveCommand<Unit, Unit>? AddPacsConfiguration { get; protected set; }
         public ReactiveCommand<Unit, PacsConfiguration>? SavePacsConfiguration { get; protected set; }
         public ReactiveCommand<Unit, Unit>? CancelEditing { get; protected set; }
