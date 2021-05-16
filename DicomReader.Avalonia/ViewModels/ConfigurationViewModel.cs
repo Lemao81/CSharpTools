@@ -26,6 +26,7 @@ namespace DicomReader.Avalonia.ViewModels
         private PacsConfiguration? _selectedConvifugrationBeforeEditing;
         private readonly List<IObserver<ConfigurationChangedData>> _configurationChangedStreamObservers = new();
         private OutputFormat _outputFormat = OutputFormat.JsonSerialized;
+        private bool _isExtendedLogChecked;
 
         public ConfigurationViewModel()
         {
@@ -115,6 +116,16 @@ namespace DicomReader.Avalonia.ViewModels
 
                 this.RaiseAndSetIfChanged(ref _outputFormat, value);
                 EmitConfigurationChanged(ConfigurationChangedData.ChangeOutputFormat(value));
+            }
+        }
+
+        public bool IsExtendedLogChecked
+        {
+            get => _isExtendedLogChecked;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _isExtendedLogChecked, value);
+                App.IsExtendedLog = value;
             }
         }
 

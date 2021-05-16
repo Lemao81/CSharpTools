@@ -62,7 +62,7 @@
                     HorizontalContentAlignment="Center" />
             <Button Grid.Column="1" Grid.Row="9" Content="Paged Query" Command="{Binding StartPagedQuery}" Margin="4" Padding="12"
                     HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
-            <TextBox Grid.Column="2" Grid.Row="9" Watermark="Page Size" Text="{Binding PageSize}" Margin="4" />
+            <TextBox Grid.Column="2" Grid.Row="9" Watermark="Page Size" Text="{Binding PageSize}" Margin="4" VerticalAlignment="Center" />
 
             <ListBox Grid.Column="0" Grid.Row="10" Grid.ColumnSpan="3" Name="AuditTrailList" Items="{Binding AuditTrail}" SelectionMode="Single"
                      Margin="4,32,4,4">
