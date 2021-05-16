@@ -11,7 +11,7 @@
         <converter:EnumMatchToBooleanConverter x:Key="EnumConverter" />
     </UserControl.Resources>
     <Grid ColumnDefinitions="*,*" HorizontalAlignment="Stretch">
-        <Grid Grid.Column="0" Grid.Row="0" ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,*" Margin="16">
+        <Grid Grid.Column="0" Grid.Row="0" ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,*" Margin="16">
             <!-- query params -->
             <TextBlock Grid.Column="0" Grid.Row="0" Text="PatientId" Margin="4" />
             <TextBox Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding PatientId}" IsReadOnly="{Binding }" Margin="4" />
@@ -33,30 +33,39 @@
                               HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" />
             </StackPanel>
 
-            <!-- request type -->
+            <!-- retrieve type -->
             <ToggleButton Grid.Column="0" Grid.Row="6" Content="Standard Patient" Command="{Binding ArrangeStandardPatientQuery}" Margin="4"
-                          IsChecked="{Binding RequestType, Converter={StaticResource EnumConverter}, ConverterParameter=StandardPatient}"
+                          IsChecked="{Binding RetrieveType, Converter={StaticResource EnumConverter}, ConverterParameter=StandardPatient}"
                           HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
             <ToggleButton Grid.Column="1" Grid.Row="6" Content="Standard Study" Command="{Binding ArrangeStandardStudyQuery}" Margin="4"
-                          IsChecked="{Binding RequestType, Converter={StaticResource EnumConverter}, ConverterParameter=StandardStudy}"
+                          IsChecked="{Binding RetrieveType, Converter={StaticResource EnumConverter}, ConverterParameter=StandardStudy}"
                           HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
             <ToggleButton Grid.Column="2" Grid.Row="6" Content="Standard Series" Command="{Binding ArrangeStandardSeriesQuery}" Margin="4"
-                          IsChecked="{Binding RequestType, Converter={StaticResource EnumConverter}, ConverterParameter=StandardSeries}"
+                          IsChecked="{Binding RetrieveType, Converter={StaticResource EnumConverter}, ConverterParameter=StandardSeries}"
                           HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
             <ToggleButton Grid.Column="0" Grid.Row="7" Content="Custom" Margin="4,4,4,16"
-                          IsChecked="{Binding RequestType, Converter={StaticResource EnumConverter}, ConverterParameter=Custom}" HorizontalAlignment="Stretch"
+                          IsChecked="{Binding RetrieveType, Converter={StaticResource EnumConverter}, ConverterParameter=Custom}" HorizontalAlignment="Stretch"
                           HorizontalContentAlignment="Center" />
             <Button Grid.Column="1" Grid.Row="7" Content="Clear" Command="{Binding ClearQueryInput}" Margin="4,4,4,16" HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Center" />
 
-            <!-- start query -->
-            <Button Grid.Column="0" Grid.Row="8" Content="Query" Command="{Binding StartQuery}" Margin="4" Padding="12" HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Center" />
-            <Button Grid.Column="1" Grid.Row="8" Content="Paged Query" Command="{Binding StartPagedQuery}" Margin="4" Padding="12"
-                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
-            <TextBox Grid.Column="2" Grid.Row="8" Watermark="Page Size" Text="{Binding PageSize}" Margin="4" />
+            <!-- request type -->
+            <ToggleButton Grid.Column="0" Grid.Row="8" Content="C-Find" Margin="4,4,4,16"
+                          IsChecked="{Binding RequestType, Converter={StaticResource EnumConverter}, ConverterParameter=CFind}"
+                          HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+            <ToggleButton Grid.Column="1" Grid.Row="8" Content="C-Get" Margin="4,4,4,16"
+                          IsChecked="{Binding RequestType, Converter={StaticResource EnumConverter}, ConverterParameter=CGet}"
+                          HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
 
-            <ListBox Grid.Column="0" Grid.Row="9" Grid.ColumnSpan="3" Name="AuditTrailList" Items="{Binding AuditTrail}" SelectionMode="Single" Margin="4,32,4,4">
+            <!-- start query -->
+            <Button Grid.Column="0" Grid.Row="9" Content="Query" Command="{Binding StartQuery}" Margin="4" Padding="12" HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center" />
+            <Button Grid.Column="1" Grid.Row="9" Content="Paged Query" Command="{Binding StartPagedQuery}" Margin="4" Padding="12"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+            <TextBox Grid.Column="2" Grid.Row="9" Watermark="Page Size" Text="{Binding PageSize}" Margin="4" />
+
+            <ListBox Grid.Column="0" Grid.Row="10" Grid.ColumnSpan="3" Name="AuditTrailList" Items="{Binding AuditTrail}" SelectionMode="Single"
+                     Margin="4,32,4,4">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding Message}" />

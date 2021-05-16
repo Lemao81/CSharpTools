@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Common.Extensions;
-using Dicom;
+using Dicom.Log;
 using Dicom.Network;
 using Dicom.Network.Client.EventArguments;
+using DicomReader.Avalonia.Enums;
 using DicomReader.Avalonia.Interfaces;
 using DicomReader.Avalonia.Models;
 using AssociationAcceptedEventArgs = Dicom.Network.Client.EventArguments.AssociationAcceptedEventArgs;
@@ -19,18 +19,28 @@ namespace DicomReader.Avalonia.Services
 {
     public class DicomQueryService : IDicomQueryService
     {
-        public async Task<TResult> ExecuteDicomQuery<TResult>(DicomQueryInputs queryInputs, PacsConfiguration pacsConfiguration, int? take = null)
+        public async Task<TResult> ExecuteDicomQuery<TResult>(DicomQueryInputs queryInputs, PacsConfiguration pacsConfiguration,
+            IDicomResponseCollector responseCollector)
         {
+            // TODO complete
+            switch (queryInputs.DicomRequestType)
+            {
+                case DicomRequestType.CFind:
+                    break;
+                case DicomRequestType.CGet:
+                    break;
+            }
+
             var dicomRequestFactoryProvider = AvaloniaLocator.Current.GetService<IDicomRequestFactoryProvider>();
             var requestFactory = dicomRequestFactoryProvider.ProvideFactory(queryInputs);
             var findRequest = requestFactory.CreateCFindRequest(queryInputs.DicomQueryParams);
-            var responseDatasets = await SendFindRequest(findRequest, pacsConfiguration, take);
+            await SendFindRequest(findRequest, pacsConfiguration, responseCollector);
             var responseProcessingStrategy = AvaloniaLocator.Current.GetService<IDicomResponseProcessingStrategy<TResult>>();
 
-            return responseProcessingStrategy.ProcessResponse(responseDatasets);
+            return responseProcessingStrategy.ProcessResponse(responseCollector.ResponseDatasets);
         }
 
-        private static async Task<List<DicomDataset>> SendFindRequest(DicomCFindRequest findRequest, PacsConfiguration configuration, int? take)
+        private static async Task SendFindRequest(DicomCFindRequest findRequest, PacsConfiguration configuration, IDicomResponseCollector responseCollector)
         {
             try
             {
@@ -38,10 +48,8 @@ namespace DicomReader.Avalonia.Services
                 var client = new DicomClient(configuration.Host, configuration.Port, false, callingAe, configuration.CalledAe);
                 client.NegotiateAsyncOps();
 
-                var responseCount = 0;
-                var responseDatasets = new List<DicomDataset>();
                 var cancelToken = new CancellationTokenSource();
-                findRequest.OnResponseReceived = (_, response) => OnResponseReceived(response, responseDatasets, ref responseCount, take, cancelToken);
+                findRequest.OnResponseReceived = (_, response) => OnResponseReceived(response, responseCollector, cancelToken);
                 findRequest.OnTimeout = (_, _) => OnTimeout();
                 client.StateChanged += (_, args) => OnStateChanged(args);
                 client.AssociationAccepted += (_, args) => OnAssociationAccepted(args);
@@ -51,16 +59,12 @@ namespace DicomReader.Avalonia.Services
 
                 await client.AddRequestAsync(findRequest);
                 await client.SendAsync(cancelToken.Token);
-
-                return responseDatasets;
             }
             catch (SocketException exception)
             {
                 if (!exception.Message.Contains("not properly respond")) throw;
 
                 LogEntry.Emit("Connection to PACS server could not be established");
-
-                return Enumerable.Empty<DicomDataset>().ToList();
             }
             catch (Exception exception)
             {
@@ -69,35 +73,29 @@ namespace DicomReader.Avalonia.Services
             }
         }
 
-        private static void OnResponseReceived(DicomCFindResponse response, ICollection<DicomDataset> responseDatasets, ref int responseCount, int? take,
-            CancellationTokenSource cancelToken)
+        private static void OnResponseReceived(DicomResponse response, IDicomResponseCollector responseCollector, CancellationTokenSource cancelToken)
         {
-            var pageLimitReached = take.HasValue && responseCount >= take.Value;
-            if (pageLimitReached)
-            {
-                if (cancelToken.IsCancellationRequested) return;
-
-                AuditTrailEntry.Emit("PAGE SIZE LIMIT REACHED");
-                cancelToken.Cancel();
-
-                return;
-            }
-
-            if (!response.HasDataset || response.Dataset == null)
+            if (response.Dataset == null || !response.Dataset.Any())
             {
                 AuditTrailEntry.Emit($"RESPONSE RECEIVED WITHOUT DATA. Status: {response.Status}");
 
                 return;
             }
 
-            AuditTrailEntry.Emit($"RESPONSE RECEIVED WITH DATA. Status: {response.Status}");
-            responseCount++;
-            responseDatasets.Add(response.Dataset);
+            var message = $"RESPONSE RECEIVED WITH DATA. Status: {response.Status}.";
+            message += App.IsExtendedLog ? $" Data: {response.Dataset.WriteToString()}" : "";
+            AuditTrailEntry.Emit(message);
+
+            var abort = responseCollector.CollectResponse(response);
+            if (!abort || cancelToken.IsCancellationRequested) return;
+
+            AuditTrailEntry.Emit("RECEIVING RESPONSES ABORTED");
+            cancelToken.Cancel();
         }
 
         private static void OnTimeout() => AuditTrailEntry.Emit("REQUEST TIMED OUT");
 
-        private static void OnStateChanged(StateChangedEventArgs args) => AuditTrailEntry.Emit(args?.NewState?.ToString());
+        private static void OnStateChanged(StateChangedEventArgs args) => AuditTrailEntry.Emit(args.NewState?.ToString());
 
         private static void OnAssociationAccepted(AssociationAcceptedEventArgs args) =>
             AuditTrailEntry.Emit($"ASSOCIATION ACCEPTED. Host: {args.Association.RemoteHost} " +

@@ -9,6 +9,7 @@ using DicomReader.Avalonia.Enums;
 using DicomReader.Avalonia.Extensions;
 using DicomReader.Avalonia.Interfaces;
 using DicomReader.Avalonia.Models;
+using DicomReader.Avalonia.Services;
 using DynamicData;
 using ReactiveUI;
 
@@ -24,11 +25,14 @@ namespace DicomReader.Avalonia.ViewModels
             QueryResultViewModel = new QueryResultViewModel();
             ConfigurationViewModel = new ConfigurationViewModel();
             ConfigurationViewModel.ConfigurationChangedStream.Subscribe(HandleChangedConfigurationData);
+            QueryResultViewModel.NextPageRequested += (s, e) => NextPageRequested?.Invoke(s, e);
             // TODO show log messages
             LogEntry.Stream.Subscribe(_ =>
             {
             });
         }
+
+        public static event EventHandler? NextPageRequested;
 
         public DicomQueryViewModel DicomQueryViewModel { get; }
         public QueryResultViewModel QueryResultViewModel { get; }
@@ -140,16 +144,20 @@ namespace DicomReader.Avalonia.ViewModels
             if (ConfigurationViewModel.SelectedConfiguration == null)
                 throw new InvalidOperationException("Dicom query started without selected pacs configuration");
 
-            var take = queryInputs.PagedQueryParams.IsPaged ? queryInputs.PagedQueryParams.PageSize : null;
+            IDicomResponseCollector responseCollector = queryInputs.PagedQueryParams.IsPaged && queryInputs.PagedQueryParams.PageSize.HasValue
+                ? new PagedDicomResponseCollector(queryInputs.PagedQueryParams.PageSize.Value, queryInputs.PagedQueryParams.Page)
+                : new UnPagedDicomResponseCollector();
 
             switch (AppConfig.OutputFormat)
             {
                 case OutputFormat.JsonSerialized:
-                    var serializedString = await dicomQueryService.ExecuteDicomQuery<string>(queryInputs, ConfigurationViewModel.SelectedConfiguration, take);
+                    var serializedString =
+                        await dicomQueryService.ExecuteDicomQuery<string>(queryInputs, ConfigurationViewModel.SelectedConfiguration, responseCollector);
                     QueryResultViewModel.Json = serializedString;
                     break;
                 case OutputFormat.DicomResult:
-                    var resultSet = await dicomQueryService.ExecuteDicomQuery<DicomResultSet>(queryInputs, ConfigurationViewModel.SelectedConfiguration, take);
+                    var resultSet = await dicomQueryService.ExecuteDicomQuery<DicomResultSet>(queryInputs, ConfigurationViewModel.SelectedConfiguration,
+                        responseCollector);
                     QueryResultViewModel.Json = resultSet.AsIndentedJson();
                     break;
                 default:
@@ -157,6 +165,7 @@ namespace DicomReader.Avalonia.ViewModels
             }
 
             MainViewTab = MainViewTab.Result;
+            QueryResultViewModel.ResultTab = ResultTab.Json;
         }
 
         private void SaveAppConfig()

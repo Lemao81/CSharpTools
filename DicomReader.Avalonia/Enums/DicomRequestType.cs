@@ -3,9 +3,7 @@
     public enum DicomRequestType
     {
         None,
-        StandardPatient,
-        StandardStudy,
-        StandardSeries,
-        Custom
+        CFind,
+        CGet
     }
 }

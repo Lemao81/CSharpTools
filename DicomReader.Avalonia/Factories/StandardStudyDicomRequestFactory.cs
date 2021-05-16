@@ -6,7 +6,7 @@ using DicomReader.Avalonia.Models;
 
 namespace DicomReader.Avalonia.Factories
 {
-    public class StandardStudyDicomRequestFactory : IDicomRequestFactory
+    public class StandardStudyDicomRequestFactory : IDicomCFindRequestFactory
     {
         public DicomCFindRequest CreateCFindRequest(DicomQueryParams queryParams)
         {

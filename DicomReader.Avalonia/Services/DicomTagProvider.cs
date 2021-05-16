@@ -28,10 +28,7 @@ namespace DicomReader.Avalonia.Services
 
             try
             {
-                var group = ushort.Parse(split[0].Trim(), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
-                var element = ushort.Parse(split[1].Trim(), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
-
-                return new DicomTag(group, element);
+                return DicomTag.Parse($"({split[0]},{split[1]})");
             }
             catch (Exception exception)
             {

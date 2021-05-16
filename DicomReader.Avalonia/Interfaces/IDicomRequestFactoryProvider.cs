@@ -4,6 +4,6 @@ namespace DicomReader.Avalonia.Interfaces
 {
     public interface IDicomRequestFactoryProvider
     {
-        IDicomRequestFactory ProvideFactory(DicomQueryInputs inputs);
+        IDicomCFindRequestFactory ProvideFactory(DicomQueryInputs inputs);
     }
 }

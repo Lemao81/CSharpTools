@@ -6,12 +6,18 @@
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="800"
              d:DataContext="{x:Static dd:DesignData.DesignQueryResultViewModel}"
              x:Class="DicomReader.Avalonia.Views.QueryResultView">
-    <TabControl TabStripPlacement="Left" Margin="0,8,8,8">
-        <TabItem Header="Json">
-            <TextBox Text="{Binding Json}" TextWrapping="Wrap" IsReadOnly="True" Margin="8" />
-        </TabItem>
-        <TabItem Header="Table">
-            <ListBox Items="{Binding Results}" BorderThickness="0.5" Margin="8" />
-        </TabItem>
-    </TabControl>
+    <Grid ColumnDefinitions="*" RowDefinitions="*" Margin="8,8,8,8">
+        <TabControl Grid.Column="0" Grid.Row="0" TabStripPlacement="Left">
+            <TabItem Header="Json" IsSelected="{Binding IsJsonSelected}">
+                <TextBox Text="{Binding Json}" TextWrapping="Wrap" IsReadOnly="True" Margin="8" />
+            </TabItem>
+            <TabItem Header="Table" IsSelected="{Binding IsTableSelected}">
+                <ListBox Items="{Binding Results}" BorderThickness="0.5" Margin="8" />
+            </TabItem>
+        </TabControl>
+        <StackPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="8" Width="90">
+            <Button Content="Copy" Command="{Binding CopyJson}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="0,0,0,8" />
+            <Button Content="Next Page" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+        </StackPanel>
+    </Grid>
 </UserControl>

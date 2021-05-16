@@ -10,7 +10,7 @@ using DicomReader.Avalonia.Models;
 
 namespace DicomReader.Avalonia.Factories
 {
-    public abstract class CustomDicomRequestFactory : IDicomRequestFactory
+    public abstract class CustomDicomRequestFactory : IDicomCFindRequestFactory
     {
         public DicomCFindRequest CreateCFindRequest(DicomQueryParams queryParams)
         {
@@ -26,7 +26,7 @@ namespace DicomReader.Avalonia.Factories
 
         protected abstract DicomCFindRequest CreateRequestInternal(DicomQueryParams queryParams);
 
-        private void AddRequestedDicomTags(IEnumerable<DicomTagItem> requestedDicomTags, DicomCFindRequest request)
+        private static void AddRequestedDicomTags(IEnumerable<DicomTagItem> requestedDicomTags, DicomMessage request)
         {
             foreach (var tagContent in requestedDicomTags.Select(t => t.Content.Trim()))
             {
@@ -36,15 +36,14 @@ namespace DicomReader.Avalonia.Factories
             }
         }
 
-        private static void AddDicomTagToRequestIfNotExist(DicomCFindRequest findRequest, DicomTag tag)
+        private static void AddDicomTagToRequestIfNotExist(DicomMessage findRequest, DicomTag tag)
         {
             if (findRequest.Dataset.Contains(tag)) return;
 
             var accordingEntry = DicomDictionary.Default.FirstOrDefault(_ => _.Tag == tag);
-            if (accordingEntry == null) return;
 
-            var vr = accordingEntry.ValueRepresentations.First();
-            if (vr.ValueType == null) return;
+            var vr = accordingEntry?.ValueRepresentations.First();
+            if (vr?.ValueType == null) return;
 
             var addMethod = typeof(CustomDicomRequestFactory).GetMethod(nameof(DatasetAddGeneric), BindingFlags.Static | BindingFlags.NonPublic)
                 ?.MakeGenericMethod(vr.ValueType);
@@ -52,6 +51,6 @@ namespace DicomReader.Avalonia.Factories
         }
 
 
-        private static void DatasetAddGeneric<T>(DicomCFindRequest findRequest, DicomTag tag) => findRequest.Dataset.AddOrUpdate<T>(tag);
+        private static void DatasetAddGeneric<T>(DicomMessage findRequest, DicomTag tag) => findRequest.Dataset.AddOrUpdate<T>(tag);
     }
 }

@@ -11,6 +11,8 @@ namespace DicomReader.Avalonia
 {
     public class App : Application
     {
+        public static bool IsExtendedLog { get; set; }
+
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);

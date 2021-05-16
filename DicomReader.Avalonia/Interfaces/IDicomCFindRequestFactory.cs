@@ -3,7 +3,7 @@ using DicomReader.Avalonia.Models;
 
 namespace DicomReader.Avalonia.Interfaces
 {
-    public interface IDicomRequestFactory
+    public interface IDicomCFindRequestFactory
     {
         DicomCFindRequest CreateCFindRequest(DicomQueryParams queryParams);
     }
