@@ -144,6 +144,9 @@ namespace DicomReader.Avalonia.ViewModels
             if (ConfigurationViewModel.SelectedConfiguration == null)
                 throw new InvalidOperationException("Dicom query started without selected pacs configuration");
 
+            QueryResultViewModel.Json = string.Empty;
+            QueryResultViewModel.Results.Clear();
+
             IDicomResponseCollector responseCollector = queryInputs.PagedQueryParams.IsPaged && queryInputs.PagedQueryParams.PageSize.HasValue
                 ? new PagedDicomResponseCollector(queryInputs.PagedQueryParams.PageSize.Value, queryInputs.PagedQueryParams.Page)
                 : new UnPagedDicomResponseCollector();
@@ -159,6 +162,7 @@ namespace DicomReader.Avalonia.ViewModels
                     var resultSet = await dicomQueryService.ExecuteDicomQuery<DicomResultSet>(queryInputs, ConfigurationViewModel.SelectedConfiguration,
                         responseCollector);
                     QueryResultViewModel.Json = resultSet.AsIndentedJson();
+                    QueryResultViewModel.Results.AddRange(resultSet.Results);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(queryInputs));

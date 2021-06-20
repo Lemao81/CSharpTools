@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reactive;
 using Avalonia;
@@ -52,7 +53,7 @@ namespace DicomReader.Avalonia.ViewModels
             set => ResultTab = ResultTab.Table;
         }
 
-        public ObservableCollection<DicomResult> Results { get; } = new();
+        public ObservableCollection<List<DicomResult>> Results { get; } = new();
 
         public ReactiveCommand<Unit, Unit>? CopyJson { get; protected set; }
 

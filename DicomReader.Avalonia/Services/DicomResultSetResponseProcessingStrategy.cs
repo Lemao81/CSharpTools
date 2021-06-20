@@ -10,20 +10,22 @@ namespace DicomReader.Avalonia.Services
     {
         public DicomResultSet ProcessResponse(List<DicomDataset> responseDatasets)
         {
-            var dicomResults = new List<DicomResult>();
+            var dicomResults = new List<List<DicomResult>>();
             foreach (var dataset in responseDatasets)
             {
+                var datasetResult = new List<DicomResult>();
                 foreach (var entry in dataset)
                 {
-                    dicomResults.Add(new DicomResult
+                    datasetResult.Add(new DicomResult
                     {
                         Name = entry.Tag.DictionaryEntry.Name,
                         Keyword = entry.Tag.DictionaryEntry.Keyword,
                         HexCode = $"{entry.Tag.Group:X4}:{entry.Tag.Element:X4}",
-                        ValueRepresentation = entry.Tag.DictionaryEntry.ValueRepresentations.FirstOrDefault()?.Name ?? string.Empty,
+                        ValueRepresentation = entry.Tag.DictionaryEntry.ValueRepresentations.FirstOrDefault()?.Code ?? string.Empty,
                         StringValue = dataset.GetString(entry.Tag)
                     });
                 }
+                dicomResults.Add(datasetResult);
             }
 
             return new DicomResultSet(dicomResults);

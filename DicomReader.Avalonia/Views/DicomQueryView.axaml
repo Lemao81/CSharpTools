@@ -69,8 +69,6 @@
 
             <ListBox Grid.Column="0" Grid.Row="10" Grid.ColumnSpan="3" Name="AuditTrailList" Items="{Binding AuditTrail}" SelectionMode="Single"
                      Margin="4,32,4,4">
-                <ListBox.Styles>
-                </ListBox.Styles>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding Message}">
