@@ -2,16 +2,20 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:dd="clr-namespace:DicomReader.Avalonia.Helper;assembly=DicomReader.Avalonia"
+             xmlns:converter="clr-namespace:DicomReader.Avalonia.Converters;assembly=DicomReader.Avalonia"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="800"
              d:DataContext="{x:Static dd:DesignData.DesignQueryResultViewModel}"
              x:Class="DicomReader.Avalonia.Views.QueryResultView">
+    <UserControl.Resources>
+        <converter:EnumMatchToBooleanConverter x:Key="EnumConverter" />
+    </UserControl.Resources>
     <Grid ColumnDefinitions="*" RowDefinitions="*" Margin="8,8,8,8">
         <TabControl Grid.Column="0" Grid.Row="0" TabStripPlacement="Left">
-            <TabItem Header="Json" IsSelected="{Binding IsJsonSelected}">
+            <TabItem Header="Json" IsSelected="{Binding ResultTab, Converter={StaticResource EnumConverter}, ConverterParameter=Json, Mode=TwoWay}">
                 <TextBox Text="{Binding Json}" TextWrapping="Wrap" IsReadOnly="True" Margin="8" />
             </TabItem>
-            <TabItem Header="Table" IsSelected="{Binding IsTableSelected}">
+            <TabItem Header="Table" IsSelected="{Binding ResultTab, Converter={StaticResource EnumConverter}, ConverterParameter=Table, Mode=TwoWay}">
                 <ListBox Items="{Binding Results}" BorderThickness="0.5" Margin="8">
                     <ListBox.Styles>
                         <Style Selector="TextBlock">
@@ -39,10 +43,24 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
             </TabItem>
+            <TabItem Header="Value" IsSelected="{Binding ResultTab, Converter={StaticResource EnumConverter}, ConverterParameter=Values, Mode=TwoWay}">
+                <ListBox Items="{Binding FlattenedResults}">
+                    <ListBox.Styles>
+                        <Style Selector="TextBlock">
+                            <Setter Property="FontSize" Value="12" />
+                        </Style>
+                    </ListBox.Styles>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding StringValue}" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </TabItem>
         </TabControl>
 
         <StackPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="8" Width="90">
-            <Button Content="Copy" Command="{Binding CopyJson}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="0,0,0,8" />
+            <Button Content="Copy" Command="{Binding Copy}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="0,0,0,8" />
             <Button Content="Next Page" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
         </StackPanel>
     </Grid>

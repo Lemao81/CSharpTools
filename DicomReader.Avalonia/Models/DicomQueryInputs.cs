@@ -41,17 +41,6 @@ namespace DicomReader.Avalonia.Models
                         throw new InvalidOperationException("Standard series request requires a study instance uid");
 
                     break;
-                case DicomRetrieveType.Custom:
-                    if (retrieveLevel == DicomRetrieveLevel.Patient && patientId.IsNullOrEmpty())
-                        throw new InvalidOperationException("Patient id required for retrieve level patient");
-
-                    if (retrieveLevel == DicomRetrieveLevel.Study && studyInstanceUid.IsNullOrEmpty() && accessionNumber.IsNullOrEmpty())
-                        throw new InvalidOperationException("Retrieve level study requires a study instance uid or accession number");
-
-                    if (retrieveLevel == DicomRetrieveLevel.Series && studyInstanceUid.IsNullOrEmpty())
-                        throw new InvalidOperationException("Retrieve level series requires a study instance uid");
-
-                    break;
             }
 
             DicomRetrieveType = retrieveType;

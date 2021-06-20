@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reactive;
 using Avalonia;
 using DicomReader.Avalonia.Enums;
@@ -16,7 +17,7 @@ namespace DicomReader.Avalonia.ViewModels
 
         public QueryResultViewModel()
         {
-            ConfigureCopyJsonButton();
+            ConfigureCopyButton();
             ConfigureRequestNextPageButton();
         }
 
@@ -33,38 +34,37 @@ namespace DicomReader.Avalonia.ViewModels
             get => _resultTab;
             set
             {
+                if (value == default) return;
+
                 this.RaiseAndSetIfChanged(ref _resultTab, value);
-                this.RaisePropertyChanged(nameof(IsJsonSelected));
-                this.RaisePropertyChanged(nameof(IsTableSelected));
             }
         }
 
         public bool IsPagedResult { get; set; } = true;
 
-        public bool IsJsonSelected
-        {
-            get => ResultTab == ResultTab.Json;
-            set => ResultTab = ResultTab.Json;
-        }
-
-        public bool IsTableSelected
-        {
-            get => ResultTab == ResultTab.Table;
-            set => ResultTab = ResultTab.Table;
-        }
-
         public ObservableCollection<List<DicomResult>> Results { get; } = new();
 
-        public ReactiveCommand<Unit, Unit>? CopyJson { get; protected set; }
+        public ObservableCollection<DicomResult> FlattenedResults { get; } = new();
+
+        public ReactiveCommand<Unit, Unit>? Copy { get; protected set; }
 
         public ReactiveCommand<Unit, Unit>? RequestNextPage { get; protected set; }
 
-        private void ConfigureCopyJsonButton()
+        private void ConfigureCopyButton()
         {
-            var enableObservable = this.WhenAnyValue(vm => vm.IsJsonSelected);
-            CopyJson = ReactiveCommand.CreateFromTask(async () =>
+            var enableObservable = this.WhenAnyValue(vm => vm.ResultTab, tab => tab == ResultTab.Json || tab == ResultTab.Values);
+            Copy = ReactiveCommand.CreateFromTask(async () =>
             {
-                await Application.Current.Clipboard.SetTextAsync(Json);
+                switch (ResultTab)
+                {
+                    case ResultTab.Json:
+                        await Application.Current.Clipboard.SetTextAsync(Json);
+                        break;
+                    case ResultTab.Values:
+                        var content = string.Join("\n", FlattenedResults.Select(r => r.StringValue));
+                        await Application.Current.Clipboard.SetTextAsync(content);
+                        break;
+                }
             }, enableObservable);
         }
 

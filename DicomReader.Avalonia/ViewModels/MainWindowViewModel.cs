@@ -146,6 +146,7 @@ namespace DicomReader.Avalonia.ViewModels
 
             QueryResultViewModel.Json = string.Empty;
             QueryResultViewModel.Results.Clear();
+            QueryResultViewModel.FlattenedResults.Clear();
 
             IDicomResponseCollector responseCollector = queryInputs.PagedQueryParams.IsPaged && queryInputs.PagedQueryParams.PageSize.HasValue
                 ? new PagedDicomResponseCollector(queryInputs.PagedQueryParams.PageSize.Value, queryInputs.PagedQueryParams.Page)
@@ -161,8 +162,13 @@ namespace DicomReader.Avalonia.ViewModels
                 case OutputFormat.DicomResult:
                     var resultSet = await dicomQueryService.ExecuteDicomQuery<DicomResultSet>(queryInputs, ConfigurationViewModel.SelectedConfiguration,
                         responseCollector);
+                    foreach (var result in resultSet.Results)
+                    {
+                        result.RemoveAll(r => DicomQueryViewModel.RequestedDicomTags.All(t => r.Keyword != t.Name && r.HexCode != t.HexCode));
+                    }
                     QueryResultViewModel.Json = resultSet.AsIndentedJson();
                     QueryResultViewModel.Results.AddRange(resultSet.Results);
+                    QueryResultViewModel.FlattenedResults.AddRange(resultSet.Results.SelectMany(r => r));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(queryInputs));

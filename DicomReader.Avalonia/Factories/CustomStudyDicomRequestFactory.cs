@@ -12,8 +12,6 @@ namespace DicomReader.Avalonia.Factories
         protected override DicomCFindRequest CreateRequestInternal(DicomQueryParams queryParams)
         {
             if (queryParams.RetrieveLevel != DicomRetrieveLevel.Study) throw new InvalidOperationException("Retrieve level must be study");
-            if (queryParams.StudyInstanceUid.IsNullOrEmpty() && queryParams.AccessionNumber.IsNullOrEmpty())
-                throw new InvalidOperationException("Standard study query requires either a study instance uid or an accession number");
 
             var patientId = queryParams.PatientId.IsNullOrEmpty() ? null : queryParams.PatientId;
             var studyInstanceUid = queryParams.StudyInstanceUid.IsNullOrEmpty() ? null : queryParams.StudyInstanceUid;

@@ -12,14 +12,13 @@ namespace DicomReader.Avalonia.Factories
     {
         protected override DicomCFindRequest CreateRequestInternal(DicomQueryParams queryParams)
         {
-            if (queryParams.PatientId.IsNullOrEmpty()) throw new InvalidOperationException("Standard patient query needs a patient id");
             if (queryParams.RetrieveLevel != DicomRetrieveLevel.Patient) throw new InvalidOperationException("Retrieve level must be patient");
-            if (queryParams.RequestedDicomTags.Any(t => t.Content.IsNullOrEmpty()))
-                throw new InvalidOperationException("Requested dicom tags must contain content");
+            
+            var patientId = queryParams.PatientId.IsNullOrEmpty() ? null : queryParams.PatientId;
 
             var request = new DicomCFindRequest(DicomQueryRetrieveLevel.Patient);
 
-            request.Dataset.AddOrUpdate(DicomTag.PatientID, queryParams.PatientId);
+            request.Dataset.AddOrUpdate(DicomTag.PatientID, patientId);
 
             return request;
         }

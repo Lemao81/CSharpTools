@@ -220,12 +220,11 @@ namespace DicomReader.Avalonia.ViewModels
         {
             // can execute query
             this.WhenAnyValue(
-                vm => vm.RetrieveLevel, vm => vm.RetrieveType, vm => vm.RequestType, vm => vm.PatientId, vm => vm.StudyInstanceUid, vm => vm.AccessionNumber,
-                (retrieveLevel, retrieveType, requestType, patiendId, studyInstanceUid, accessionNumber) =>
+                vm => vm.RetrieveLevel, vm => vm.RetrieveType, vm => vm.RequestType,
+                (retrieveLevel, retrieveType, requestType) =>
                     retrieveLevel != default &&
                     requestType != default &&
-                    retrieveType != default &&
-                    (patiendId.Any() || studyInstanceUid.Any() || accessionNumber.Any())
+                    retrieveType != default
             ).ToProperty(this, vm => vm.CanExecuteQuery, out _canExecuteQueryHelper);
 
             // can execute paged query
