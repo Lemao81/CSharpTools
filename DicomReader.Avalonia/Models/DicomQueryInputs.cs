@@ -14,7 +14,12 @@ namespace DicomReader.Avalonia.Models
 
             if (requestType == DicomRequestType.None) throw new InvalidOperationException("Dicom request type required");
 
-            if (!ValidRetrieveLevel(retrieveLevel)) throw new InvalidOperationException("Dicom retrieve level required/not valid");
+            if (!ValidRetrieveLevel(retrieveLevel, requestType)) throw new InvalidOperationException("Dicom retrieve level required/not valid");
+
+            var isStandardRetrieveType =
+                retrieveType is DicomRetrieveType.StandardPatient or DicomRetrieveType.StandardStudy or DicomRetrieveType.StandardSeries;
+            if (isStandardRetrieveType && requestType != DicomRequestType.CFind)
+                throw new InvalidOperationException("Standard retrieve types requires C-Find request type");
 
             var pageSize = -1;
             if (!pageSizeString.IsNullOrEmpty() && (!int.TryParse(pageSizeString, out pageSize) || pageSize <= 0))
@@ -60,7 +65,8 @@ namespace DicomReader.Avalonia.Models
         public DicomQueryParams DicomQueryParams { get; }
         public PagedQueryParams PagedQueryParams { get; }
 
-        private static bool ValidRetrieveLevel(DicomRetrieveLevel retrieveLevel) =>
+        private static bool ValidRetrieveLevel(DicomRetrieveLevel retrieveLevel, DicomRequestType requestType) =>
+            requestType != DicomRequestType.CFind ||
             retrieveLevel is DicomRetrieveLevel.Patient or DicomRetrieveLevel.Study or DicomRetrieveLevel.Series;
     }
 }

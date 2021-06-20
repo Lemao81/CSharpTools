@@ -56,6 +56,9 @@
             <ToggleButton Grid.Column="1" Grid.Row="8" Content="C-Get" Margin="4,4,4,16"
                           IsChecked="{Binding RequestType, Converter={StaticResource EnumConverter}, ConverterParameter=CGet}"
                           HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+            <ToggleButton Grid.Column="2" Grid.Row="8" Content="C-Move" Margin="4,4,4,16"
+                          IsChecked="{Binding RequestType, Converter={StaticResource EnumConverter}, ConverterParameter=CMove}"
+                          HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
 
             <!-- start query -->
             <Button Grid.Column="0" Grid.Row="9" Content="Query" Command="{Binding StartQuery}" Margin="4" Padding="12" HorizontalAlignment="Stretch"
@@ -66,9 +69,18 @@
 
             <ListBox Grid.Column="0" Grid.Row="10" Grid.ColumnSpan="3" Name="AuditTrailList" Items="{Binding AuditTrail}" SelectionMode="Single"
                      Margin="4,32,4,4">
+                <ListBox.Styles>
+                </ListBox.Styles>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Message}" />
+                        <TextBlock Text="{Binding Message}">
+                            <TextBlock.Styles>
+                                <Style Selector="TextBlock">
+                                    <Setter Property="FontSize" Value="11" />
+                                    <Setter Property="FontWeight" Value="DemiBold" />
+                                </Style>
+                            </TextBlock.Styles>
+                        </TextBlock>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

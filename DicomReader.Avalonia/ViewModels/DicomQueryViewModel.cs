@@ -88,7 +88,12 @@ namespace DicomReader.Avalonia.ViewModels
         public DicomRequestType RequestType
         {
             get => _requestType;
-            set => this.RaiseAndSetIfChanged(ref _requestType, value);
+            set
+            {
+                if (value == default) return;
+
+                this.RaiseAndSetIfChanged(ref _requestType, value);
+            }
         }
 
         public string PageSize

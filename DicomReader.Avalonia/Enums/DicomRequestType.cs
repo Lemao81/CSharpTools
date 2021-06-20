@@ -4,6 +4,7 @@
     {
         None,
         CFind,
-        CGet
+        CGet,
+        CMove
     }
 }
