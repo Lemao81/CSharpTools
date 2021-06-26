@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Avalonia;
 using Common.Extensions;
+using DicomReader.Avalonia.Constants;
 using DicomReader.Avalonia.Dtos;
 using DicomReader.Avalonia.Enums;
+using DicomReader.Avalonia.Extensions;
+using DicomReader.Avalonia.Interfaces;
 
 namespace DicomReader.Avalonia.Models
 {
@@ -48,5 +52,11 @@ namespace DicomReader.Avalonia.Models
         public string LastLoadedPacsConfiguration { get; } = string.Empty;
         public OutputFormat OutputFormat { get; set; } = OutputFormat.JsonSerialized;
         public List<PacsConfiguration> PacsConfigurations { get; } = new();
+
+        public void Save()
+        {
+            var fileSystemService = AvaloniaLocator.Current.GetService<IFileSystemService>();
+            fileSystemService.WriteFile(Consts.AppConfigFileName, new AppConfigDto(this).AsIndentedJson());
+        }
     }
 }

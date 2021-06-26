@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
-using Common.Extensions;
 using DicomReader.Avalonia.Constants;
 using DicomReader.Avalonia.Dtos;
 using DicomReader.Avalonia.Enums;
 using DicomReader.Avalonia.Extensions;
 using DicomReader.Avalonia.Interfaces;
 using DicomReader.Avalonia.Models;
-using DicomReader.Avalonia.Services;
-using DynamicData;
 using ReactiveUI;
 
 namespace DicomReader.Avalonia.ViewModels
@@ -37,7 +33,7 @@ namespace DicomReader.Avalonia.ViewModels
         public DicomQueryViewModel DicomQueryViewModel { get; }
         public QueryResultViewModel QueryResultViewModel { get; }
         public ConfigurationViewModel ConfigurationViewModel { get; }
-        public AppConfig AppConfig { get; protected set; } = AppConfig.Empty;
+        public AppConfig AppConfig { get; set; } = AppConfig.Empty;
 
         public MainViewTab MainViewTab
         {
@@ -99,89 +95,13 @@ namespace DicomReader.Avalonia.ViewModels
             DicomQueryViewModel.StartPagedQuery?.Subscribe(async queryInputs => await HandleStartQuery(queryInputs));
         }
 
-        private void HandleChangedConfigurationData(ConfigurationChangedData changedData)
-        {
-            if (!changedData.LastSelectedPacsConfigurationName.IsNullOrEmpty())
-            {
-                AppConfig = new AppConfig(AppConfig, changedData.LastSelectedPacsConfigurationName!);
-            }
+        private void HandleChangedConfigurationData(ConfigurationChangedData changedData) =>
+            AvaloniaLocator.Current.GetService<IConfigurationChangedHandler>().HandleConfigurationChanged(this, changedData);
 
-            if (changedData.OutputFormat.HasValue)
-            {
-                AppConfig = new AppConfig(AppConfig, changedData.OutputFormat.Value);
-            }
+        private void HandleSavePacsConfiguration(PacsConfiguration editedConfiguration) => AvaloniaLocator.Current.GetService<ISavePacsConfigurationHandler>()
+            .SavePacsConfiguration(this, editedConfiguration);
 
-            if (changedData.IsRemoval.HasValue && changedData.IsRemoval.Value && !changedData.PacsConfigurationNameToRemove.IsNullOrEmpty())
-            {
-                AppConfig = new AppConfig(AppConfig, string.Empty);
-                AppConfig.PacsConfigurations.Remove(AppConfig.PacsConfigurations.Single(c => c.Name == changedData.PacsConfigurationNameToRemove));
-            }
-
-            SaveAppConfig();
-        }
-
-        private void HandleSavePacsConfiguration(PacsConfiguration editedConfiguration)
-        {
-            AppConfig = new AppConfig(AppConfig, editedConfiguration.Name);
-            var existingConfiguration = AppConfig.PacsConfigurations.SingleOrDefault(c => c.Name.EqualsIgnoringCase(editedConfiguration.Name));
-            if (existingConfiguration != null)
-            {
-                AppConfig.PacsConfigurations.Replace(existingConfiguration, editedConfiguration);
-            }
-            else
-            {
-                AppConfig.PacsConfigurations.Add(editedConfiguration);
-            }
-
-            SaveAppConfig();
-            ConfigurationViewModel.Initialize(AppConfig);
-            ConfigurationViewModel.SelectedConfiguration = editedConfiguration;
-        }
-
-        private async Task HandleStartQuery(DicomQueryInputs queryInputs)
-        {
-            var dicomQueryService = AvaloniaLocator.Current.GetService<IDicomQueryService>();
-            if (ConfigurationViewModel.SelectedConfiguration == null)
-                throw new InvalidOperationException("Dicom query started without selected pacs configuration");
-
-            QueryResultViewModel.Json = string.Empty;
-            QueryResultViewModel.Results.Clear();
-            QueryResultViewModel.FlattenedResults.Clear();
-
-            IDicomResponseCollector responseCollector = queryInputs.PagedQueryParams.IsPaged && queryInputs.PagedQueryParams.PageSize.HasValue
-                ? new PagedDicomResponseCollector(queryInputs.PagedQueryParams.PageSize.Value, queryInputs.PagedQueryParams.Page)
-                : new UnPagedDicomResponseCollector();
-
-            switch (AppConfig.OutputFormat)
-            {
-                case OutputFormat.JsonSerialized:
-                    var serializedString =
-                        await dicomQueryService.ExecuteDicomQuery<string>(queryInputs, ConfigurationViewModel.SelectedConfiguration, responseCollector);
-                    QueryResultViewModel.Json = serializedString;
-                    break;
-                case OutputFormat.DicomResult:
-                    var resultSet = await dicomQueryService.ExecuteDicomQuery<DicomResultSet>(queryInputs, ConfigurationViewModel.SelectedConfiguration,
-                        responseCollector);
-                    foreach (var result in resultSet.Results)
-                    {
-                        result.RemoveAll(r => DicomQueryViewModel.RequestedDicomTags.All(t => r.Keyword != t.Name && r.HexCode != t.HexCode));
-                    }
-                    QueryResultViewModel.Json = resultSet.AsIndentedJson();
-                    QueryResultViewModel.Results.AddRange(resultSet.Results);
-                    QueryResultViewModel.FlattenedResults.AddRange(resultSet.Results.SelectMany(r => r));
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(queryInputs));
-            }
-
-            MainViewTab = MainViewTab.Result;
-            QueryResultViewModel.ResultTab = ResultTab.Json;
-        }
-
-        private void SaveAppConfig()
-        {
-            var fileSystemService = AvaloniaLocator.Current.GetService<IFileSystemService>();
-            fileSystemService.WriteFile(Consts.AppConfigFileName, new AppConfigDto(AppConfig).AsIndentedJson());
-        }
+        private async Task HandleStartQuery(DicomQueryInputs queryInputs) =>
+            await AvaloniaLocator.Current.GetService<IStartQueryHandler>().StartQueryAsync(this, queryInputs);
     }
 }

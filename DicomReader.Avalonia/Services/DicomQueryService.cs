@@ -31,7 +31,7 @@ namespace DicomReader.Avalonia.Services
                     break;
             }
 
-            var dicomRequestFactoryProvider = AvaloniaLocator.Current.GetService<IDicomRequestFactoryProvider>();
+            var dicomRequestFactoryProvider = AvaloniaLocator.Current.GetService<IDicomCFindRequestFactoryProvider>();
             var requestFactory = dicomRequestFactoryProvider.ProvideFactory(queryInputs);
             var findRequest = requestFactory.CreateCFindRequest(queryInputs.DicomQueryParams);
             await SendFindRequest(findRequest, pacsConfiguration, responseCollector);

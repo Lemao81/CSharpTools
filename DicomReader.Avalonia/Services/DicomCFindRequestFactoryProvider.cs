@@ -6,7 +6,7 @@ using DicomReader.Avalonia.Models;
 
 namespace DicomReader.Avalonia.Services
 {
-    public class DicomRequestFactoryProvider : IDicomRequestFactoryProvider
+    public class DicomCFindRequestFactoryProvider : IDicomCFindRequestFactoryProvider
     {
         public IDicomCFindRequestFactory ProvideFactory(DicomQueryInputs inputs) =>
             inputs.DicomRetrieveType switch
