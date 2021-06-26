@@ -7,7 +7,7 @@ using DynamicData;
 
 namespace DicomReader.Avalonia.Handler
 {
-    class SavePacsConfigurationHandler : ISavePacsConfigurationHandler
+    public class SavePacsConfigurationHandler : ISavePacsConfigurationHandler
     {
         public void SavePacsConfiguration(MainWindowViewModel mainWindowViewModel, PacsConfiguration configuration)
         {

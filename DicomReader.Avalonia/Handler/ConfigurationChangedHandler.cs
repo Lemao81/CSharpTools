@@ -6,7 +6,7 @@ using DicomReader.Avalonia.ViewModels;
 
 namespace DicomReader.Avalonia.Handler
 {
-    class ConfigurationChangedHandler : IConfigurationChangedHandler
+    public class ConfigurationChangedHandler : IConfigurationChangedHandler
     {
         public void HandleConfigurationChanged(MainWindowViewModel mainWindowViewModel, ConfigurationChangedData changedData)
         {
