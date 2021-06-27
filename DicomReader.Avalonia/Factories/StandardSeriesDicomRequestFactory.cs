@@ -1,14 +1,13 @@
 ﻿using System;
 using Common.Extensions;
 using Dicom.Network;
-using DicomReader.Avalonia.Interfaces;
 using DicomReader.Avalonia.Models;
 
 namespace DicomReader.Avalonia.Factories
 {
-    public class StandardSeriesDicomRequestFactory : IDicomCFindRequestFactory
+    public class StandardSeriesDicomRequestFactory : AbstractDicomCFindRequestFactory
     {
-        public DicomCFindRequest CreateCFindRequest(DicomQueryParams queryParams)
+        protected override DicomCFindRequest CreateCFindRequestInternal(DicomQueryParams queryParams)
         {
             if (queryParams.StudyInstanceUid.IsNullOrEmpty())
                 throw new InvalidOperationException("Standard series request requires a study instance uid");

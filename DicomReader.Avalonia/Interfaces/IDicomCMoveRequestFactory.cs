@@ -5,11 +5,11 @@ using DicomReader.Avalonia.Models;
 
 namespace DicomReader.Avalonia.Interfaces
 {
-    public interface IDicomRequestFactory
+    public interface IDicomCMoveRequestFactory : IDicomRequestFactory
     {
-        DicomRequest CreateRequest(
-            DicomQueryInputs inputs,
-            PacsConfiguration pacsConfiguration,
+        DicomCMoveRequest CreateCMoveRequest(
+            DicomQueryParams queryParams,
+            PacsConfiguration pacsConfig,
             IDicomResponseCollector responseCollector,
             CancellationTokenSource cts,
             Action<DicomRequest, DicomResponse, IDicomResponseCollector, CancellationTokenSource> responseAction

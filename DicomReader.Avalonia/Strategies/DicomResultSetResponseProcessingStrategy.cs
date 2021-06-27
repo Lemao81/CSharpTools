@@ -4,7 +4,7 @@ using Dicom;
 using DicomReader.Avalonia.Interfaces;
 using DicomReader.Avalonia.Models;
 
-namespace DicomReader.Avalonia.Services
+namespace DicomReader.Avalonia.Strategies
 {
     public class DicomResultSetResponseProcessingStrategy : IDicomResponseProcessingStrategy<DicomResultSet>
     {

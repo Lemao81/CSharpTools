@@ -5,7 +5,7 @@ using DicomReader.Avalonia.Interfaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace DicomReader.Avalonia.Services
+namespace DicomReader.Avalonia.Strategies
 {
     public class SerializedJsonDicomResponseProcessingStrategy : IDicomResponseProcessingStrategy<string>
     {

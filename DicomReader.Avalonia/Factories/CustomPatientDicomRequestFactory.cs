@@ -8,9 +8,9 @@ using DicomReader.Avalonia.Models;
 
 namespace DicomReader.Avalonia.Factories
 {
-    public class CustomPatientDicomRequestFactory : CustomDicomRequestFactory
+    public class CustomPatientDicomRequestFactory : AbstractCustomDicomRequestFactory
     {
-        protected override DicomCFindRequest CreateRequestInternal(DicomQueryParams queryParams)
+        protected override DicomCFindRequest CreateCustomRequestInternal(DicomQueryParams queryParams)
         {
             if (queryParams.RetrieveLevel != DicomRetrieveLevel.Patient) throw new InvalidOperationException("Retrieve level must be patient");
             

@@ -7,12 +7,10 @@ using Avalonia;
 using Common.Extensions;
 using Dicom.Log;
 using Dicom.Network;
-using Dicom.Network.Client.EventArguments;
+using DicomReader.Avalonia.Constants;
 using DicomReader.Avalonia.Enums;
 using DicomReader.Avalonia.Interfaces;
 using DicomReader.Avalonia.Models;
-using AssociationAcceptedEventArgs = Dicom.Network.Client.EventArguments.AssociationAcceptedEventArgs;
-using AssociationRejectedEventArgs = Dicom.Network.Client.EventArguments.AssociationRejectedEventArgs;
 using DicomClient = Dicom.Network.Client.DicomClient;
 
 namespace DicomReader.Avalonia.Services
@@ -22,43 +20,35 @@ namespace DicomReader.Avalonia.Services
         public async Task<TResult> ExecuteDicomQuery<TResult>(DicomQueryInputs queryInputs, PacsConfiguration pacsConfiguration,
             IDicomResponseCollector responseCollector)
         {
-            // TODO complete
-            switch (queryInputs.DicomRequestType)
-            {
-                case DicomRequestType.CFind:
-                    break;
-                case DicomRequestType.CGet:
-                    break;
-            }
-
-            var dicomRequestFactoryProvider = AvaloniaLocator.Current.GetService<IDicomCFindRequestFactoryProvider>();
-            var requestFactory = dicomRequestFactoryProvider.ProvideFactory(queryInputs);
-            var findRequest = requestFactory.CreateCFindRequest(queryInputs.DicomQueryParams);
-            await SendFindRequest(findRequest, pacsConfiguration, responseCollector);
+            var cts = new CancellationTokenSource();
+            var dicomRequest = AvaloniaLocator.CurrentMutable.GetService<IDicomRequestFactory>()
+                .CreateRequest(queryInputs, pacsConfiguration, responseCollector, cts, OnResponseReceived);
+            var dicomClient = AvaloniaLocator.CurrentMutable.GetService<IDicomClientFactory>().CreateClient(queryInputs.DicomRequestType, pacsConfiguration);
+            await SendRequest(queryInputs.DicomRequestType, dicomRequest, dicomClient, pacsConfiguration, cts);
             var responseProcessingStrategy = AvaloniaLocator.Current.GetService<IDicomResponseProcessingStrategy<TResult>>();
 
             return responseProcessingStrategy.ProcessResponse(responseCollector.ResponseDatasets);
         }
 
-        private static async Task SendFindRequest(DicomCFindRequest findRequest, PacsConfiguration configuration, IDicomResponseCollector responseCollector)
+        private static async Task SendRequest(DicomRequestType requestType, DicomRequest dicomRequest, DicomClient dicomClient, PacsConfiguration pacsConfig, CancellationTokenSource cts)
         {
             try
             {
-                var callingAe = configuration.CallingAe.IsNullOrEmpty() ? "FINDSCU" : configuration.CallingAe;
-                var client = new DicomClient(configuration.Host, configuration.Port, false, callingAe, configuration.CalledAe);
-                client.NegotiateAsyncOps();
-
-                var cancelToken = new CancellationTokenSource();
-                findRequest.OnResponseReceived = (_, response) => OnResponseReceived(response, responseCollector, cancelToken);
-                findRequest.OnTimeout = (_, _) => OnTimeout();
-                client.StateChanged += (_, args) => OnStateChanged(args);
-                client.AssociationAccepted += (_, args) => OnAssociationAccepted(args);
-                client.AssociationRejected += (_, args) => OnAssociationRejected(args);
-                client.AssociationReleased += (_, _) => OnAssociationReleased();
-                client.RequestTimedOut += (_, args) => OnRequestTimedOut(args);
-
-                await client.AddRequestAsync(findRequest);
-                await client.SendAsync(cancelToken.Token);
+                switch (requestType)
+                {
+                    case DicomRequestType.None:
+                        throw new InvalidOperationException("Request type not specified");
+                    case DicomRequestType.CFind:
+                    case DicomRequestType.CGet:
+                        await dicomClient.AddRequestAsync(dicomRequest);
+                        await dicomClient.SendAsync(cts.Token);
+                        break;
+                    case DicomRequestType.CMove:
+                        await SendCMoveRequest(dicomRequest, dicomClient, pacsConfig);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(requestType));
+                }
             }
             catch (SocketException exception)
             {
@@ -73,7 +63,8 @@ namespace DicomReader.Avalonia.Services
             }
         }
 
-        private static void OnResponseReceived(DicomResponse response, IDicomResponseCollector responseCollector, CancellationTokenSource cancelToken)
+        private static void OnResponseReceived(DicomRequest request, DicomResponse response, IDicomResponseCollector responseCollector,
+            CancellationTokenSource cancelToken)
         {
             if (response.Dataset == null || !response.Dataset.Any())
             {
@@ -93,27 +84,33 @@ namespace DicomReader.Avalonia.Services
             cancelToken.Cancel();
         }
 
-        private static void OnTimeout() => AuditTrailEntry.Emit("REQUEST TIMED OUT");
-
-        private static void OnStateChanged(StateChangedEventArgs args) => AuditTrailEntry.Emit(args.NewState?.ToString());
-
-        private static void OnAssociationAccepted(AssociationAcceptedEventArgs args) =>
-            AuditTrailEntry.Emit($"ASSOCIATION ACCEPTED. Host: {args.Association.RemoteHost} " +
-                                 $"Port: {args.Association.RemotePort} CalledAE: {args.Association.CalledAE} " +
-                                 $"CallingAE: {args.Association.CallingAE}");
-
-        private static void OnAssociationRejected(AssociationRejectedEventArgs args)
+        private static async Task SendCMoveRequest(DicomRequest request, DicomClient client, PacsConfiguration pacsConfig, CancellationTokenSource cts)
         {
-            AuditTrailEntry.Emit($"ASSOCIATION REJECTED. Reason: {args.Reason}");
-            throw new ApplicationException(args.Reason.ToString());
-        }
+            var completionSource = new TaskCompletionSource<object>();
+            try
+            {
+                var timeoutToken = new CancellationTokenSource(TimeSpan.FromSeconds(Consts.CMoveRequestTimeoutSeconds));
+                Task.Run(async () =>
+                {
+                    using var scpServer = DicomServer.Create<CStoreScp>(pacsConfig.ScpPort);
+                    completionSource.SetResult(null);
+                    await Task.Delay(-1, timeoutToken.Token);
+                }, timeoutToken.Token);
+            }
+            catch (TaskCanceledException)
+            {
+                await Console.Error.WriteLineAsync("Scp server has been timed out");
+                Environment.Exit(1);
+            }
+            catch (Exception exception)
+            {
+                await Console.Error.WriteLineAsync("Error during scp server creation: " + exception.Message);
+                Environment.Exit(1);
+            }
 
-        private static void OnRequestTimedOut(RequestTimedOutEventArgs args)
-        {
-            AuditTrailEntry.Emit("CLIENT TIMED OUT");
-            throw new ApplicationException(args.ToString());
+            await completionSource.Task;
+            await client.AddRequestAsync(request);
+            await client.SendAsync();
         }
-
-        private static void OnAssociationReleased() => AuditTrailEntry.Emit("ASSOCIATION RELEASED");
     }
 }

@@ -7,9 +7,9 @@ using DicomReader.Avalonia.Models;
 
 namespace DicomReader.Avalonia.Factories
 {
-    public class CustomStudyDicomRequestFactory : CustomDicomRequestFactory
+    public class CustomStudyDicomRequestFactory : AbstractCustomDicomRequestFactory
     {
-        protected override DicomCFindRequest CreateRequestInternal(DicomQueryParams queryParams)
+        protected override DicomCFindRequest CreateCustomRequestInternal(DicomQueryParams queryParams)
         {
             if (queryParams.RetrieveLevel != DicomRetrieveLevel.Study) throw new InvalidOperationException("Retrieve level must be study");
 

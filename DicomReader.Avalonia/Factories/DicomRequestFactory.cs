@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using Avalonia;
 using Dicom;
 using Dicom.Network;
@@ -10,21 +12,29 @@ using DicomReader.Avalonia.Models;
 
 namespace DicomReader.Avalonia.Factories
 {
-    public abstract class CustomDicomRequestFactory : IDicomCFindRequestFactory
+    public class DicomRequestFactory : IDicomRequestFactory
     {
-        public DicomCFindRequest CreateCFindRequest(DicomQueryParams queryParams)
+        public DicomRequest CreateRequest(
+            DicomQueryInputs inputs,
+            PacsConfiguration pacsConfiguration,
+            IDicomResponseCollector responseCollector,
+            CancellationTokenSource cts,
+            Action<DicomRequest, DicomResponse, IDicomResponseCollector, CancellationTokenSource> responseAction
+        )
         {
-            var request = CreateRequestInternal(queryParams);
+            var request = AvaloniaLocator.CurrentMutable.GetService<IDicomRequestFactoryProvider>()
+                .ProvideFactory(inputs)
+                .CreateRequest(inputs, pacsConfiguration, responseCollector, cts, responseAction);
 
-            // check if necessary
+            request.OnTimeout = (_, _) => OnTimeout();
             request.Dataset.AddOrUpdate(new DicomTag(0x8, 0x5), "ISO_IR 100");
 
-            AddRequestedDicomTags(queryParams.RequestedDicomTags, request);
+            AddRequestedDicomTags(inputs.DicomQueryParams.RequestedDicomTags, request);
 
             return request;
         }
 
-        protected abstract DicomCFindRequest CreateRequestInternal(DicomQueryParams queryParams);
+        private static void OnTimeout() => AuditTrailEntry.Emit("REQUEST TIMED OUT");
 
         private static void AddRequestedDicomTags(IEnumerable<DicomTagItem> requestedDicomTags, DicomMessage request)
         {
@@ -45,11 +55,10 @@ namespace DicomReader.Avalonia.Factories
             var vr = accordingEntry?.ValueRepresentations.First();
             if (vr?.ValueType == null) return;
 
-            var addMethod = typeof(CustomDicomRequestFactory).GetMethod(nameof(DatasetAddGeneric), BindingFlags.Static | BindingFlags.NonPublic)
+            var addMethod = typeof(DicomRequestFactory).GetMethod(nameof(DatasetAddGeneric), BindingFlags.Static | BindingFlags.NonPublic)
                 ?.MakeGenericMethod(vr.ValueType);
             addMethod?.Invoke(null, new object[] { findRequest, tag });
         }
-
 
         private static void DatasetAddGeneric<T>(DicomMessage findRequest, DicomTag tag) => findRequest.Dataset.AddOrUpdate<T>(tag);
     }
