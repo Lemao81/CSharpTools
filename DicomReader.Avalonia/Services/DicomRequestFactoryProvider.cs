@@ -8,6 +8,15 @@ namespace DicomReader.Avalonia.Services
 {
     public class DicomRequestFactoryProvider : IDicomRequestFactoryProvider
     {
+        private readonly IDicomCFindRequestFactoryProvider _dicomCFindRequestFactoryProvider;
+        private readonly IDicomCMoveRequestFactory         _dicomCMoveRequestFactory;
+
+        public DicomRequestFactoryProvider()
+        {
+            _dicomCFindRequestFactoryProvider = AvaloniaLocator.CurrentMutable.GetService<IDicomCFindRequestFactoryProvider>();
+            _dicomCMoveRequestFactory         = AvaloniaLocator.CurrentMutable.GetService<IDicomCMoveRequestFactory>();
+        }
+
         public IDicomRequestFactory ProvideFactory(DicomQueryInputs inputs)
         {
             switch (inputs.DicomRequestType)
@@ -15,11 +24,11 @@ namespace DicomReader.Avalonia.Services
                 case DicomRequestType.None:
                     throw new InvalidOperationException("Request type not selected");
                 case DicomRequestType.CFind:
-                    return AvaloniaLocator.CurrentMutable.GetService<IDicomCFindRequestFactoryProvider>().ProvideFactory(inputs);
+                    return _dicomCFindRequestFactoryProvider.ProvideFactory(inputs);
                 case DicomRequestType.CGet:
                     throw new NotImplementedException();
                 case DicomRequestType.CMove:
-                    return AvaloniaLocator.CurrentMutable.GetService<IDicomCMoveRequestFactory>();
+                    return _dicomCMoveRequestFactory;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

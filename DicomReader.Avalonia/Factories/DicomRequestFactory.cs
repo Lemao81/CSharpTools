@@ -14,17 +14,23 @@ namespace DicomReader.Avalonia.Factories
 {
     public class DicomRequestFactory : IDicomRequestFactory
     {
-        public DicomRequest CreateRequest(
-            DicomQueryInputs inputs,
-            PacsConfiguration pacsConfiguration,
-            IDicomResponseCollector responseCollector,
-            CancellationTokenSource cts,
-            Action<DicomRequest, DicomResponse, IDicomResponseCollector, CancellationTokenSource> responseAction
-        )
+        private readonly IDicomRequestFactoryProvider _dicomRequestFactoryProvider;
+        private readonly IDicomTagProvider            _dicomTagProvider;
+
+        public DicomRequestFactory()
         {
-            var request = AvaloniaLocator.CurrentMutable.GetService<IDicomRequestFactoryProvider>()
-                .ProvideFactory(inputs)
-                .CreateRequest(inputs, pacsConfiguration, responseCollector, cts, responseAction);
+            _dicomRequestFactoryProvider = AvaloniaLocator.CurrentMutable.GetService<IDicomRequestFactoryProvider>();
+            _dicomTagProvider            = AvaloniaLocator.Current.GetService<IDicomTagProvider>();
+        }
+
+        public DicomRequest CreateRequest(
+            DicomQueryInputs                                                                      inputs,
+            PacsConfiguration                                                                     pacsConfiguration,
+            IDicomResponseCollector                                                               responseCollector,
+            CancellationTokenSource                                                               cts,
+            Action<DicomRequest, DicomResponse, IDicomResponseCollector, CancellationTokenSource> responseAction)
+        {
+            var request = _dicomRequestFactoryProvider.ProvideFactory(inputs).CreateRequest(inputs, pacsConfiguration, responseCollector, cts, responseAction);
 
             request.OnTimeout = (_, _) => OnTimeout();
             request.Dataset.AddOrUpdate(new DicomTag(0x8, 0x5), "ISO_IR 100");
@@ -36,13 +42,13 @@ namespace DicomReader.Avalonia.Factories
 
         private static void OnTimeout() => AuditTrailEntry.Emit("REQUEST TIMED OUT");
 
-        private static void AddRequestedDicomTags(IEnumerable<DicomTagItem> requestedDicomTags, DicomMessage request)
+        private void AddRequestedDicomTags(IEnumerable<DicomTagItem> requestedDicomTags, DicomMessage request)
         {
             foreach (var tagContent in requestedDicomTags.Select(t => t.Content.Trim()))
             {
-                AvaloniaLocator.Current.GetService<IDicomTagProvider>().ProvideDicomTag(tagContent)
-                    .OnSuccess(dicomTag => AddDicomTagToRequestIfNotExist(request, dicomTag))
-                    .OnException(exception => throw exception);
+                _dicomTagProvider.ProvideDicomTag(tagContent)
+                                 .OnSuccess(dicomTag => AddDicomTagToRequestIfNotExist(request, dicomTag))
+                                 .OnException(exception => throw exception);
             }
         }
 
@@ -56,7 +62,8 @@ namespace DicomReader.Avalonia.Factories
             if (vr?.ValueType == null) return;
 
             var addMethod = typeof(DicomRequestFactory).GetMethod(nameof(DatasetAddGeneric), BindingFlags.Static | BindingFlags.NonPublic)
-                ?.MakeGenericMethod(vr.ValueType);
+                                                       ?.MakeGenericMethod(vr.ValueType);
+
             addMethod?.Invoke(null, new object[] { findRequest, tag });
         }
 

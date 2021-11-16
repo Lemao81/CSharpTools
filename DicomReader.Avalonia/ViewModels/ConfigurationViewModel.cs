@@ -16,17 +16,18 @@ namespace DicomReader.Avalonia.ViewModels
 {
     public class ConfigurationViewModel : ViewModelBase
     {
-        private string _name = string.Empty;
-        private string _host = string.Empty;
-        private string _port = string.Empty;
-        private string _callingAe = string.Empty;
-        private string _calledAe = string.Empty;
-        private PacsConfigurationViewMode _viewMode;
-        private PacsConfiguration? _selectedConfiguration;
-        private PacsConfiguration? _selectedConvifugrationBeforeEditing;
+        private          string                                    _name      = string.Empty;
+        private          string                                    _host      = string.Empty;
+        private          string                                    _port      = string.Empty;
+        private          string                                    _scpPort   = string.Empty;
+        private          string                                    _callingAe = string.Empty;
+        private          string                                    _calledAe  = string.Empty;
+        private          PacsConfigurationViewMode                 _viewMode;
+        private          PacsConfiguration?                        _selectedConfiguration;
+        private          PacsConfiguration?                        _selectedConvifugrationBeforeEditing;
         private readonly List<IObserver<ConfigurationChangedData>> _configurationChangedStreamObservers = new();
-        private OutputFormat _outputFormat = OutputFormat.JsonSerialized;
-        private bool _isExtendedLogChecked;
+        private          OutputFormat                              _outputFormat                        = OutputFormat.JsonSerialized;
+        private          bool                                      _isExtendedLogChecked;
 
         public ConfigurationViewModel()
         {
@@ -60,12 +61,13 @@ namespace DicomReader.Avalonia.ViewModels
                 this.RaiseAndSetIfChanged(ref _selectedConfiguration, value);
                 if (value == null) return;
 
-                Name = value.Name;
-                Host = value.Host;
-                Port = value.Port.ToString();
-                CallingAe = value.CallingAe;
-                CalledAe = value.CalledAe;
-                ViewMode = PacsConfigurationViewMode.Selected;
+                Name                                 = value.Name;
+                Host                                 = value.Host;
+                Port                                 = value.Port.ToString();
+                CallingAe                            = value.CallingAe;
+                CalledAe                             = value.CalledAe;
+                ScpPort                              = value.ScpPort.ToString();
+                ViewMode                             = PacsConfigurationViewMode.Selected;
                 _selectedConvifugrationBeforeEditing = _selectedConfiguration;
                 EmitConfigurationChanged(ConfigurationChangedData.ChangePacsConfiguration(value.Name));
             }
@@ -93,6 +95,12 @@ namespace DicomReader.Avalonia.ViewModels
         {
             get => _port;
             set => this.RaiseAndSetIfChanged(ref _port, value);
+        }
+
+        public string ScpPort
+        {
+            get => _scpPort;
+            set => this.RaiseAndSetIfChanged(ref _scpPort, value);
         }
 
         public string CallingAe
@@ -131,11 +139,11 @@ namespace DicomReader.Avalonia.ViewModels
 
         public IObservable<ConfigurationChangedData> ConfigurationChangedStream { get; protected set; }
 
-        public ReactiveCommand<Unit, Unit>? AddPacsConfiguration { get; protected set; }
-        public ReactiveCommand<Unit, Unit>? EditPacsConfiguration { get; protected set; }
-        public ReactiveCommand<Unit, Unit>? RemovePacsConfiguration { get; protected set; }
-        public ReactiveCommand<Unit, PacsConfiguration>? SavePacsConfiguration { get; protected set; }
-        public ReactiveCommand<Unit, Unit>? CancelEditing { get; protected set; }
+        public ReactiveCommand<Unit, Unit>?              AddPacsConfiguration    { get; protected set; }
+        public ReactiveCommand<Unit, Unit>?              EditPacsConfiguration   { get; protected set; }
+        public ReactiveCommand<Unit, Unit>?              RemovePacsConfiguration { get; protected set; }
+        public ReactiveCommand<Unit, PacsConfiguration>? SavePacsConfiguration   { get; protected set; }
+        public ReactiveCommand<Unit, Unit>?              CancelEditing           { get; protected set; }
 
         private void EmitConfigurationChanged(ConfigurationChangedData changedData) =>
             _configurationChangedStreamObservers.ForEach(obs => obs.OnNext(changedData));
@@ -143,79 +151,96 @@ namespace DicomReader.Avalonia.ViewModels
         private void ConfigureAddPacsConfigurationButton()
         {
             var enabledObservable = this.WhenAnyValue(vm => vm.ViewMode, m => m != PacsConfigurationViewMode.Add);
-            AddPacsConfiguration = ReactiveCommand.Create(() =>
-            {
-                SelectedConfiguration = null;
-                EmptyInputFields();
-                ViewMode = PacsConfigurationViewMode.Add;
-            }, enabledObservable);
+            AddPacsConfiguration = ReactiveCommand.Create(
+                () =>
+                {
+                    SelectedConfiguration = null;
+                    EmptyInputFields();
+                    ViewMode = PacsConfigurationViewMode.Add;
+                },
+                enabledObservable
+            );
         }
 
         private void ConfigureEditPacsConfigurationButton()
         {
             var enabledObservable = this.WhenAnyValue(vm => vm.ViewMode, m => m == PacsConfigurationViewMode.Selected);
-            EditPacsConfiguration = ReactiveCommand.Create(() =>
-            {
-                ViewMode = PacsConfigurationViewMode.Edit;
-            }, enabledObservable);
+            EditPacsConfiguration = ReactiveCommand.Create(
+                () =>
+                {
+                    ViewMode = PacsConfigurationViewMode.Edit;
+                },
+                enabledObservable
+            );
         }
 
         private void ConfigureRemovePacsConfigurationButton()
         {
             var enabledObservable = this.WhenAnyValue(vm => vm.ViewMode, m => m == PacsConfigurationViewMode.Selected);
-            RemovePacsConfiguration = ReactiveCommand.CreateFromTask(async () =>
-            {
-                var confirmationResult = await MessageBoxHelper.ShowConfirmationMessage($"Remove configuration {SelectedConfiguration?.Name}?");
-                if (confirmationResult == ButtonResult.Ok)
+            RemovePacsConfiguration = ReactiveCommand.CreateFromTask(
+                async () =>
                 {
-                    EmitConfigurationChanged(ConfigurationChangedData.RemovePacsConfiguration(SelectedConfiguration?.Name));
-                    ResetSelection();
-                }
-            }, enabledObservable);
+                    var confirmationResult = await MessageBoxHelper.ShowConfirmationMessage($"Remove configuration {SelectedConfiguration?.Name}?");
+                    if (confirmationResult == ButtonResult.Ok)
+                    {
+                        EmitConfigurationChanged(ConfigurationChangedData.RemovePacsConfiguration(SelectedConfiguration?.Name));
+                        ResetSelection();
+                    }
+                },
+                enabledObservable
+            );
         }
 
         private void ConfigureSavePacsConfigurationButton()
         {
-            var enabledObservable =
-                this.WhenAnyValue(vm => vm.ViewMode, m => m == PacsConfigurationViewMode.Add || m == PacsConfigurationViewMode.Edit);
-            SavePacsConfiguration = ReactiveCommand.Create(() =>
-            {
-                var error = ValidatePacsConfigurationInput();
-                if (!error.IsNullOrEmpty())
+            var enabledObservable = this.WhenAnyValue(vm => vm.ViewMode, m => m == PacsConfigurationViewMode.Add || m == PacsConfigurationViewMode.Edit);
+            SavePacsConfiguration = ReactiveCommand.Create(
+                () =>
                 {
-                    MessageBoxHelper.ShowErrorMessage(error, "Invalid input");
-                    throw new InvalidOperationException(error);
-                }
-                ViewMode = PacsConfigurationViewMode.None;
+                    var error = ValidatePacsConfigurationInput();
+                    if (!error.IsNullOrEmpty())
+                    {
+                        MessageBoxHelper.ShowErrorMessage(error, "Invalid input");
+                        throw new InvalidOperationException(error);
+                    }
 
-                return new PacsConfiguration(this);
-            }, enabledObservable);
+                    ViewMode = PacsConfigurationViewMode.None;
+
+                    return new PacsConfiguration(this);
+                },
+                enabledObservable
+            );
         }
 
         private void ConfigureCancelEditingButton()
         {
             var enabledObservable = this.WhenAnyValue(vm => vm.ViewMode, m => m == PacsConfigurationViewMode.Add || m == PacsConfigurationViewMode.Edit);
-            CancelEditing = ReactiveCommand.Create(() =>
-            {
-                if (_selectedConvifugrationBeforeEditing == null)
+            CancelEditing = ReactiveCommand.Create(
+                () =>
                 {
-                    ResetSelection();
+                    if (_selectedConvifugrationBeforeEditing == null)
+                    {
+                        ResetSelection();
 
-                    return;
-                }
+                        return;
+                    }
 
-                SelectedConfiguration = _selectedConvifugrationBeforeEditing;
-            }, enabledObservable);
+                    SelectedConfiguration = _selectedConvifugrationBeforeEditing;
+                },
+                enabledObservable
+            );
         }
 
         private void ConfigureConfigurationChangedStream()
         {
-            ConfigurationChangedStream = Observable.Create<ConfigurationChangedData>(observer =>
-            {
-                _configurationChangedStreamObservers.Add(observer);
+            ConfigurationChangedStream = Observable.Create<ConfigurationChangedData>(
+                observer =>
+                {
+                    _configurationChangedStreamObservers.Add(observer);
 
-                return new ObserverDisposable<ConfigurationChangedData>(observer, _configurationChangedStreamObservers);
-            });
+                    return new ObserverDisposable<ConfigurationChangedData>(observer, _configurationChangedStreamObservers);
+                }
+            );
         }
 
         private string ValidatePacsConfigurationInput()
@@ -226,7 +251,11 @@ namespace DicomReader.Avalonia.ViewModels
 
             if (Port.IsNullOrEmpty()) return "Port mustn't be empty";
 
+            if (ScpPort.IsNullOrEmpty()) return "Scp port mustn't be empty";
+
             if (!int.TryParse(Port, out var port) || port < 0) return "Port must be an integer greater than zero";
+
+            if (!int.TryParse(ScpPort, out var scpPort) || scpPort < 0) return "Scp port must be an integer greater than zero";
 
             return string.Empty;
         }
@@ -234,18 +263,19 @@ namespace DicomReader.Avalonia.ViewModels
         private void ResetSelection()
         {
             EmptyInputFields();
-            SelectedConfiguration = null;
+            SelectedConfiguration                = null;
             _selectedConvifugrationBeforeEditing = null;
-            ViewMode = PacsConfigurationViewMode.None;
+            ViewMode                             = PacsConfigurationViewMode.None;
         }
 
         private void EmptyInputFields()
         {
-            Name = string.Empty;
-            Host = string.Empty;
-            Port = string.Empty;
+            Name      = string.Empty;
+            Host      = string.Empty;
+            Port      = string.Empty;
             CallingAe = string.Empty;
-            CalledAe = string.Empty;
+            CalledAe  = string.Empty;
+            ScpPort   = string.Empty;
         }
     }
 }

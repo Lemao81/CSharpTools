@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
-using Common.Extensions;
 using Dicom.Log;
 using Dicom.Network;
 using DicomReader.Avalonia.Constants;
@@ -17,20 +17,48 @@ namespace DicomReader.Avalonia.Services
 {
     public class DicomQueryService : IDicomQueryService
     {
-        public async Task<TResult> ExecuteDicomQuery<TResult>(DicomQueryInputs queryInputs, PacsConfiguration pacsConfiguration,
+        private readonly IDicomRequestFactory _dicomRequestFactory;
+        private readonly IDicomClientFactory  _dicomClientFactory;
+        private readonly IDicomTagProvider    _dicomTagProvider;
+
+        public DicomQueryService()
+        {
+            _dicomRequestFactory = AvaloniaLocator.CurrentMutable.GetService<IDicomRequestFactory>();
+            _dicomClientFactory  = AvaloniaLocator.CurrentMutable.GetService<IDicomClientFactory>();
+            _dicomTagProvider    = AvaloniaLocator.Current.GetService<IDicomTagProvider>();
+        }
+
+        public async Task<TResult> ExecuteDicomQuery<TResult>(
+            DicomQueryInputs        queryInputs,
+            PacsConfiguration       pacsConfiguration,
             IDicomResponseCollector responseCollector)
         {
-            var cts = new CancellationTokenSource();
-            var dicomRequest = AvaloniaLocator.CurrentMutable.GetService<IDicomRequestFactory>()
-                .CreateRequest(queryInputs, pacsConfiguration, responseCollector, cts, OnResponseReceived);
-            var dicomClient = AvaloniaLocator.CurrentMutable.GetService<IDicomClientFactory>().CreateClient(queryInputs.DicomRequestType, pacsConfiguration);
-            await SendRequest(queryInputs.DicomRequestType, dicomRequest, dicomClient, pacsConfiguration, cts);
             var responseProcessingStrategy = AvaloniaLocator.Current.GetService<IDicomResponseProcessingStrategy<TResult>>();
+
+            var cts     = new CancellationTokenSource();
+            var request = _dicomRequestFactory.CreateRequest(queryInputs, pacsConfiguration, responseCollector, cts, OnResponseReceived);
+            var client  = _dicomClientFactory.CreateClient(queryInputs.DicomRequestType, pacsConfiguration);
+            await SendRequest(
+                queryInputs.DicomRequestType,
+                queryInputs.DicomQueryParams.RequestedDicomTags,
+                responseCollector,
+                request,
+                client,
+                pacsConfiguration,
+                cts
+            );
 
             return responseProcessingStrategy.ProcessResponse(responseCollector.ResponseDatasets);
         }
 
-        private static async Task SendRequest(DicomRequestType requestType, DicomRequest dicomRequest, DicomClient dicomClient, PacsConfiguration pacsConfig, CancellationTokenSource cts)
+        private async Task SendRequest(
+            DicomRequestType                  requestType,
+            IReadOnlyCollection<DicomTagItem> requestedTags,
+            IDicomResponseCollector           responseCollector,
+            DicomRequest                      dicomRequest,
+            DicomClient                       dicomClient,
+            PacsConfiguration                 pacsConfig,
+            CancellationTokenSource           cts)
         {
             try
             {
@@ -40,11 +68,10 @@ namespace DicomReader.Avalonia.Services
                         throw new InvalidOperationException("Request type not specified");
                     case DicomRequestType.CFind:
                     case DicomRequestType.CGet:
-                        await dicomClient.AddRequestAsync(dicomRequest);
-                        await dicomClient.SendAsync(cts.Token);
+                        await SendQueryRequest(dicomRequest, dicomClient, cts);
                         break;
                     case DicomRequestType.CMove:
-                        await SendCMoveRequest(dicomRequest, dicomClient, pacsConfig);
+                        await SendQueryRetrieveRequest(dicomRequest, requestedTags, responseCollector, dicomClient, pacsConfig, cts);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(requestType));
@@ -63,7 +90,10 @@ namespace DicomReader.Avalonia.Services
             }
         }
 
-        private static void OnResponseReceived(DicomRequest request, DicomResponse response, IDicomResponseCollector responseCollector,
+        private static void OnResponseReceived(
+            DicomRequest            request,
+            DicomResponse           response,
+            IDicomResponseCollector responseCollector,
             CancellationTokenSource cancelToken)
         {
             if (response.Dataset == null || !response.Dataset.Any())
@@ -84,33 +114,53 @@ namespace DicomReader.Avalonia.Services
             cancelToken.Cancel();
         }
 
-        private static async Task SendCMoveRequest(DicomRequest request, DicomClient client, PacsConfiguration pacsConfig, CancellationTokenSource cts)
+        private static async Task SendQueryRequest(DicomRequest dicomRequest, DicomClient dicomClient, CancellationTokenSource cts)
         {
-            var completionSource = new TaskCompletionSource<object>();
+            await dicomClient.AddRequestAsync(dicomRequest);
+            await dicomClient.SendAsync(cts.Token);
+        }
+
+        private async Task SendQueryRetrieveRequest(
+            DicomRequest                      request,
+            IReadOnlyCollection<DicomTagItem> requestedTags,
+            IDicomResponseCollector           responseCollector,
+            DicomClient                       client,
+            PacsConfiguration                 pacsConfig,
+            CancellationTokenSource           cts)
+        {
+            var createStoreScpCompletion = new TaskCompletionSource<object>();
             try
             {
-                var timeoutToken = new CancellationTokenSource(TimeSpan.FromSeconds(Consts.CMoveRequestTimeoutSeconds));
-                Task.Run(async () =>
-                {
-                    using var scpServer = DicomServer.Create<CStoreScp>(pacsConfig.ScpPort);
-                    completionSource.SetResult(null);
-                    await Task.Delay(-1, timeoutToken.Token);
-                }, timeoutToken.Token);
+                var timeoutToken        = new CancellationTokenSource(TimeSpan.FromSeconds(Consts.CMoveRequestTimeoutSeconds));
+                var combinedCancelToken = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, timeoutToken.Token);
+                Task.Run(
+                    async () =>
+                    {
+                        CStoreScp.ResponseCollector = responseCollector;
+                        CStoreScp.RequestedDicomTags = requestedTags.Select(t => _dicomTagProvider.ProvideDicomTag(t.Content))
+                                                                    .Where(r => r.IsSuccess)
+                                                                    .Select(r => r.Value)
+                                                                    .ToList();
+
+                        using var scpServer = DicomServer.Create<CStoreScp>(pacsConfig.ScpPort);
+                        createStoreScpCompletion.SetResult(null);
+                        await Task.Delay(-1, combinedCancelToken.Token);
+                    },
+                    combinedCancelToken.Token
+                );
             }
             catch (TaskCanceledException)
             {
-                await Console.Error.WriteLineAsync("Scp server has been timed out");
-                Environment.Exit(1);
+                LogEntry.Emit("Scp server has been timed out");
             }
             catch (Exception exception)
             {
-                await Console.Error.WriteLineAsync("Error during scp server creation: " + exception.Message);
-                Environment.Exit(1);
+                LogEntry.Emit("Error during scp server creation: " + exception.Message);
             }
 
-            await completionSource.Task;
+            await createStoreScpCompletion.Task;
             await client.AddRequestAsync(request);
-            await client.SendAsync();
+            await client.SendAsync(cts.Token);
         }
     }
 }

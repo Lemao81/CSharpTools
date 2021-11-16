@@ -17,13 +17,12 @@ namespace DicomReader.Avalonia.Handler
         public async Task StartQueryAsync(MainWindowViewModel mainWindowViewModel, DicomQueryInputs queryInputs)
         {
             var dicomQueryService = AvaloniaLocator.Current.GetService<IDicomQueryService>();
-            var configViewModel = mainWindowViewModel.ConfigurationViewModel;
-            var resultViewModel = mainWindowViewModel.QueryResultViewModel;
-            var queryViewModel = mainWindowViewModel.DicomQueryViewModel;
-            var appConfig = mainWindowViewModel.AppConfig;
+            var configViewModel   = mainWindowViewModel.ConfigurationViewModel;
+            var resultViewModel   = mainWindowViewModel.QueryResultViewModel;
+            var queryViewModel    = mainWindowViewModel.DicomQueryViewModel;
+            var appConfig         = mainWindowViewModel.AppConfig;
 
-            if (configViewModel.SelectedConfiguration == null)
-                throw new InvalidOperationException("Dicom query started without selected pacs configuration");
+            if (configViewModel.SelectedConfiguration == null) throw new InvalidOperationException("Dicom query started without selected pacs configuration");
 
             ClearCurrentResult(resultViewModel);
             var responseCollector = GetDicomResponseCollector(queryInputs);
@@ -31,17 +30,17 @@ namespace DicomReader.Avalonia.Handler
             switch (appConfig.OutputFormat)
             {
                 case OutputFormat.JsonSerialized:
-                    await ExecuteToJsonSerializedResult(queryInputs, dicomQueryService, configViewModel, responseCollector, resultViewModel);
+                    await ExecuteWithJsonSerializedResult(queryInputs, dicomQueryService, configViewModel, responseCollector, resultViewModel);
                     break;
                 case OutputFormat.DicomResult:
-                    await ExecuteToDicomResultResult(queryInputs, dicomQueryService, configViewModel, responseCollector, queryViewModel, resultViewModel);
+                    await ExecuteWithDicomResult(queryInputs, dicomQueryService, configViewModel, responseCollector, queryViewModel, resultViewModel);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(queryInputs));
             }
 
             mainWindowViewModel.MainViewTab = MainViewTab.Result;
-            resultViewModel.ResultTab = ResultTab.Json;
+            resultViewModel.ResultTab       = ResultTab.Json;
         }
 
         private static void ClearCurrentResult(QueryResultViewModel resultViewModel)
@@ -51,17 +50,25 @@ namespace DicomReader.Avalonia.Handler
             resultViewModel.FlattenedResults.Clear();
         }
 
-        private static async Task ExecuteToJsonSerializedResult(DicomQueryInputs queryInputs, IDicomQueryService dicomQueryService,
-            ConfigurationViewModel configViewModel, IDicomResponseCollector responseCollector, QueryResultViewModel resultViewModel)
+        private static async Task ExecuteWithJsonSerializedResult(
+            DicomQueryInputs        queryInputs,
+            IDicomQueryService      dicomQueryService,
+            ConfigurationViewModel  configViewModel,
+            IDicomResponseCollector responseCollector,
+            QueryResultViewModel    resultViewModel)
         {
             var serializedString = await dicomQueryService.ExecuteDicomQuery<string>(queryInputs, configViewModel.SelectedConfiguration, responseCollector);
 
             resultViewModel.Json = serializedString;
         }
 
-        private static async Task ExecuteToDicomResultResult(DicomQueryInputs queryInputs, IDicomQueryService dicomQueryService,
-            ConfigurationViewModel configViewModel, IDicomResponseCollector responseCollector, DicomQueryViewModel queryViewModel,
-            QueryResultViewModel resultViewModel)
+        private static async Task ExecuteWithDicomResult(
+            DicomQueryInputs        queryInputs,
+            IDicomQueryService      dicomQueryService,
+            ConfigurationViewModel  configViewModel,
+            IDicomResponseCollector responseCollector,
+            DicomQueryViewModel     queryViewModel,
+            QueryResultViewModel    resultViewModel)
         {
             var resultSet = await dicomQueryService.ExecuteDicomQuery<DicomResultSet>(queryInputs, configViewModel.SelectedConfiguration, responseCollector);
             foreach (var result in resultSet.Results)
