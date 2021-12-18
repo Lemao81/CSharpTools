@@ -1,0 +1,50 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DockerConductor.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="600"
+        x:Class="DockerConductor.Views.MainWindow"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="DockerConductor" Width="1200" Height="600">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
+
+    <TabControl>
+        <TabItem Header="Panel" IsSelected="True" VerticalAlignment="Center">
+            <Grid ColumnDefinitions="2*,*" RowDefinitions="Auto,Auto" ShowGridLines="True" Margin="8">
+                <ScrollViewer Name="ScrollViewer" Grid.Column="0" Grid.Row="0" Height="400" Width="400" Margin="8">
+                    <StackPanel Name="ServiceSelectionContainer"  />
+                </ScrollViewer>
+                <StackPanel Grid.Column="1" Grid.Row="0" Margin="8">
+                    <Button Content="Deselect" Padding="12,8,12,8" />
+                    <Button Content="Build" Padding="12,8,12,8" />
+                    <Button Content="Up" Padding="12,8,12,8" />
+                    <Button Content="Down" Padding="12,8,12,8" />
+                </StackPanel>
+            </Grid>
+        </TabItem>
+
+        <TabItem Header="Configuration" IsSelected="False" VerticalAlignment="Center">
+            <Grid ColumnDefinitions="*,2*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ShowGridLines="True" HorizontalAlignment="Left" Margin="8">
+                <TextBlock Grid.Column="0" Grid.Row="0" Text="Path docker-compose.yml:" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding DockerComposePath}" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <Button Grid.Column="2" Grid.Row="0" Content="Select..." Padding="12,8,12,8" Margin="4,8,4,4" Command="{Binding OpenYmlFileSelection}" />
+
+                <TextBlock Grid.Column="0" Grid.Row="1" Text="Excludes:" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding Excludes}" VerticalAlignment="Center" Margin="4,8,4,4" />
+
+                <TextBlock Grid.Column="0" Grid.Row="2" Text="1. Batch:" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding FirstBatch}" VerticalAlignment="Center" Margin="4,8,4,4" />
+
+                <TextBlock Grid.Column="0" Grid.Row="3" Text="2. Batch:" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBox Grid.Column="1" Grid.Row="3" Text="{Binding SecondBatch}" VerticalAlignment="Center" Margin="4,8,4,4" />
+
+                <Button Grid.Column="0" Grid.Row="4" Content="Save" Command="{Binding SaveConfiguration}" Padding="12,8,12,8" Margin="4,48,4,4" />
+            </Grid>
+        </TabItem>
+    </TabControl>
+
+</Window>
