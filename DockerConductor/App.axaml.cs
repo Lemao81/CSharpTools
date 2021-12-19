@@ -1,13 +1,12 @@
 using System.IO;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using DockerConductor.Helpers;
 using DockerConductor.Models;
 using DockerConductor.ViewModels;
 using DockerConductor.Views;
 using Newtonsoft.Json;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace DockerConductor
 {
@@ -24,11 +23,18 @@ namespace DockerConductor
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                desktop.MainWindow = new MainWindow();
+                var mainWindow = new MainWindow();
+                desktop.MainWindow = mainWindow;
                 var mainWindowViewModel = new MainWindowViewModel(desktop.MainWindow);
                 desktop.MainWindow.DataContext = mainWindowViewModel;
 
                 AppConfig appConfig;
+#if DEVELOP
+                if (File.Exists(ConfigFileName))
+                {
+                    File.Delete(ConfigFileName);
+                }
+#endif
                 if (!File.Exists(ConfigFileName))
                 {
                     appConfig = new AppConfig();
@@ -40,40 +46,21 @@ namespace DockerConductor
                     appConfig = JsonConvert.DeserializeObject<AppConfig>(File.ReadAllText(ConfigFileName))!;
                 }
 
-                mainWindowViewModel.DockerComposePath = appConfig.DockerComposePath;
-                mainWindowViewModel.Excludes          = appConfig.Excludes;
-                mainWindowViewModel.FirstBatch        = appConfig.FirstBatch;
-                mainWindowViewModel.SecondBatch       = appConfig.SecondBatch;
+                mainWindowViewModel.DockerComposePath         = appConfig.DockerComposePath;
+                mainWindowViewModel.DockerComposeOverridePath = appConfig.DockerComposeOverridePath;
+                mainWindowViewModel.Excludes                  = appConfig.Excludes;
+                mainWindowViewModel.FirstBatch                = appConfig.FirstBatch;
+                mainWindowViewModel.FirstBatchWait            = appConfig.FirstBatchWait;
+                mainWindowViewModel.SecondBatch               = appConfig.SecondBatch;
+                mainWindowViewModel.SecondBatchWait           = appConfig.SecondBatchWait;
 
                 if (!string.IsNullOrWhiteSpace(appConfig.DockerComposePath))
                 {
-                    AddServiceSelections(appConfig.DockerComposePath, desktop.MainWindow);
+                    Helper.UpdateServiceCheckboxList(mainWindow);
                 }
             }
 
             base.OnFrameworkInitializationCompleted();
-        }
-
-        public static void AddServiceSelections(string dockerComposePath, Window window)
-        {
-            var dockerComposeText = File.ReadAllText(dockerComposePath);
-            var deserializer = new YamlDotNet.Serialization.DeserializerBuilder().IgnoreUnmatchedProperties()
-                                                                                 .WithNamingConvention(UnderscoredNamingConvention.Instance)
-                                                                                 .Build();
-
-            var dockerCompose = deserializer.Deserialize<DockerCompose>(dockerComposeText);
-
-            var mainWindow                = window as MainWindow;
-            var serviceSelectionContainer = mainWindow?.ServiceSelectionContainer;
-            if (serviceSelectionContainer != null)
-            {
-                serviceSelectionContainer.Children.Clear();
-                foreach (var serviceName in dockerCompose.Services.Keys)
-                {
-                    var checkBox = new CheckBox { Content = serviceName };
-                    serviceSelectionContainer.Children.Add(checkBox);
-                }
-            }
         }
     }
 }

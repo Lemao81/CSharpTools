@@ -3,10 +3,10 @@
         xmlns:vm="using:DockerConductor.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="600"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="800"
         x:Class="DockerConductor.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
-        Title="DockerConductor" Width="1200" Height="600">
+        Title="DockerConductor" Width="800" Height="800">
 
     <Design.DataContext>
         <vm:MainWindowViewModel />
@@ -14,35 +14,54 @@
 
     <TabControl>
         <TabItem Header="Panel" IsSelected="True" VerticalAlignment="Center">
-            <Grid ColumnDefinitions="2*,*" RowDefinitions="Auto,Auto" ShowGridLines="True" Margin="8">
-                <ScrollViewer Name="ScrollViewer" Grid.Column="0" Grid.Row="0" Height="400" Width="400" Margin="8">
-                    <StackPanel Name="ServiceSelectionContainer"  />
+            <Grid ColumnDefinitions="2*,*" RowDefinitions="3*,*" ShowGridLines="True" Classes="content">
+                <ScrollViewer Grid.Column="0" Grid.Row="0">
+                    <StackPanel Name="ServiceSelectionContainer" Classes="content" />
                 </ScrollViewer>
-                <StackPanel Grid.Column="1" Grid.Row="0" Margin="8">
-                    <Button Content="Deselect" Padding="12,8,12,8" />
-                    <Button Content="Build" Padding="12,8,12,8" />
-                    <Button Content="Up" Padding="12,8,12,8" />
-                    <Button Content="Down" Padding="12,8,12,8" />
+                <StackPanel Grid.Column="1" Grid.Row="0" Classes="content">
+                    <StackPanel Classes="mb-1">
+                        <Button Content="Deselect all" Classes="panel-btn" />
+                        <Button Content="Select 3rd party" Classes="panel-btn" />
+                        <Button Content="Select usual" Classes="panel-btn" />
+                    </StackPanel>
+                    <StackPanel Classes="mb-1">
+                        <Button Content="Build" Classes="panel-btn" />
+                        <Button Content="Up" Classes="panel-btn" Command="{Binding DockerComposeUp}" />
+                        <Button Content="Down" Classes="panel-btn" />
+                    </StackPanel>
                 </StackPanel>
             </Grid>
         </TabItem>
 
         <TabItem Header="Configuration" IsSelected="False" VerticalAlignment="Center">
-            <Grid ColumnDefinitions="*,2*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ShowGridLines="True" HorizontalAlignment="Left" Margin="8">
+            <Grid ColumnDefinitions="*,2*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ShowGridLines="True" HorizontalAlignment="Left"
+                  Classes="content">
                 <TextBlock Grid.Column="0" Grid.Row="0" Text="Path docker-compose.yml:" VerticalAlignment="Center" Margin="4,8,4,4" />
                 <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding DockerComposePath}" VerticalAlignment="Center" Margin="4,8,4,4" />
-                <Button Grid.Column="2" Grid.Row="0" Content="Select..." Padding="12,8,12,8" Margin="4,8,4,4" Command="{Binding OpenYmlFileSelection}" />
+                <Button Grid.Column="2" Grid.Row="0" Content="Select..." Padding="12,8,12,8" Margin="4,8,4,4"
+                        Command="{Binding OpenDockerComposeFileSelection}" />
 
-                <TextBlock Grid.Column="0" Grid.Row="1" Text="Excludes:" VerticalAlignment="Center" Margin="4,8,4,4" />
-                <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding Excludes}" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBlock Grid.Column="0" Grid.Row="1" Text="Path docker-compose.override.yml:" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding DockerComposeOverridePath}" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <Button Grid.Column="2" Grid.Row="1" Content="Select..." Padding="12,8,12,8" Margin="4,8,4,4"
+                        Command="{Binding OpenDockerComposeOverrideFileSelection}" />
 
-                <TextBlock Grid.Column="0" Grid.Row="2" Text="1. Batch:" VerticalAlignment="Center" Margin="4,8,4,4" />
-                <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding FirstBatch}" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBlock Grid.Column="0" Grid.Row="2" Text="Excludes:" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding Excludes}" VerticalAlignment="Center" Margin="4,8,4,4" />
 
-                <TextBlock Grid.Column="0" Grid.Row="3" Text="2. Batch:" VerticalAlignment="Center" Margin="4,8,4,4" />
-                <TextBox Grid.Column="1" Grid.Row="3" Text="{Binding SecondBatch}" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBlock Grid.Column="0" Grid.Row="3" Text="1. Batch:" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBox Grid.Column="1" Grid.Row="3" Text="{Binding FirstBatch}" VerticalAlignment="Center" Margin="4,8,4,4" />
 
-                <Button Grid.Column="0" Grid.Row="4" Content="Save" Command="{Binding SaveConfiguration}" Padding="12,8,12,8" Margin="4,48,4,4" />
+                <TextBlock Grid.Column="0" Grid.Row="4" Text="1. Batch Wait Sec:" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBox Grid.Column="1" Grid.Row="4" Text="{Binding FirstBatchWait}" VerticalAlignment="Center" Margin="4,8,4,4" />
+
+                <TextBlock Grid.Column="0" Grid.Row="5" Text="2. Batch:" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBox Grid.Column="1" Grid.Row="5" Text="{Binding SecondBatch}" VerticalAlignment="Center" Margin="4,8,4,4" />
+
+                <TextBlock Grid.Column="0" Grid.Row="6" Text="2. Batch Wait Sec:" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBox Grid.Column="1" Grid.Row="6" Text="{Binding SecondBatchWait}" VerticalAlignment="Center" Margin="4,8,4,4" />
+
+                <Button Grid.Column="0" Grid.Row="7" Content="Save" Command="{Binding SaveConfiguration}" Padding="12,8,12,8" Margin="4,48,4,4" />
             </Grid>
         </TabItem>
     </TabControl>

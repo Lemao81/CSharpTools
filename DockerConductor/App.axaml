@@ -3,10 +3,24 @@
              xmlns:local="using:DockerConductor"
              x:Class="DockerConductor.App">
     <Application.DataTemplates>
-        <local:ViewLocator/>
+        <local:ViewLocator />
     </Application.DataTemplates>
 
     <Application.Styles>
-        <FluentTheme Mode="Light"/>
+        <FluentTheme Mode="Light" />
+        <Style Selector="Button.panel-btn">
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="Margin" Value="0,0,0,4" />
+        </Style>
+        <Style Selector="Grid.content">
+            <Setter Property="Margin" Value="8" />
+        </Style>
+        <Style Selector="StackPanel.content">
+            <Setter Property="Margin" Value="8" />
+        </Style>
+        <Style Selector="StackPanel.mb-1">
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
     </Application.Styles>
 </Application>
