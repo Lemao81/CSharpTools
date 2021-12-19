@@ -20,16 +20,14 @@ namespace DicomReader.Avalonia.Factories
             inputs.DicomQueryParams,
             pacsConfiguration,
             responseCollector,
-            cts,
-            responseAction
+            cts
         );
 
         public DicomCMoveRequest CreateCMoveRequest(
-            DicomQueryParams                                                                      queryParams,
-            PacsConfiguration                                                                     pacsConfig,
-            IDicomResponseCollector                                                               responseCollector,
-            CancellationTokenSource                                                               cts,
-            Action<DicomRequest, DicomResponse, IDicomResponseCollector, CancellationTokenSource> responseAction)
+            DicomQueryParams        queryParams,
+            PacsConfiguration       pacsConfig,
+            IDicomResponseCollector responseCollector,
+            CancellationTokenSource cts)
         {
             var callingAe = string.IsNullOrEmpty(pacsConfig.CallingAe) ? Consts.StoreScp : pacsConfig.CallingAe;
 
@@ -42,8 +40,6 @@ namespace DicomReader.Avalonia.Factories
             request.Dataset.AddOrUpdate(DicomTag.PatientID, patientId);
             request.Dataset.AddOrUpdate(DicomTag.StudyInstanceUID, studyInstanceUid);
             request.Dataset.AddOrUpdate(DicomTag.AccessionNumber, accessionNumber);
-
-            request.OnResponseReceived = (req, res) => responseAction(req, res, responseCollector, cts);
 
             return request;
         }

@@ -14,13 +14,19 @@ namespace DicomReader.Avalonia.Handler
 {
     public class StartQueryHandler : IStartQueryHandler
     {
+        private readonly IDicomQueryService _dicomQueryService;
+
+        public StartQueryHandler()
+        {
+            _dicomQueryService = AvaloniaLocator.Current.GetService<IDicomQueryService>();
+        }
+
         public async Task StartQueryAsync(MainWindowViewModel mainWindowViewModel, DicomQueryInputs queryInputs)
         {
-            var dicomQueryService = AvaloniaLocator.Current.GetService<IDicomQueryService>();
-            var configViewModel   = mainWindowViewModel.ConfigurationViewModel;
-            var resultViewModel   = mainWindowViewModel.QueryResultViewModel;
-            var queryViewModel    = mainWindowViewModel.DicomQueryViewModel;
-            var appConfig         = mainWindowViewModel.AppConfig;
+            var configViewModel = mainWindowViewModel.ConfigurationViewModel;
+            var resultViewModel = mainWindowViewModel.QueryResultViewModel;
+            var queryViewModel  = mainWindowViewModel.DicomQueryViewModel;
+            var appConfig       = mainWindowViewModel.AppConfig;
 
             if (configViewModel.SelectedConfiguration == null) throw new InvalidOperationException("Dicom query started without selected pacs configuration");
 
@@ -30,10 +36,10 @@ namespace DicomReader.Avalonia.Handler
             switch (appConfig.OutputFormat)
             {
                 case OutputFormat.JsonSerialized:
-                    await ExecuteWithJsonSerializedResult(queryInputs, dicomQueryService, configViewModel, responseCollector, resultViewModel);
+                    await ExecuteWithJsonSerializedResult(queryInputs, _dicomQueryService, configViewModel, responseCollector, resultViewModel);
                     break;
                 case OutputFormat.DicomResult:
-                    await ExecuteWithDicomResult(queryInputs, dicomQueryService, configViewModel, responseCollector, queryViewModel, resultViewModel);
+                    await ExecuteWithDicomResult(queryInputs, _dicomQueryService, configViewModel, responseCollector, queryViewModel, resultViewModel);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(queryInputs));

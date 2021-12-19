@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Common.Extensions;
 using Dicom;
 using Dicom.Log;
 using Dicom.Network;
@@ -54,17 +55,6 @@ namespace DicomReader.Avalonia.Services
             TagsToKeep.AddRange(RequestedDicomTags);
         }
 
-        public void OnReceiveAbort(DicomAbortSource source, DicomAbortReason reason) =>
-            LogEntry.Emit($"Scp connection has been aborted. Source: {source}, reason: {reason}");
-
-        public void OnConnectionClosed(Exception? exception)
-        {
-            if (exception != null)
-            {
-                LogEntry.Emit($"Exception on connection closed: {exception.Message}");
-            }
-        }
-
         public Task OnReceiveAssociationRequestAsync(DicomAssociation association)
         {
             foreach (var context in association.PresentationContexts)
@@ -82,14 +72,23 @@ namespace DicomReader.Avalonia.Services
             return SendAssociationAcceptAsync(association);
         }
 
-        public Task OnReceiveAssociationReleaseRequestAsync() => SendAssociationReleaseResponseAsync();
+        public DicomCEchoResponse OnCEchoRequest(DicomCEchoRequest request) => new(request, DicomStatus.Success);
 
         public DicomCStoreResponse OnCStoreRequest(DicomCStoreRequest request)
         {
-            if (request?.Dataset == null || !request.HasDataset) return new DicomCStoreResponse(request, DicomStatus.Success);
+            if (request.Dataset == null || !request.HasDataset)
+            {
+                AuditTrailEntry.Emit("RESPONSE RECEIVED WITHOUT DATA");
+
+                return new DicomCStoreResponse(request, DicomStatus.Success);
+            }
+
+            var message = "RESPONSE RECEIVED WITH DATA";
+            message += App.IsExtendedLog ? $". Data: {request.Dataset.WriteToString()}" : "";
+            AuditTrailEntry.Emit(message);
 
             var seriesInstanceUid = request.Dataset.GetString(DicomTag.SeriesInstanceUID);
-            if (string.IsNullOrEmpty(seriesInstanceUid) || _distinctSeriesIds.Contains(seriesInstanceUid))
+            if (seriesInstanceUid.IsNullOrEmpty() || _distinctSeriesIds.Contains(seriesInstanceUid))
                 return new DicomCStoreResponse(request, DicomStatus.Success);
 
             _distinctSeriesIds.Add(seriesInstanceUid);
@@ -101,6 +100,17 @@ namespace DicomReader.Avalonia.Services
 
         public void OnCStoreRequestException(string tempFileName, Exception exception) => LogEntry.Emit($"Exception on cstore request: {exception.Message}");
 
-        public DicomCEchoResponse OnCEchoRequest(DicomCEchoRequest request) => new(request, DicomStatus.Success);
+        public Task OnReceiveAssociationReleaseRequestAsync() => SendAssociationReleaseResponseAsync();
+
+        public void OnConnectionClosed(Exception? exception)
+        {
+            if (exception != null)
+            {
+                LogEntry.Emit($"Exception on connection closed: {exception.Message}");
+            }
+        }
+
+        public void OnReceiveAbort(DicomAbortSource source, DicomAbortReason reason) =>
+            LogEntry.Emit($"Scp connection has been aborted. Source: {source}, reason: {reason}");
     }
 }

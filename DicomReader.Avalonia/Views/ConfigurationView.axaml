@@ -30,12 +30,16 @@
                      IsReadOnly="{Binding ViewMode, Mode=OneWay, Converter={StaticResource EnumConverter}, ConverterParameter=Selected}" Margin="4" />
 
             <TextBlock Grid.Column="0" Grid.Row="3" Text="Host" Margin="4" />
-            <TextBox Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="3" Text="{Binding Host}"
+            <TextBox Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2" Text="{Binding Host}"
                      IsReadOnly="{Binding ViewMode, Mode=OneWay, Converter={StaticResource EnumConverter}, ConverterParameter=Selected}" Margin="4" />
 
-            <TextBlock Grid.Column="3" Grid.Row="3" Text="Port" Margin="4" />
-            <TextBox Grid.Column="3" Grid.Row="4" Text="{Binding Port}"
+            <TextBlock Grid.Column="2" Grid.Row="3" Text="Port" Margin="4" />
+            <TextBox Grid.Column="2" Grid.Row="4" Text="{Binding Port}"
                      IsReadOnly="{Binding ViewMode, Mode=OneWay, Converter={StaticResource EnumConverter}, ConverterParameter=Selected}" Margin="4" />
+
+          <TextBlock Grid.Column="3" Grid.Row="3" Text="Scp Port" Margin="4" />
+          <TextBox Grid.Column="3" Grid.Row="4" Text="{Binding ScpPort}"
+                   IsReadOnly="{Binding ViewMode, Mode=OneWay, Converter={StaticResource EnumConverter}, ConverterParameter=Selected}" Margin="4" />
 
             <TextBlock Grid.Column="0" Grid.Row="5" Text="CallingAe" Margin="4" />
             <TextBox Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2" Text="{Binding CallingAe}"

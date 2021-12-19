@@ -63,7 +63,7 @@ namespace DicomReader.Avalonia.Models
 
             if (pacsConfiguration.Port <= 0) throw new InvalidOperationException("Port must be greater than 0");
 
-            if (pacsConfiguration.ScpPort <= 0) throw new InvalidOperationException("Scp port must be greater than 0");
+            if (pacsConfiguration.ScpPort < 0) throw new InvalidOperationException("Scp port must be a positive number");
         }
 
         public string Name      { get; protected set; } = string.Empty;
