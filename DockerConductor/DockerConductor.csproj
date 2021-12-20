@@ -5,7 +5,7 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DefineConstants>TRACECOREAPP;DEVELOP</DefineConstants>
+      <DefineConstants>TRACECOREAPP;</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
         <Folder Include="Models\" />

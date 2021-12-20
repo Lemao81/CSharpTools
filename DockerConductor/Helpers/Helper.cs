@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using DockerConductor.ViewModels;
 using DockerConductor.Views;
@@ -31,17 +33,27 @@ namespace DockerConductor.Helpers
             return strings.Where(s => filters.Any(f => f.Contains(s, StringComparison.InvariantCultureIgnoreCase)));
         }
 
-        public static void ExecuteCliCommand(string command)
+        public static async Task ExecuteCliCommand(string command)
         {
             var startInfo = new ProcessStartInfo("cmd.exe", $"/C {command}")
             {
-                WindowStyle    = ProcessWindowStyle.Hidden,
-                CreateNoWindow = true
+                WindowStyle            = ProcessWindowStyle.Hidden,
+                CreateNoWindow         = true,
+                UseShellExecute        = false,
+                WorkingDirectory       = @"C:\Windows\System32",
+                RedirectStandardInput  = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError  = true
             };
 
             var process = new Process();
             process.StartInfo = startInfo;
+            Console.WriteLine("Executing: " + command);
             process.Start();
+            await process.WaitForExitAsync();
+            Console.WriteLine(await process.StandardOutput.ReadToEndAsync());
+            Console.WriteLine(await process.StandardError.ReadToEndAsync());
+            Console.WriteLine("Command executed");
         }
 
         public static void UpdateServiceCheckboxList(MainWindow window)
@@ -72,5 +84,10 @@ namespace DockerConductor.Helpers
 
             return start + " " + string.Join(" ", nonEmpties);
         }
+
+        public static string ConcatFilePathArguments(params string[] paths) => string.Join(
+            " ",
+            paths.Where(p => !string.IsNullOrWhiteSpace(p)).Select(p => $"-f \"{p}\"")
+        );
     }
 }

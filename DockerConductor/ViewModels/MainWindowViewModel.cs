@@ -19,10 +19,12 @@ namespace DockerConductor.ViewModels
         private          string     _dockerComposePath         = string.Empty;
         private          string     _dockerComposeOverridePath = string.Empty;
         private          string     _excludes                  = string.Empty;
+        private          string     _thirdParties              = string.Empty;
+        private          string     _usuals                    = string.Empty;
         private          string     _firstBatch                = string.Empty;
-        private          int        _firstBatchWait            = 10;
-        private          string     _secondBatch               = string.Empty;
-        private          int        _secondBatchWait           = 10;
+        private          int        _firstBatchWait;
+        private          string     _secondBatch = string.Empty;
+        private          int        _secondBatchWait;
 
         public MainWindowViewModel(Window window)
         {
@@ -52,6 +54,18 @@ namespace DockerConductor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _excludes, value);
         }
 
+        public string ThirdParties
+        {
+            get => _thirdParties;
+            set => this.RaiseAndSetIfChanged(ref _thirdParties, value);
+        }
+
+        public string Usuals
+        {
+            get => _usuals;
+            set => this.RaiseAndSetIfChanged(ref _usuals, value);
+        }
+
         public string FirstBatch
         {
             get => _firstBatch;
@@ -61,7 +75,7 @@ namespace DockerConductor.ViewModels
         public string FirstBatchWait
         {
             get => _firstBatchWait.ToString();
-            set => this.RaiseAndSetIfChanged(ref _firstBatchWait, int.Parse(value));
+            set => this.RaiseAndSetIfChanged(ref _firstBatchWait, int.TryParse(value, out _) ? int.Parse(value) : 0);
         }
 
         public string SecondBatch
@@ -73,14 +87,14 @@ namespace DockerConductor.ViewModels
         public string SecondBatchWait
         {
             get => _secondBatchWait.ToString();
-            set => this.RaiseAndSetIfChanged(ref _secondBatchWait, int.Parse(value));
+            set => this.RaiseAndSetIfChanged(ref _secondBatchWait, int.TryParse(value, out _) ? int.Parse(value) : 0);
         }
 
         public ReactiveCommand<Unit, Task>? OpenDockerComposeFileSelection         { get; set; }
         public ReactiveCommand<Unit, Task>? OpenDockerComposeOverrideFileSelection { get; set; }
         public ReactiveCommand<Unit, Unit>? SaveConfiguration                      { get; set; }
-        public ReactiveCommand<Unit, Unit>? DockerComposeUp                        { get; set; }
-        public ReactiveCommand<Unit, Unit>? DockerComposeDown                      { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerComposeUp                        { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerComposeDown                      { get; set; }
 
         private void InitializeCommands()
         {
@@ -119,6 +133,8 @@ namespace DockerConductor.ViewModels
                         DockerComposePath         = DockerComposePath,
                         DockerComposeOverridePath = DockerComposeOverridePath,
                         Excludes                  = Excludes,
+                        ThirdParties              = ThirdParties,
+                        Usuals                    = Usuals,
                         FirstBatch                = FirstBatch,
                         FirstBatchWait            = FirstBatchWait,
                         SecondBatch               = SecondBatch,
@@ -134,16 +150,13 @@ namespace DockerConductor.ViewModels
             );
 
             DockerComposeUp = ReactiveCommand.Create(
-                () =>
+                async () =>
                 {
                     if (!SelectedServiceNames.Any()) return;
 
                     var basicCommand = Helper.ConcatCommand(
                         "docker-compose",
-                        "-f",
-                        $"\"{DockerComposePath}\"",
-                        "-f",
-                        $"\"{DockerComposeOverridePath}\"",
+                        Helper.ConcatFilePathArguments(DockerComposePath, DockerComposeOverridePath),
                         "up",
                         "-d",
                         "--no-deps"
@@ -156,33 +169,39 @@ namespace DockerConductor.ViewModels
                     if (firstBatch.Any())
                     {
                         var firstBatchCommand = Helper.ConcatCommand(basicCommand, firstBatch);
-                        Helper.ExecuteCliCommand(firstBatchCommand);
+                        await Helper.ExecuteCliCommand(firstBatchCommand);
 
                         if (secondBatch.Any() || rest.Any())
                         {
-                            Task.Delay(TimeSpan.FromSeconds(_firstBatchWait));
+                            await Task.Delay(TimeSpan.FromSeconds(_firstBatchWait));
                         }
                     }
 
                     if (secondBatch.Any())
                     {
                         var secondBatchCommand = Helper.ConcatCommand(basicCommand, secondBatch);
-                        Helper.ExecuteCliCommand(secondBatchCommand);
+                        await Helper.ExecuteCliCommand(secondBatchCommand);
 
                         if (rest.Any())
                         {
-                            Task.Delay(TimeSpan.FromSeconds(_secondBatchWait));
+                            await Task.Delay(TimeSpan.FromSeconds(_secondBatchWait));
                         }
                     }
 
                     if (!rest.Any()) return;
 
                     var command = Helper.ConcatCommand(basicCommand, rest);
-                    Helper.ExecuteCliCommand(command);
+                    await Helper.ExecuteCliCommand(command);
                 }
             );
 
-            DockerComposeDown = ReactiveCommand.Create(() => Helper.ExecuteCliCommand("docker-compose down"));
+            DockerComposeDown = ReactiveCommand.Create(
+                async () =>
+                {
+                    var command = Helper.ConcatCommand("docker-compose", Helper.ConcatFilePathArguments(DockerComposePath, DockerComposeOverridePath), "down");
+                    await Helper.ExecuteCliCommand(command);
+                }
+            );
         }
 
         private async Task<string[]> ShowYamlFileSelection(string title)
