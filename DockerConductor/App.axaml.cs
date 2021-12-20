@@ -49,6 +49,8 @@ namespace DockerConductor
                 mainWindowViewModel.DockerComposePath         = appConfig.DockerComposePath;
                 mainWindowViewModel.DockerComposeOverridePath = appConfig.DockerComposeOverridePath;
                 mainWindowViewModel.Excludes                  = appConfig.Excludes;
+                mainWindowViewModel.ThirdParties              = appConfig.ThirdParties;
+                mainWindowViewModel.Usuals                    = appConfig.Usuals;
                 mainWindowViewModel.FirstBatch                = appConfig.FirstBatch;
                 mainWindowViewModel.FirstBatchWait            = appConfig.FirstBatchWait;
                 mainWindowViewModel.SecondBatch               = appConfig.SecondBatch;

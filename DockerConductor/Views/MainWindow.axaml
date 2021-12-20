@@ -27,14 +27,15 @@
                     <StackPanel Classes="mb-1">
                         <Button Content="Build" Classes="panel-btn" />
                         <Button Content="Up" Classes="panel-btn" Command="{Binding DockerComposeUp}" />
-                        <Button Content="Down" Classes="panel-btn" />
+                        <Button Content="Down" Classes="panel-btn" Command="{Binding DockerComposeDown}" />
                     </StackPanel>
                 </StackPanel>
             </Grid>
         </TabItem>
 
         <TabItem Header="Configuration" IsSelected="False" VerticalAlignment="Center">
-            <Grid ColumnDefinitions="*,2*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ShowGridLines="True" HorizontalAlignment="Left"
+            <Grid ColumnDefinitions="2*,3*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ShowGridLines="True"
+                  HorizontalAlignment="Stretch"
                   Classes="content">
                 <TextBlock Grid.Column="0" Grid.Row="0" Text="Path docker-compose.yml:" VerticalAlignment="Center" Margin="4,8,4,4" />
                 <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding DockerComposePath}" VerticalAlignment="Center" Margin="4,8,4,4" />
@@ -49,19 +50,25 @@
                 <TextBlock Grid.Column="0" Grid.Row="2" Text="Excludes:" VerticalAlignment="Center" Margin="4,8,4,4" />
                 <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding Excludes}" VerticalAlignment="Center" Margin="4,8,4,4" />
 
-                <TextBlock Grid.Column="0" Grid.Row="3" Text="1. Batch:" VerticalAlignment="Center" Margin="4,8,4,4" />
-                <TextBox Grid.Column="1" Grid.Row="3" Text="{Binding FirstBatch}" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBlock Grid.Column="0" Grid.Row="3" Text="Third parties:" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBox Grid.Column="1" Grid.Row="3" Text="{Binding ThirdParties}" VerticalAlignment="Center" Margin="4,8,4,4" />
 
-                <TextBlock Grid.Column="0" Grid.Row="4" Text="1. Batch Wait Sec:" VerticalAlignment="Center" Margin="4,8,4,4" />
-                <TextBox Grid.Column="1" Grid.Row="4" Text="{Binding FirstBatchWait}" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBlock Grid.Column="0" Grid.Row="4" Text="Usuals:" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBox Grid.Column="1" Grid.Row="4" Text="{Binding Usuals}" VerticalAlignment="Center" Margin="4,8,4,4" />
 
-                <TextBlock Grid.Column="0" Grid.Row="5" Text="2. Batch:" VerticalAlignment="Center" Margin="4,8,4,4" />
-                <TextBox Grid.Column="1" Grid.Row="5" Text="{Binding SecondBatch}" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBlock Grid.Column="0" Grid.Row="5" Text="1. Batch:" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBox Grid.Column="1" Grid.Row="5" Text="{Binding FirstBatch}" VerticalAlignment="Center" Margin="4,8,4,4" />
 
-                <TextBlock Grid.Column="0" Grid.Row="6" Text="2. Batch Wait Sec:" VerticalAlignment="Center" Margin="4,8,4,4" />
-                <TextBox Grid.Column="1" Grid.Row="6" Text="{Binding SecondBatchWait}" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBlock Grid.Column="0" Grid.Row="6" Text="1. Batch Wait Sec:" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBox Grid.Column="1" Grid.Row="6" Text="{Binding FirstBatchWait}" VerticalAlignment="Center" Margin="4,8,4,4" />
 
-                <Button Grid.Column="0" Grid.Row="7" Content="Save" Command="{Binding SaveConfiguration}" Padding="12,8,12,8" Margin="4,48,4,4" />
+                <TextBlock Grid.Column="0" Grid.Row="7" Text="2. Batch:" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBox Grid.Column="1" Grid.Row="7" Text="{Binding SecondBatch}" VerticalAlignment="Center" Margin="4,8,4,4" />
+
+                <TextBlock Grid.Column="0" Grid.Row="8" Text="2. Batch Wait Sec:" VerticalAlignment="Center" Margin="4,8,4,4" />
+                <TextBox Grid.Column="1" Grid.Row="8" Text="{Binding SecondBatchWait}" VerticalAlignment="Center" Margin="4,8,4,4" />
+
+                <Button Grid.Column="0" Grid.Row="9" Content="Save" Command="{Binding SaveConfiguration}" Padding="12,8,12,8" Margin="4,48,4,4" />
             </Grid>
         </TabItem>
     </TabControl>
