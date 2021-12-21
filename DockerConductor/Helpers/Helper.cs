@@ -21,19 +21,19 @@ namespace DockerConductor.Helpers
 
         public static IEnumerable<string> ExcludeByCommaSeparated(IEnumerable<string> strings, string commaseparated)
         {
-            var excludes = commaseparated.Split(",").Select(s => s.Trim());
+            var excludes = SplitCommaSeparated(commaseparated);
 
             return strings.Where(s => excludes.All(e => string.IsNullOrWhiteSpace(e) || !s.Contains(e, StringComparison.InvariantCultureIgnoreCase)));
         }
 
         public static IEnumerable<string> FilterByCommaSeparated(IEnumerable<string> strings, string commaseparated)
         {
-            var filters = commaseparated.Split(",").Select(s => s.Trim());
+            var filters = SplitCommaSeparated(commaseparated);
 
             return strings.Where(s => filters.Any(f => f.Contains(s, StringComparison.InvariantCultureIgnoreCase)));
         }
 
-        public static async Task ExecuteCliCommand(string command)
+        public static async Task ExecuteCliCommand(string command, TextBlock? consoleOutput)
         {
             var startInfo = new ProcessStartInfo("cmd.exe", $"/C {command}")
             {
@@ -48,12 +48,13 @@ namespace DockerConductor.Helpers
 
             var process = new Process();
             process.StartInfo = startInfo;
-            Console.WriteLine("Executing: " + command);
             process.Start();
             await process.WaitForExitAsync();
-            Console.WriteLine(await process.StandardOutput.ReadToEndAsync());
-            Console.WriteLine(await process.StandardError.ReadToEndAsync());
-            Console.WriteLine("Command executed");
+
+            if (consoleOutput is null) return;
+
+            consoleOutput.Text =  await process.StandardOutput.ReadToEndAsync();
+            consoleOutput.Text += await process.StandardError.ReadToEndAsync();
         }
 
         public static void UpdateServiceCheckboxList(MainWindow window)
@@ -89,5 +90,17 @@ namespace DockerConductor.Helpers
             " ",
             paths.Where(p => !string.IsNullOrWhiteSpace(p)).Select(p => $"-f \"{p}\"")
         );
+
+        public static IEnumerable<string> SplitCommaSeparated(string str) => str.Split(",").Select(s => s.Trim()).Where(s => !string.IsNullOrWhiteSpace(s));
+
+        public static void SelectMatchingContents(IEnumerable<CheckBox> checkBoxes, IEnumerable<string> strings)
+        {
+            foreach (var checkBox in checkBoxes.Where(
+                c => strings.Any(t => c.Content != null && c.Content.ToString()!.Contains(t, StringComparison.InvariantCultureIgnoreCase))
+            ))
+            {
+                checkBox.IsChecked = true;
+            }
+        }
     }
 }

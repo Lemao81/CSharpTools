@@ -21,12 +21,14 @@ namespace DockerConductor.Views
         public MainWindowViewModel   ViewModel                  => DataContext as MainWindowViewModel ?? throw new InvalidOperationException();
         public StackPanel?           ServiceSelectionContainer  { get; set; }
         public IEnumerable<CheckBox> ServiceSelectionCheckBoxes => ServiceSelectionContainer?.Children.Cast<CheckBox>() ?? new List<CheckBox>();
+        public TextBlock?            ConsoleOutput              { get; set; }
 
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
 
             ServiceSelectionContainer = this.Find<StackPanel>("ServiceSelectionContainer");
+            ConsoleOutput             = this.Find<TextBlock>("ConsoleOutput");
         }
     }
 }

@@ -19,6 +19,9 @@
         <Style Selector="StackPanel.content">
             <Setter Property="Margin" Value="8" />
         </Style>
+        <Style Selector="TextBlock.content">
+            <Setter Property="Margin" Value="8" />
+        </Style>
         <Style Selector="StackPanel.mb-1">
             <Setter Property="Margin" Value="0,0,0,8" />
         </Style>

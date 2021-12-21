@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reactive;
-using System.Threading.Tasks;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using DockerConductor.Helpers;
 using DockerConductor.Models;
 using DockerConductor.Views;
 using Newtonsoft.Json;
 using ReactiveUI;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reactive;
+using System.Threading.Tasks;
 
 namespace DockerConductor.ViewModels
 {
@@ -25,6 +25,10 @@ namespace DockerConductor.ViewModels
         private          int        _firstBatchWait;
         private          string     _secondBatch = string.Empty;
         private          int        _secondBatchWait;
+
+        public MainWindowViewModel()
+        {
+        }
 
         public MainWindowViewModel(Window window)
         {
@@ -95,6 +99,10 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Unit>? SaveConfiguration                      { get; set; }
         public ReactiveCommand<Unit, Task>? DockerComposeUp                        { get; set; }
         public ReactiveCommand<Unit, Task>? DockerComposeDown                      { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerPs                               { get; set; }
+        public ReactiveCommand<Unit, Unit>? DeselectAll                            { get; set; }
+        public ReactiveCommand<Unit, Unit>? SelectThirdParties                     { get; set; }
+        public ReactiveCommand<Unit, Unit>? SelectUsuals                           { get; set; }
 
         private void InitializeCommands()
         {
@@ -169,7 +177,7 @@ namespace DockerConductor.ViewModels
                     if (firstBatch.Any())
                     {
                         var firstBatchCommand = Helper.ConcatCommand(basicCommand, firstBatch);
-                        await Helper.ExecuteCliCommand(firstBatchCommand);
+                        await Helper.ExecuteCliCommand(firstBatchCommand, _window.ConsoleOutput);
 
                         if (secondBatch.Any() || rest.Any())
                         {
@@ -180,7 +188,7 @@ namespace DockerConductor.ViewModels
                     if (secondBatch.Any())
                     {
                         var secondBatchCommand = Helper.ConcatCommand(basicCommand, secondBatch);
-                        await Helper.ExecuteCliCommand(secondBatchCommand);
+                        await Helper.ExecuteCliCommand(secondBatchCommand, _window.ConsoleOutput);
 
                         if (rest.Any())
                         {
@@ -191,7 +199,7 @@ namespace DockerConductor.ViewModels
                     if (!rest.Any()) return;
 
                     var command = Helper.ConcatCommand(basicCommand, rest);
-                    await Helper.ExecuteCliCommand(command);
+                    await Helper.ExecuteCliCommand(command, _window.ConsoleOutput);
                 }
             );
 
@@ -199,9 +207,27 @@ namespace DockerConductor.ViewModels
                 async () =>
                 {
                     var command = Helper.ConcatCommand("docker-compose", Helper.ConcatFilePathArguments(DockerComposePath, DockerComposeOverridePath), "down");
-                    await Helper.ExecuteCliCommand(command);
+                    await Helper.ExecuteCliCommand(command, _window.ConsoleOutput);
                 }
             );
+
+            DockerPs = ReactiveCommand.Create(async () => await Helper.ExecuteCliCommand(Helper.ConcatCommand("docker", "ps"), _window.ConsoleOutput));
+
+            DeselectAll = ReactiveCommand.Create(
+                () =>
+                {
+                    foreach (var checkBox in _window.ServiceSelectionCheckBoxes)
+                    {
+                        checkBox.IsChecked = false;
+                    }
+                }
+            );
+
+            SelectThirdParties = ReactiveCommand.Create(
+                () => Helper.SelectMatchingContents(_window.ServiceSelectionCheckBoxes, Helper.SplitCommaSeparated(ThirdParties))
+            );
+
+            SelectUsuals = ReactiveCommand.Create(() => Helper.SelectMatchingContents(_window.ServiceSelectionCheckBoxes, Helper.SplitCommaSeparated(Usuals)));
         }
 
         private async Task<string[]> ShowYamlFileSelection(string title)
