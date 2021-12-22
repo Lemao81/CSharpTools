@@ -25,6 +25,7 @@ namespace DockerConductor.ViewModels
         private          int        _firstBatchWait;
         private          string     _secondBatch = string.Empty;
         private          int        _secondBatchWait;
+        private          string     _dbVolume = string.Empty;
 
         public MainWindowViewModel()
         {
@@ -94,12 +95,19 @@ namespace DockerConductor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _secondBatchWait, int.TryParse(value, out _) ? int.Parse(value) : 0);
         }
 
+        public string DbVolume
+        {
+            get => _dbVolume;
+            set => this.RaiseAndSetIfChanged(ref _dbVolume, value);
+        }
+
         public ReactiveCommand<Unit, Task>? OpenDockerComposeFileSelection         { get; set; }
         public ReactiveCommand<Unit, Task>? OpenDockerComposeOverrideFileSelection { get; set; }
         public ReactiveCommand<Unit, Unit>? SaveConfiguration                      { get; set; }
         public ReactiveCommand<Unit, Task>? DockerComposeUp                        { get; set; }
         public ReactiveCommand<Unit, Task>? DockerComposeDown                      { get; set; }
         public ReactiveCommand<Unit, Task>? DockerPs                               { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerDbResetPrune                     { get; set; }
         public ReactiveCommand<Unit, Unit>? DeselectAll                            { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectThirdParties                     { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectUsuals                           { get; set; }
@@ -136,18 +144,8 @@ namespace DockerConductor.ViewModels
             SaveConfiguration = ReactiveCommand.Create(
                 () =>
                 {
-                    var appConfig = new AppConfig
-                    {
-                        DockerComposePath         = DockerComposePath,
-                        DockerComposeOverridePath = DockerComposeOverridePath,
-                        Excludes                  = Excludes,
-                        ThirdParties              = ThirdParties,
-                        Usuals                    = Usuals,
-                        FirstBatch                = FirstBatch,
-                        FirstBatchWait            = FirstBatchWait,
-                        SecondBatch               = SecondBatch,
-                        SecondBatchWait           = SecondBatchWait
-                    };
+                    var appConfig = new AppConfig();
+                    appConfig.MapFrom(this);
 
                     File.WriteAllText(App.ConfigFileName, JsonConvert.SerializeObject(appConfig, Formatting.Indented));
                     if (!string.IsNullOrWhiteSpace(DockerComposePath))
@@ -212,6 +210,16 @@ namespace DockerConductor.ViewModels
             );
 
             DockerPs = ReactiveCommand.Create(async () => await Helper.ExecuteCliCommand(Helper.ConcatCommand("docker", "ps"), _window.ConsoleOutput));
+
+            DockerDbResetPrune = ReactiveCommand.Create(
+                async () =>
+                {
+                    if (string.IsNullOrWhiteSpace(DbVolume)) return;
+
+                    var command = $"docker volume rm {DbVolume} && docker system prune -f";
+                    await Helper.ExecuteCliCommand(command, _window.ConsoleOutput);
+                }
+            );
 
             DeselectAll = ReactiveCommand.Create(
                 () =>

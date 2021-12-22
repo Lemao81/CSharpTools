@@ -3,10 +3,10 @@
         xmlns:vm="using:DockerConductor.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="1900"
+        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="1000"
         x:Class="DockerConductor.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
-        Title="Docker Conductor" Width="800" Height="1000">
+        Title="Docker Conductor" Width="900" Height="1000">
 
     <Design.DataContext>
         <vm:MainWindowViewModel />
@@ -30,16 +30,18 @@
                         <Button Content="Up" Classes="panel-btn" Command="{Binding DockerComposeUp}" />
                         <Button Content="Down" Classes="panel-btn" Command="{Binding DockerComposeDown}" />
                         <Button Content="PS" Classes="panel-btn" Command="{Binding DockerPs}" />
-                        <Button Content="Db reset + prune" Classes="panel-btn" Command="{Binding DockerPs}" />
+                        <Button Content="Rm db volume + prune" Classes="panel-btn" Command="{Binding DockerDbResetPrune}" />
                         <Button Content="Build" Classes="panel-btn" />
                     </StackPanel>
                 </StackPanel>
-                <TextBlock Name="ConsoleOutput" FontSize="10" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Classes="content" />
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
+                    <TextBlock Name="ConsoleOutput" TextWrapping="Wrap" FontSize="10" Classes="content" />
+                </ScrollViewer>
             </Grid>
         </TabItem>
 
         <TabItem Header="Configuration" IsSelected="False" VerticalAlignment="Center">
-            <Grid ColumnDefinitions="2*,3*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ShowGridLines="False"
+            <Grid ColumnDefinitions="2*,3*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ShowGridLines="False"
                   HorizontalAlignment="Stretch"
                   Classes="content">
                 <TextBlock Grid.Column="0" Grid.Row="0" Text="Path docker-compose.yml:" Classes="configuration-cell" />
@@ -73,7 +75,10 @@
                 <TextBlock Grid.Column="0" Grid.Row="8" Text="2. Batch Wait Sec:" Classes="configuration-cell" />
                 <TextBox Grid.Column="1" Grid.Row="8" Text="{Binding SecondBatchWait}" Classes="configuration-cell" />
 
-                <StackPanel Grid.Column="0" Grid.Row="9" Classes="mt-5" Orientation="Horizontal">
+                <TextBlock Grid.Column="0" Grid.Row="9" Text="Db volume:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="9" Text="{Binding DbVolume}" Classes="configuration-cell" />
+
+                <StackPanel Grid.Column="0" Grid.Row="10" Classes="mt-5" Orientation="Horizontal">
                     <Button Content="Save" Classes="configuration-btn" Command="{Binding SaveConfiguration}" />
                 </StackPanel>
             </Grid>

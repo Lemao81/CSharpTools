@@ -46,15 +46,7 @@ namespace DockerConductor
                     appConfig = JsonConvert.DeserializeObject<AppConfig>(File.ReadAllText(ConfigFileName))!;
                 }
 
-                mainWindowViewModel.DockerComposePath         = appConfig.DockerComposePath;
-                mainWindowViewModel.DockerComposeOverridePath = appConfig.DockerComposeOverridePath;
-                mainWindowViewModel.Excludes                  = appConfig.Excludes;
-                mainWindowViewModel.ThirdParties              = appConfig.ThirdParties;
-                mainWindowViewModel.Usuals                    = appConfig.Usuals;
-                mainWindowViewModel.FirstBatch                = appConfig.FirstBatch;
-                mainWindowViewModel.FirstBatchWait            = appConfig.FirstBatchWait;
-                mainWindowViewModel.SecondBatch               = appConfig.SecondBatch;
-                mainWindowViewModel.SecondBatchWait           = appConfig.SecondBatchWait;
+                appConfig.MapInto(mainWindowViewModel);
 
                 if (!string.IsNullOrWhiteSpace(appConfig.DockerComposePath))
                 {

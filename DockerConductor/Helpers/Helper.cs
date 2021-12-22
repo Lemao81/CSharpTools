@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using DockerConductor.ViewModels;
 using DockerConductor.Views;
 using YamlDotNet.Serialization;
@@ -35,6 +35,10 @@ namespace DockerConductor.Helpers
 
         public static async Task ExecuteCliCommand(string command, TextBlock? consoleOutput)
         {
+            if (consoleOutput is null) return;
+
+            consoleOutput.Text = $"Executing: '{command}'\n\n";
+
             var startInfo = new ProcessStartInfo("cmd.exe", $"/C {command}")
             {
                 WindowStyle            = ProcessWindowStyle.Hidden,
@@ -47,14 +51,22 @@ namespace DockerConductor.Helpers
             };
 
             var process = new Process();
-            process.StartInfo = startInfo;
+            process.StartInfo          =  startInfo;
+            process.OutputDataReceived += OnOutputReceived();
+            process.ErrorDataReceived  += OnOutputReceived();
             process.Start();
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
             await process.WaitForExitAsync();
+            process.Close();
 
-            if (consoleOutput is null) return;
-
-            consoleOutput.Text =  await process.StandardOutput.ReadToEndAsync();
-            consoleOutput.Text += await process.StandardError.ReadToEndAsync();
+            DataReceivedEventHandler OnOutputReceived() => (_, args) =>
+                                                           {
+                                                               if (args.Data != null)
+                                                               {
+                                                                   Dispatcher.UIThread.InvokeAsync(() => consoleOutput.Text += args.Data + "\n");
+                                                               }
+                                                           };
         }
 
         public static void UpdateServiceCheckboxList(MainWindow window)
