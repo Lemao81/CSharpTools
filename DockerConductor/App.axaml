@@ -22,8 +22,25 @@
         <Style Selector="TextBlock.content">
             <Setter Property="Margin" Value="8" />
         </Style>
+        <Style Selector="TextBlock.configuration-cell">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="4,8,4,4" />
+        </Style>
+        <Style Selector="TextBox.configuration-cell">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="4,8,4,4" />
+        </Style>
+        <Style Selector="Button.configuration-btn">
+            <Setter Property="Padding" Value="12,8,12,8" />
+            <Setter Property="Margin" Value="4,8,4,4" />
+        </Style>
+
+        <!-- margins -->
         <Style Selector="StackPanel.mb-1">
             <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+        <Style Selector="StackPanel.mt-5">
+            <Setter Property="Margin" Value="0,40,0,0" />
         </Style>
     </Application.Styles>
 </Application>

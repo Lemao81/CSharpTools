@@ -59,9 +59,11 @@ namespace DockerConductor.Helpers
 
         public static void UpdateServiceCheckboxList(MainWindow window)
         {
-            var dockerComposeText         = File.ReadAllText(window.ViewModel.DockerComposePath) ?? throw new InvalidOperationException();
-            var dockerCompose             = YamlDeserializer.Deserialize<DockerCompose>(dockerComposeText) ?? throw new InvalidOperationException();
-            var serviceNames              = ExcludeByCommaSeparated(dockerCompose.Services.Keys, window.ViewModel.Excludes);
+            var dockerComposeText = File.ReadAllText(window.ViewModel.DockerComposePath) ?? throw new InvalidOperationException();
+            var dockerCompose     = YamlDeserializer.Deserialize<DockerCompose>(dockerComposeText) ?? throw new InvalidOperationException();
+            var serviceNames = ExcludeByCommaSeparated(dockerCompose.Services.Keys, window.ViewModel.Excludes)
+                .OrderBy(s => s.Contains("radio") ? s.Contains("core") ? 1 : 2 : 0);
+
             var serviceSelectionContainer = window.ServiceSelectionContainer ?? throw new InvalidOperationException();
 
             serviceSelectionContainer.Children.Clear();
