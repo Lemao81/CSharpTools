@@ -35,6 +35,11 @@ namespace DockerConductor.ViewModels
         {
             _window = window as MainWindow ?? throw new InvalidOperationException();
             InitializeCommands();
+            _window.Closing += (_, _) =>
+                               {
+                                   LastSelected = SelectedServiceNames;
+                                   WriteConfig();
+                               };
         }
 
         public IEnumerable<string> SelectedServiceNames => _window.ServiceSelectionCheckBoxes.Where(c => c.IsChecked == true)
@@ -101,6 +106,8 @@ namespace DockerConductor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _dbVolume, value);
         }
 
+        public IEnumerable<string> LastSelected { get; set; } = Enumerable.Empty<string>();
+
         public ReactiveCommand<Unit, Task>? OpenDockerComposeFileSelection         { get; set; }
         public ReactiveCommand<Unit, Task>? OpenDockerComposeOverrideFileSelection { get; set; }
         public ReactiveCommand<Unit, Unit>? SaveConfiguration                      { get; set; }
@@ -144,10 +151,7 @@ namespace DockerConductor.ViewModels
             SaveConfiguration = ReactiveCommand.Create(
                 () =>
                 {
-                    var appConfig = new AppConfig();
-                    appConfig.MapFrom(this);
-
-                    File.WriteAllText(App.ConfigFileName, JsonConvert.SerializeObject(appConfig, Formatting.Indented));
+                    WriteConfig();
                     if (!string.IsNullOrWhiteSpace(DockerComposePath))
                     {
                         Helper.UpdateServiceCheckboxList(_window);
@@ -236,6 +240,14 @@ namespace DockerConductor.ViewModels
             );
 
             SelectUsuals = ReactiveCommand.Create(() => Helper.SelectMatchingContents(_window.ServiceSelectionCheckBoxes, Helper.SplitCommaSeparated(Usuals)));
+        }
+
+        private void WriteConfig()
+        {
+            var appConfig = new AppConfig();
+            appConfig.MapFrom(this);
+
+            File.WriteAllText(App.ConfigFileName, JsonConvert.SerializeObject(appConfig, Formatting.Indented));
         }
 
         private async Task<string[]> ShowYamlFileSelection(string title)

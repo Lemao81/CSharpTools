@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -51,6 +52,14 @@ namespace DockerConductor
                 if (!string.IsNullOrWhiteSpace(appConfig.DockerComposePath))
                 {
                     Helper.UpdateServiceCheckboxList(mainWindow);
+                }
+
+                if (appConfig.LastSelected.Any())
+                {
+                    foreach (var checkBox in mainWindow.ServiceSelectionCheckBoxes.Where(c => appConfig.LastSelected.Contains(c.Content.ToString())))
+                    {
+                        checkBox.IsChecked = true;
+                    }
                 }
             }
 

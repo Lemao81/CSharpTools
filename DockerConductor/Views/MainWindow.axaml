@@ -6,7 +6,7 @@
         mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="1000"
         x:Class="DockerConductor.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
-        Title="Docker Conductor" Width="900" Height="1000">
+        Title="Docker Conductor" Width="900" Height="1000" WindowStartupLocation="CenterScreen">
 
     <Design.DataContext>
         <vm:MainWindowViewModel />
