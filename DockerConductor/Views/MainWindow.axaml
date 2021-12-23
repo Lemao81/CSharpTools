@@ -14,7 +14,7 @@
 
     <TabControl>
         <TabItem Header="Panel" IsSelected="True" VerticalAlignment="Center">
-            <Grid ColumnDefinitions="2*,*,*" RowDefinitions="*,*" ShowGridLines="False" Classes="content">
+            <Grid ColumnDefinitions="2*,*,*" RowDefinitions="*,2*" ShowGridLines="False" Classes="content">
                 <ScrollViewer Grid.Column="0" Grid.Row="0" Grid.RowSpan="2">
                     <StackPanel Name="ServiceSelectionContainer" Classes="content" />
                 </ScrollViewer>
@@ -31,11 +31,11 @@
                         <Button Content="Down" Classes="panel-btn" Command="{Binding DockerComposeDown}" />
                         <Button Content="PS" Classes="panel-btn" Command="{Binding DockerPs}" />
                         <Button Content="Rm db volume + prune" Classes="panel-btn" Command="{Binding DockerDbResetPrune}" />
-                        <Button Content="Build" Classes="panel-btn" />
+                        <Button Content="Build" Classes="panel-btn" Command="{Binding DockerBuildConfirmation}" />
                     </StackPanel>
                 </StackPanel>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
-                    <TextBlock Name="ConsoleOutput" TextWrapping="Wrap" FontSize="10" Classes="content" />
+                <ScrollViewer Name="ConsoleScrollViewer" HorizontalScrollBarVisibility="Auto" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
+                    <TextBlock Name="ConsoleOutput" TextWrapping="Wrap" FontSize="10" Classes="content" Padding="0,0,32,32" />
                 </ScrollViewer>
             </Grid>
         </TabItem>

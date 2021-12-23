@@ -33,11 +33,11 @@ namespace DockerConductor.Helpers
             return strings.Where(s => filters.Any(f => f.Contains(s, StringComparison.InvariantCultureIgnoreCase)));
         }
 
-        public static async Task ExecuteCliCommand(string command, TextBlock? consoleOutput)
+        public static async Task ExecuteCliCommand(string command, MainWindow window)
         {
-            if (consoleOutput is null) return;
+            if (window.ConsoleOutput is null) return;
 
-            consoleOutput.Text = $"Executing: '{command}'\n\n";
+            window.ConsoleOutput.Text = $"Executing: '{command}'\n\n";
 
             var startInfo = new ProcessStartInfo("cmd.exe", $"/C {command}")
             {
@@ -64,7 +64,13 @@ namespace DockerConductor.Helpers
                                                            {
                                                                if (args.Data != null)
                                                                {
-                                                                   Dispatcher.UIThread.InvokeAsync(() => consoleOutput.Text += args.Data + "\n");
+                                                                   Dispatcher.UIThread.InvokeAsync(
+                                                                       () =>
+                                                                       {
+                                                                           window.ConsoleOutput.Text += args.Data + "\n";
+                                                                           window.ConsoleScrollViewer?.ScrollToEnd();
+                                                                       }
+                                                                   );
                                                                }
                                                            };
         }

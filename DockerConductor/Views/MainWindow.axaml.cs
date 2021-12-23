@@ -22,6 +22,7 @@ namespace DockerConductor.Views
         public StackPanel?           ServiceSelectionContainer  { get; set; }
         public IEnumerable<CheckBox> ServiceSelectionCheckBoxes => ServiceSelectionContainer?.Children.Cast<CheckBox>() ?? new List<CheckBox>();
         public TextBlock?            ConsoleOutput              { get; set; }
+        public ScrollViewer?         ConsoleScrollViewer        { get; set; }
 
         private void InitializeComponent()
         {
@@ -29,6 +30,7 @@ namespace DockerConductor.Views
 
             ServiceSelectionContainer = this.Find<StackPanel>("ServiceSelectionContainer");
             ConsoleOutput             = this.Find<TextBlock>("ConsoleOutput");
+            ConsoleScrollViewer       = this.Find<ScrollViewer>("ConsoleScrollViewer");
         }
     }
 }

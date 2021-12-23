@@ -10,6 +10,9 @@ using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
+using DockerConductor.Constants;
+using MessageBox.Avalonia.DTO;
+using MessageBox.Avalonia.Enums;
 
 namespace DockerConductor.ViewModels
 {
@@ -115,6 +118,7 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Task>? DockerComposeDown                      { get; set; }
         public ReactiveCommand<Unit, Task>? DockerPs                               { get; set; }
         public ReactiveCommand<Unit, Task>? DockerDbResetPrune                     { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerBuildConfirmation                { get; set; }
         public ReactiveCommand<Unit, Unit>? DeselectAll                            { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectThirdParties                     { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectUsuals                           { get; set; }
@@ -165,7 +169,7 @@ namespace DockerConductor.ViewModels
                     if (!SelectedServiceNames.Any()) return;
 
                     var basicCommand = Helper.ConcatCommand(
-                        "docker-compose",
+                        Consts.DockerCompose,
                         Helper.ConcatFilePathArguments(DockerComposePath, DockerComposeOverridePath),
                         "up",
                         "-d",
@@ -179,7 +183,7 @@ namespace DockerConductor.ViewModels
                     if (firstBatch.Any())
                     {
                         var firstBatchCommand = Helper.ConcatCommand(basicCommand, firstBatch);
-                        await Helper.ExecuteCliCommand(firstBatchCommand, _window.ConsoleOutput);
+                        await Helper.ExecuteCliCommand(firstBatchCommand, _window);
 
                         if (secondBatch.Any() || rest.Any())
                         {
@@ -190,7 +194,7 @@ namespace DockerConductor.ViewModels
                     if (secondBatch.Any())
                     {
                         var secondBatchCommand = Helper.ConcatCommand(basicCommand, secondBatch);
-                        await Helper.ExecuteCliCommand(secondBatchCommand, _window.ConsoleOutput);
+                        await Helper.ExecuteCliCommand(secondBatchCommand, _window);
 
                         if (rest.Any())
                         {
@@ -201,19 +205,24 @@ namespace DockerConductor.ViewModels
                     if (!rest.Any()) return;
 
                     var command = Helper.ConcatCommand(basicCommand, rest);
-                    await Helper.ExecuteCliCommand(command, _window.ConsoleOutput);
+                    await Helper.ExecuteCliCommand(command, _window);
                 }
             );
 
             DockerComposeDown = ReactiveCommand.Create(
                 async () =>
                 {
-                    var command = Helper.ConcatCommand("docker-compose", Helper.ConcatFilePathArguments(DockerComposePath, DockerComposeOverridePath), "down");
-                    await Helper.ExecuteCliCommand(command, _window.ConsoleOutput);
+                    var command = Helper.ConcatCommand(
+                        Consts.DockerCompose,
+                        Helper.ConcatFilePathArguments(DockerComposePath, DockerComposeOverridePath),
+                        "down"
+                    );
+
+                    await Helper.ExecuteCliCommand(command, _window);
                 }
             );
 
-            DockerPs = ReactiveCommand.Create(async () => await Helper.ExecuteCliCommand(Helper.ConcatCommand("docker", "ps"), _window.ConsoleOutput));
+            DockerPs = ReactiveCommand.Create(async () => await Helper.ExecuteCliCommand(Helper.ConcatCommand("docker", "ps"), _window));
 
             DockerDbResetPrune = ReactiveCommand.Create(
                 async () =>
@@ -221,7 +230,36 @@ namespace DockerConductor.ViewModels
                     if (string.IsNullOrWhiteSpace(DbVolume)) return;
 
                     var command = $"docker volume rm {DbVolume} && docker system prune -f";
-                    await Helper.ExecuteCliCommand(command, _window.ConsoleOutput);
+                    await Helper.ExecuteCliCommand(command, _window);
+                }
+            );
+
+            DockerBuildConfirmation = ReactiveCommand.Create(
+                async () =>
+                {
+                    var result = await MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                                                     new MessageBoxStandardParams
+                                                     {
+                                                         ContentTitle          = "Build",
+                                                         ContentMessage        = "Sure you want to build?",
+                                                         ButtonDefinitions     = ButtonEnum.YesNo,
+                                                         WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                                                         Icon                  = Icon.Warning
+                                                     }
+                                                 )
+                                                 .Show();
+
+                    if (result == ButtonResult.Yes)
+                    {
+                        var basicCommand = Helper.ConcatCommand(
+                            Consts.DockerCompose,
+                            Helper.ConcatFilePathArguments(DockerComposePath, DockerComposeOverridePath),
+                            "build"
+                        );
+
+                        var command = Helper.ConcatCommand(basicCommand, SelectedServiceNames);
+                        await Helper.ExecuteCliCommand(command, _window);
+                    }
                 }
             );
 
