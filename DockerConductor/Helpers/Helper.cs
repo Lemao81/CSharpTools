@@ -4,10 +4,15 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Layout;
 using Avalonia.Threading;
+using DockerConductor.Constants;
+using DockerConductor.Models;
 using DockerConductor.ViewModels;
 using DockerConductor.Views;
+using Newtonsoft.Json;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -92,6 +97,58 @@ namespace DockerConductor.Helpers
             }
         }
 
+        public static void UpdateOcelotItemList(MainWindow window)
+        {
+            var ocelotConfigText = File.ReadAllText(window.ViewModel.OcelotConfigurationPath) ?? throw new InvalidOperationException();
+            var ocelotConfig     = JsonConvert.DeserializeObject<OcelotConfig>(ocelotConfigText) ?? throw new InvalidOperationException();
+            window.ViewModel.OcelotConfig = ocelotConfig;
+            var itemsToShow = ocelotConfig.Routes.Where(r => !string.IsNullOrEmpty(r.SwaggerKey));
+
+            var ocelotItemsContainer = window.OcelotItemContainer ?? throw new InvalidOperationException();
+
+            ocelotItemsContainer.Children.Clear();
+            window.OcelotRouteUis.Clear();
+            foreach (var item in itemsToShow)
+            {
+                var itemContainer = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    Margin      = new Thickness(0, 0, 0, 8)
+                };
+
+                var uiModel = new OcelotRouteUi
+                {
+                    Name = new TextBlock
+                    {
+                        Text              = item.SwaggerKey,
+                        Width             = 200,
+                        VerticalAlignment = VerticalAlignment.Center
+                    },
+                    IsHost = new CheckBox { Width = 70 },
+                    PortSelection = new ComboBox
+                    {
+                        Items         = Consts.OcelotPortSelections.Select(p => new ComboBoxItem { Content = p }),
+                        IsEnabled     = false,
+                        Width         = 130
+                    }
+                };
+
+                uiModel.IsHost.Checked                     += (_, _) => uiModel.PortSelection.IsEnabled = true;
+                uiModel.IsHost.Unchecked                   += (_, _) => uiModel.PortSelection.IsEnabled = false;
+                uiModel.PortSelection.SelectionChanged += (sender, args) =>
+                                                          {
+                                                              var index = Consts.OcelotPortSelections.FindIndex(s => s == args.AddedItems[0]?.ToString());
+                                                              uiModel.PortSelection.SelectedIndex = index;
+                                                          };
+
+                itemContainer.Children.Add(uiModel.Name);
+                itemContainer.Children.Add(uiModel.IsHost);
+                itemContainer.Children.Add(uiModel.PortSelection);
+                ocelotItemsContainer.Children.Add(itemContainer);
+                window.OcelotRouteUis.Add(uiModel);
+            }
+        }
+
         public static string ConcatCommand(params string[] parts)
         {
             var nonEmpties = parts.Where(p => !string.IsNullOrWhiteSpace(p)).Select(p => p.Trim());
@@ -116,11 +173,32 @@ namespace DockerConductor.Helpers
         public static void SelectMatchingContents(IEnumerable<CheckBox> checkBoxes, IEnumerable<string> strings)
         {
             foreach (var checkBox in checkBoxes.Where(
-                c => strings.Any(t => c.Content != null && c.Content.ToString()!.Contains(t, StringComparison.InvariantCultureIgnoreCase))
-            ))
+                         c => strings.Any(t => c.Content != null && c.Content.ToString()!.Contains(t, StringComparison.InvariantCultureIgnoreCase))
+                     ))
             {
                 checkBox.IsChecked = true;
             }
         }
+
+        public static async Task<string[]> ShowFileSelection(Window window, string title, string filterName, params string[] filterExtensions)
+        {
+            var fileDialog = new OpenFileDialog { AllowMultiple = false };
+            fileDialog.Filters.Add(
+                new FileDialogFilter
+                {
+                    Name       = filterName,
+                    Extensions = new List<string>(filterExtensions)
+                }
+            );
+
+            fileDialog.Title = title;
+            var files = await fileDialog.ShowAsync(window);
+
+            return files;
+        }
+
+        public static async Task<string[]> ShowYamlFileSelection(Window window, string title) => await ShowFileSelection(window, title, "yaml", "yml", "yaml");
+
+        public static async Task<string[]> ShowJsonFileSelection(Window window, string title) => await ShowFileSelection(window, title, "json", "json");
     }
 }

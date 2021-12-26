@@ -29,6 +29,7 @@ namespace DockerConductor.ViewModels
         private          string     _secondBatch = string.Empty;
         private          int        _secondBatchWait;
         private          string     _dbVolume = string.Empty;
+        private          string     _ocelotConfigurationPath;
 
         public MainWindowViewModel()
         {
@@ -49,6 +50,9 @@ namespace DockerConductor.ViewModels
                                                                   .Select(c => c.Content?.ToString())
                                                                   .Where(s => !string.IsNullOrWhiteSpace(s))!;
 
+        public IEnumerable<string> LastSelected { get; set; } = Enumerable.Empty<string>();
+        public OcelotConfig?       OcelotConfig { get; set; }
+
         public string DockerComposePath
         {
             get => _dockerComposePath;
@@ -59,6 +63,12 @@ namespace DockerConductor.ViewModels
         {
             get => _dockerComposeOverridePath;
             set => this.RaiseAndSetIfChanged(ref _dockerComposeOverridePath, value);
+        }
+
+        public string OcelotConfigurationPath
+        {
+            get => _ocelotConfigurationPath;
+            set => this.RaiseAndSetIfChanged(ref _ocelotConfigurationPath, value);
         }
 
         public string Excludes
@@ -109,10 +119,9 @@ namespace DockerConductor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _dbVolume, value);
         }
 
-        public IEnumerable<string> LastSelected { get; set; } = Enumerable.Empty<string>();
-
         public ReactiveCommand<Unit, Task>? OpenDockerComposeFileSelection         { get; set; }
         public ReactiveCommand<Unit, Task>? OpenDockerComposeOverrideFileSelection { get; set; }
+        public ReactiveCommand<Unit, Task>? OcelotConfigurationFileSelection       { get; set; }
         public ReactiveCommand<Unit, Unit>? SaveConfiguration                      { get; set; }
         public ReactiveCommand<Unit, Task>? DockerComposeUp                        { get; set; }
         public ReactiveCommand<Unit, Task>? DockerComposeDown                      { get; set; }
@@ -122,13 +131,14 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Unit>? DeselectAll                            { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectThirdParties                     { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectUsuals                           { get; set; }
+        public ReactiveCommand<Unit, Unit>? SaveOcelotConfig                       { get; set; }
 
         private void InitializeCommands()
         {
             OpenDockerComposeFileSelection = ReactiveCommand.Create(
                 async () =>
                 {
-                    var files = await ShowYamlFileSelection("Select docker-compose.yml");
+                    var files = await Helper.ShowYamlFileSelection(_window, "Select docker-compose.yml");
                     if (files.Length > 0)
                     {
                         DockerComposePath = files[0];
@@ -144,10 +154,26 @@ namespace DockerConductor.ViewModels
             OpenDockerComposeOverrideFileSelection = ReactiveCommand.Create(
                 async () =>
                 {
-                    var files = await ShowYamlFileSelection("Select docker-compose.override.yml");
+                    var files = await Helper.ShowYamlFileSelection(_window, "Select docker-compose.override.yml");
                     if (files.Length > 0)
                     {
                         DockerComposeOverridePath = files[0];
+                    }
+                }
+            );
+
+            OcelotConfigurationFileSelection = ReactiveCommand.Create(
+                async () =>
+                {
+                    var files = await Helper.ShowJsonFileSelection(_window, "Select ocelotConfiguration.json");
+                    if (files.Length > 0)
+                    {
+                        OcelotConfigurationPath = files[0];
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(OcelotConfigurationPath))
+                    {
+                        Helper.UpdateOcelotItemList(_window);
                     }
                 }
             );
@@ -278,6 +304,25 @@ namespace DockerConductor.ViewModels
             );
 
             SelectUsuals = ReactiveCommand.Create(() => Helper.SelectMatchingContents(_window.ServiceSelectionCheckBoxes, Helper.SplitCommaSeparated(Usuals)));
+
+            SaveOcelotConfig = ReactiveCommand.Create(
+                () =>
+                {
+                    if (OcelotConfig is null) return;
+
+                    foreach (var route in OcelotConfig.Routes)
+                    {
+                        var uiModel = _window.OcelotRouteUis.SingleOrDefault(u => u.Name.Text == route.SwaggerKey);
+                        if (uiModel is null || !uiModel.IsHost.IsChecked == true) continue;
+
+                        var hostAndPort = route.DownstreamHostAndPorts.First();
+                        hostAndPort.Host = "host.docker.internal";
+                        hostAndPort.Port = int.Parse(uiModel.PortSelection.SelectedItem?.ToString() ?? "5000");
+                    }
+
+                    File.WriteAllText(OcelotConfigurationPath, JsonConvert.SerializeObject(OcelotConfig, Formatting.Indented));
+                }
+            );
         }
 
         private void WriteConfig()
@@ -286,26 +331,6 @@ namespace DockerConductor.ViewModels
             appConfig.MapFrom(this);
 
             File.WriteAllText(App.ConfigFileName, JsonConvert.SerializeObject(appConfig, Formatting.Indented));
-        }
-
-        private async Task<string[]> ShowYamlFileSelection(string title)
-        {
-            var fileDialog = new OpenFileDialog { AllowMultiple = false };
-            fileDialog.Filters.Add(
-                new FileDialogFilter
-                {
-                    Name = "yaml",
-                    Extensions = new List<string>
-                    {
-                        "yml",
-                        "yaml"
-                    }
-                }
-            );
-
-            fileDialog.Title = title;
-            var files = await fileDialog.ShowAsync(_window);
-            return files;
         }
     }
 }

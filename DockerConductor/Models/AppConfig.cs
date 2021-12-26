@@ -8,6 +8,7 @@ namespace DockerConductor.Models
     {
         public string              DockerComposePath         { get; set; } = string.Empty;
         public string              DockerComposeOverridePath { get; set; } = string.Empty;
+        public string              OcelotConfigurationPath   { get; set; } = string.Empty;
         public string              Excludes                  { get; set; } = string.Empty;
         public string              ThirdParties              { get; set; } = string.Empty;
         public string              Usuals                    { get; set; } = string.Empty;
@@ -22,6 +23,7 @@ namespace DockerConductor.Models
         {
             viewModel.DockerComposePath         = DockerComposePath;
             viewModel.DockerComposeOverridePath = DockerComposeOverridePath;
+            viewModel.OcelotConfigurationPath   = OcelotConfigurationPath;
             viewModel.Excludes                  = Excludes;
             viewModel.ThirdParties              = ThirdParties;
             viewModel.Usuals                    = Usuals;
@@ -37,6 +39,7 @@ namespace DockerConductor.Models
         {
             DockerComposePath         = viewModel.DockerComposePath;
             DockerComposeOverridePath = viewModel.DockerComposeOverridePath;
+            OcelotConfigurationPath   = viewModel.OcelotConfigurationPath;
             Excludes                  = viewModel.Excludes;
             ThirdParties              = viewModel.ThirdParties;
             Usuals                    = viewModel.Usuals;

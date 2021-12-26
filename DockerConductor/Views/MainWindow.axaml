@@ -40,8 +40,17 @@
             </Grid>
         </TabItem>
 
+        <TabItem Header="Ocelot" IsSelected="False" VerticalAlignment="Center">
+            <Grid ColumnDefinitions="*" RowDefinitions="9*,*" Classes="content" ShowGridLines="True">
+                <ScrollViewer Grid.Column="0" Grid.Row="0">
+                    <StackPanel Name="OcelotItemContainer" Classes="content"></StackPanel>
+                </ScrollViewer>
+                <Button Grid.Column="0" Grid.Row="1" Content="Save" Classes="btn" Command="{Binding SaveOcelotConfig}" />
+            </Grid>
+        </TabItem>
+
         <TabItem Header="Configuration" IsSelected="False" VerticalAlignment="Center">
-            <Grid ColumnDefinitions="2*,3*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ShowGridLines="False"
+            <Grid ColumnDefinitions="2*,3*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ShowGridLines="False"
                   HorizontalAlignment="Stretch"
                   Classes="content">
                 <TextBlock Grid.Column="0" Grid.Row="0" Text="Path docker-compose.yml:" Classes="configuration-cell" />
@@ -54,31 +63,36 @@
                 <Button Grid.Column="2" Grid.Row="1" Content="Select..." Classes="configuration-btn"
                         Command="{Binding OpenDockerComposeOverrideFileSelection}" />
 
-                <TextBlock Grid.Column="0" Grid.Row="2" Text="Excludes:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding Excludes}" Classes="configuration-cell" />
+                <TextBlock Grid.Column="0" Grid.Row="2" Text="Path ocelotConfiguration.json:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding OcelotConfigurationPath}" Classes="configuration-cell" />
+                <Button Grid.Column="2" Grid.Row="2" Content="Select..." Classes="configuration-btn"
+                        Command="{Binding OcelotConfigurationFileSelection}" />
 
-                <TextBlock Grid.Column="0" Grid.Row="3" Text="Third parties:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="3" Text="{Binding ThirdParties}" Classes="configuration-cell" />
+                <TextBlock Grid.Column="0" Grid.Row="3" Text="Excludes:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="3" Text="{Binding Excludes}" Classes="configuration-cell" />
 
-                <TextBlock Grid.Column="0" Grid.Row="4" Text="Usuals:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="4" Text="{Binding Usuals}" Classes="configuration-cell" />
+                <TextBlock Grid.Column="0" Grid.Row="4" Text="Third parties:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="4" Text="{Binding ThirdParties}" Classes="configuration-cell" />
 
-                <TextBlock Grid.Column="0" Grid.Row="5" Text="1. Batch:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="5" Text="{Binding FirstBatch}" Classes="configuration-cell" />
+                <TextBlock Grid.Column="0" Grid.Row="5" Text="Usuals:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="5" Text="{Binding Usuals}" Classes="configuration-cell" />
 
-                <TextBlock Grid.Column="0" Grid.Row="6" Text="1. Batch Wait Sec:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="6" Text="{Binding FirstBatchWait}" Classes="configuration-cell" />
+                <TextBlock Grid.Column="0" Grid.Row="6" Text="1. Batch:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="6" Text="{Binding FirstBatch}" Classes="configuration-cell" />
 
-                <TextBlock Grid.Column="0" Grid.Row="7" Text="2. Batch:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="7" Text="{Binding SecondBatch}" Classes="configuration-cell" />
+                <TextBlock Grid.Column="0" Grid.Row="7" Text="1. Batch Wait Sec:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="7" Text="{Binding FirstBatchWait}" Classes="configuration-cell" />
 
-                <TextBlock Grid.Column="0" Grid.Row="8" Text="2. Batch Wait Sec:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="8" Text="{Binding SecondBatchWait}" Classes="configuration-cell" />
+                <TextBlock Grid.Column="0" Grid.Row="8" Text="2. Batch:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="8" Text="{Binding SecondBatch}" Classes="configuration-cell" />
 
-                <TextBlock Grid.Column="0" Grid.Row="9" Text="Db volume:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="9" Text="{Binding DbVolume}" Classes="configuration-cell" />
+                <TextBlock Grid.Column="0" Grid.Row="9" Text="2. Batch Wait Sec:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="9" Text="{Binding SecondBatchWait}" Classes="configuration-cell" />
 
-                <StackPanel Grid.Column="0" Grid.Row="10" Classes="mt-5" Orientation="Horizontal">
+                <TextBlock Grid.Column="0" Grid.Row="10" Text="Db volume:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="10" Text="{Binding DbVolume}" Classes="configuration-cell" />
+
+                <StackPanel Grid.Column="0" Grid.Row="11" Classes="mt-5" Orientation="Horizontal">
                     <Button Content="Save" Classes="configuration-btn" Command="{Binding SaveConfiguration}" />
                 </StackPanel>
             </Grid>

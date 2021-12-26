@@ -54,6 +54,11 @@ namespace DockerConductor
                     Helper.UpdateServiceCheckboxList(mainWindow);
                 }
 
+                if (!string.IsNullOrWhiteSpace(appConfig.OcelotConfigurationPath))
+                {
+                    Helper.UpdateOcelotItemList(mainWindow);
+                }
+
                 if (appConfig.LastSelected.Any())
                 {
                     foreach (var checkBox in mainWindow.ServiceSelectionCheckBoxes.Where(c => appConfig.LastSelected.Contains(c.Content.ToString())))

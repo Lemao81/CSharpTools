@@ -34,6 +34,10 @@
             <Setter Property="Padding" Value="12,8,12,8" />
             <Setter Property="Margin" Value="4,8,4,4" />
         </Style>
+        <Style Selector="Button.btn">
+            <Setter Property="Padding" Value="12,8,12,8" />
+            <Setter Property="Margin" Value="4,4,4,4" />
+        </Style>
 
         <!-- margins -->
         <Style Selector="StackPanel.mb-1">
