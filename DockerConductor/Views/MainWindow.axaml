@@ -45,7 +45,10 @@
                 <ScrollViewer Grid.Column="0" Grid.Row="0">
                     <StackPanel Name="OcelotItemContainer" Classes="content"></StackPanel>
                 </ScrollViewer>
-                <Button Grid.Column="0" Grid.Row="1" Content="Save" Classes="btn" Command="{Binding SaveOcelotConfig}" />
+                <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal">
+                    <Button Content="Save" Classes="btn" Command="{Binding SaveOcelotConfig}" />
+                    <Button Content="Build ocelotapigateway" Classes="btn" Command="{Binding DockerComposeBuildOcelot}" />
+                </StackPanel>
             </Grid>
         </TabItem>
 

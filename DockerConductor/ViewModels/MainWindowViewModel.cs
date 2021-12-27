@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using DockerConductor.Constants;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
+using Newtonsoft.Json.Linq;
 
 namespace DockerConductor.ViewModels
 {
@@ -51,7 +52,7 @@ namespace DockerConductor.ViewModels
                                                                   .Where(s => !string.IsNullOrWhiteSpace(s))!;
 
         public IEnumerable<string> LastSelected { get; set; } = Enumerable.Empty<string>();
-        public OcelotConfig?       OcelotConfig { get; set; }
+        public JObject?            OcelotConfig { get; set; }
 
         public string DockerComposePath
         {
@@ -125,6 +126,7 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Unit>? SaveConfiguration                      { get; set; }
         public ReactiveCommand<Unit, Task>? DockerComposeUp                        { get; set; }
         public ReactiveCommand<Unit, Task>? DockerComposeDown                      { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerComposeBuildOcelot               { get; set; }
         public ReactiveCommand<Unit, Task>? DockerPs                               { get; set; }
         public ReactiveCommand<Unit, Task>? DockerDbResetPrune                     { get; set; }
         public ReactiveCommand<Unit, Task>? DockerBuildConfirmation                { get; set; }
@@ -248,6 +250,15 @@ namespace DockerConductor.ViewModels
                 }
             );
 
+            DockerComposeBuildOcelot = ReactiveCommand.Create(
+                async () =>
+                {
+                    var basicCommand = GetBasicBuildCommand();
+                    var command      = Helper.ConcatCommand(basicCommand, "ocelotapigateway");
+                    await Helper.ExecuteCliCommand(command, _window);
+                }
+            );
+
             DockerPs = ReactiveCommand.Create(async () => await Helper.ExecuteCliCommand(Helper.ConcatCommand("docker", "ps"), _window));
 
             DockerDbResetPrune = ReactiveCommand.Create(
@@ -277,13 +288,8 @@ namespace DockerConductor.ViewModels
 
                     if (result == ButtonResult.Yes)
                     {
-                        var basicCommand = Helper.ConcatCommand(
-                            Consts.DockerCompose,
-                            Helper.ConcatFilePathArguments(DockerComposePath, DockerComposeOverridePath),
-                            "build"
-                        );
-
-                        var command = Helper.ConcatCommand(basicCommand, SelectedServiceNames);
+                        var basicCommand = GetBasicBuildCommand();
+                        var command      = Helper.ConcatCommand(basicCommand, SelectedServiceNames);
                         await Helper.ExecuteCliCommand(command, _window);
                     }
                 }
@@ -310,19 +316,30 @@ namespace DockerConductor.ViewModels
                 {
                     if (OcelotConfig is null) return;
 
-                    foreach (var route in OcelotConfig.Routes)
+                    foreach (JObject route in OcelotConfig["Routes"] as JArray)
                     {
-                        var uiModel = _window.OcelotRouteUis.SingleOrDefault(u => u.Name.Text == route.SwaggerKey);
+                        var uiModel = _window.OcelotRouteUis.SingleOrDefault(u => u.Name.Text == route["SwaggerKey"]?.ToString());
                         if (uiModel is null || !uiModel.IsHost.IsChecked == true) continue;
 
-                        var hostAndPort = route.DownstreamHostAndPorts.First();
-                        hostAndPort.Host = "host.docker.internal";
-                        hostAndPort.Port = int.Parse(uiModel.PortSelection.SelectedItem?.ToString() ?? "5000");
+                        var hostAndPort = (route["DownstreamHostAndPorts"] as JArray)?.First();
+                        hostAndPort["Host"] = "host.docker.internal";
+                        hostAndPort["Port"] = int.Parse(uiModel.PortSelection.SelectedItem?.ToString() ?? "5000");
                     }
 
-                    File.WriteAllText(OcelotConfigurationPath, JsonConvert.SerializeObject(OcelotConfig, Formatting.Indented));
+                    File.WriteAllText(OcelotConfigurationPath, OcelotConfig.ToString(Formatting.Indented));
                 }
             );
+        }
+
+        private string GetBasicBuildCommand()
+        {
+            var basicCommand = Helper.ConcatCommand(
+                Consts.DockerCompose,
+                Helper.ConcatFilePathArguments(DockerComposePath, DockerComposeOverridePath),
+                "build"
+            );
+
+            return basicCommand;
         }
 
         private void WriteConfig()

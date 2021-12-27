@@ -13,6 +13,7 @@ using DockerConductor.Models;
 using DockerConductor.ViewModels;
 using DockerConductor.Views;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -100,9 +101,10 @@ namespace DockerConductor.Helpers
         public static void UpdateOcelotItemList(MainWindow window)
         {
             var ocelotConfigText = File.ReadAllText(window.ViewModel.OcelotConfigurationPath) ?? throw new InvalidOperationException();
-            var ocelotConfig     = JsonConvert.DeserializeObject<OcelotConfig>(ocelotConfigText) ?? throw new InvalidOperationException();
+            var ocelotConfig     = JObject.Parse(ocelotConfigText);
             window.ViewModel.OcelotConfig = ocelotConfig;
-            var itemsToShow = ocelotConfig.Routes.Where(r => !string.IsNullOrEmpty(r.SwaggerKey));
+            var itemsToShow = ocelotConfig["Routes"]?.Where(r => !string.IsNullOrEmpty(r["SwaggerKey"]?.ToString()));
+            if(itemsToShow is null) return;
 
             var ocelotItemsContainer = window.OcelotItemContainer ?? throw new InvalidOperationException();
 
@@ -120,7 +122,7 @@ namespace DockerConductor.Helpers
                 {
                     Name = new TextBlock
                     {
-                        Text              = item.SwaggerKey,
+                        Text              = item["SwaggerKey"]?.ToString(),
                         Width             = 200,
                         VerticalAlignment = VerticalAlignment.Center
                     },
