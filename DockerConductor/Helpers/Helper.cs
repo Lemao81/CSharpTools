@@ -12,7 +12,6 @@ using DockerConductor.Constants;
 using DockerConductor.Models;
 using DockerConductor.ViewModels;
 using DockerConductor.Views;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -104,7 +103,7 @@ namespace DockerConductor.Helpers
             var ocelotConfig     = JObject.Parse(ocelotConfigText);
             window.ViewModel.OcelotConfig = ocelotConfig;
             var itemsToShow = ocelotConfig["Routes"]?.Where(r => !string.IsNullOrEmpty(r["SwaggerKey"]?.ToString()));
-            if(itemsToShow is null) return;
+            if (itemsToShow is null) return;
 
             var ocelotItemsContainer = window.OcelotItemContainer ?? throw new InvalidOperationException();
 
@@ -120,31 +119,35 @@ namespace DockerConductor.Helpers
 
                 var uiModel = new OcelotRouteUi
                 {
-                    Name = new TextBlock
+                    NameTextBlock = new TextBlock
                     {
                         Text              = item["SwaggerKey"]?.ToString(),
                         Width             = 200,
                         VerticalAlignment = VerticalAlignment.Center
                     },
-                    IsHost = new CheckBox { Width = 70 },
+                    IsHostCheckBox = new CheckBox { Width = 70 },
                     PortSelection = new ComboBox
                     {
-                        Items         = Consts.OcelotPortSelections.Select(p => new ComboBoxItem { Content = p }),
-                        IsEnabled     = false,
-                        Width         = 130
-                    }
+                        Items     = Consts.OcelotPortSelections.Select(p => new ComboBoxItem { Content = p }),
+                        IsEnabled = false,
+                        Width     = 130
+                    },
+                    RadioButton80   = new RadioButton { Content = "80" },
+                    RadioButton5000 = new RadioButton { Content = "5000" },
+                    RadioButton5001 = new RadioButton { Content = "5001" },
+                    RadioButton5002 = new RadioButton { Content = "5002" }
                 };
 
-                uiModel.IsHost.Checked                     += (_, _) => uiModel.PortSelection.IsEnabled = true;
-                uiModel.IsHost.Unchecked                   += (_, _) => uiModel.PortSelection.IsEnabled = false;
-                uiModel.PortSelection.SelectionChanged += (sender, args) =>
+                uiModel.IsHostCheckBox.Checked   += (_, _) => uiModel.PortSelection.IsEnabled = true;
+                uiModel.IsHostCheckBox.Unchecked += (_, _) => uiModel.PortSelection.IsEnabled = false;
+                uiModel.PortSelection.SelectionChanged += (_, args) =>
                                                           {
                                                               var index = Consts.OcelotPortSelections.FindIndex(s => s == args.AddedItems[0]?.ToString());
                                                               uiModel.PortSelection.SelectedIndex = index;
                                                           };
 
-                itemContainer.Children.Add(uiModel.Name);
-                itemContainer.Children.Add(uiModel.IsHost);
+                itemContainer.Children.Add(uiModel.NameTextBlock);
+                itemContainer.Children.Add(uiModel.IsHostCheckBox);
                 itemContainer.Children.Add(uiModel.PortSelection);
                 ocelotItemsContainer.Children.Add(itemContainer);
                 window.OcelotRouteUis.Add(uiModel);

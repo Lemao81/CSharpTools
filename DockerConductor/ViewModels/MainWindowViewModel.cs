@@ -19,18 +19,19 @@ namespace DockerConductor.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private readonly MainWindow _window;
-        private          string     _dockerComposePath         = string.Empty;
-        private          string     _dockerComposeOverridePath = string.Empty;
-        private          string     _excludes                  = string.Empty;
-        private          string     _thirdParties              = string.Empty;
-        private          string     _usuals                    = string.Empty;
-        private          string     _firstBatch                = string.Empty;
-        private          int        _firstBatchWait;
-        private          string     _secondBatch = string.Empty;
-        private          int        _secondBatchWait;
-        private          string     _dbVolume = string.Empty;
-        private          string     _ocelotConfigurationPath;
+        private readonly MainWindow                 _window;
+        private          string                     _dockerComposePath         = string.Empty;
+        private          string                     _dockerComposeOverridePath = string.Empty;
+        private          string                     _excludes                  = string.Empty;
+        private          string                     _thirdParties              = string.Empty;
+        private          string                     _usuals                    = string.Empty;
+        private          string                     _firstBatch                = string.Empty;
+        private          int                        _firstBatchWait;
+        private          string                     _secondBatch = string.Empty;
+        private          int                        _secondBatchWait;
+        private          string                     _dbVolume                  = string.Empty;
+        private          string                     _ocelotConfigurationPath   = string.Empty;
+        private readonly Dictionary<string, string> _ocelotConfigOrigHostCache = new();
 
         public MainWindowViewModel()
         {
@@ -314,16 +315,37 @@ namespace DockerConductor.ViewModels
             SaveOcelotConfig = ReactiveCommand.Create(
                 () =>
                 {
-                    if (OcelotConfig is null) return;
+                    if (OcelotConfig?["Routes"] is not JArray routes) return;
 
-                    foreach (JObject route in OcelotConfig["Routes"] as JArray)
+                    foreach (var routeToken in routes)
                     {
-                        var uiModel = _window.OcelotRouteUis.SingleOrDefault(u => u.Name.Text == route["SwaggerKey"]?.ToString());
-                        if (uiModel is null || !uiModel.IsHost.IsChecked == true) continue;
+                        if (routeToken is not JObject route) return;
 
-                        var hostAndPort = (route["DownstreamHostAndPorts"] as JArray)?.First();
-                        hostAndPort["Host"] = "host.docker.internal";
-                        hostAndPort["Port"] = int.Parse(uiModel.PortSelection.SelectedItem?.ToString() ?? "5000");
+                        var uiModel = _window.OcelotRouteUis.SingleOrDefault(u => u.Name == route["SwaggerKey"]?.ToString());
+                        if (uiModel is null) continue;
+
+                        if (uiModel.IsHost)
+                        {
+                            var hostAndPort = (route["DownstreamHostAndPorts"] as JArray)?.FirstOrDefault();
+                            if (hostAndPort is null) continue;
+
+                            if (!_ocelotConfigOrigHostCache.ContainsKey(uiModel.Name) && hostAndPort["Host"]?.ToString() is { } origHost)
+                            {
+                                _ocelotConfigOrigHostCache[uiModel.Name] = origHost;
+                            }
+
+                            hostAndPort["Host"] = "host.docker.internal";
+                            hostAndPort["Port"] = uiModel.Port;
+                        }
+                        else if (_ocelotConfigOrigHostCache.ContainsKey(uiModel.Name))
+                        {
+                            var hostAndPort = (route["DownstreamHostAndPorts"] as JArray)?.FirstOrDefault();
+                            if (hostAndPort is null) continue;
+
+                            hostAndPort["Host"] = _ocelotConfigOrigHostCache[uiModel.Name];
+                            hostAndPort["Port"] = "80";
+                            _ocelotConfigOrigHostCache.Remove(uiModel.Name);
+                        }
                     }
 
                     File.WriteAllText(OcelotConfigurationPath, OcelotConfig.ToString(Formatting.Indented));
