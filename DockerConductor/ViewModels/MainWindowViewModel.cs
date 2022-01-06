@@ -135,6 +135,7 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Unit>? SelectThirdParties                     { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectUsuals                           { get; set; }
         public ReactiveCommand<Unit, Unit>? SaveOcelotConfig                       { get; set; }
+        public ReactiveCommand<Unit, Unit>? ResetOcelotConfig                      { get; set; }
 
         private void InitializeCommands()
         {
@@ -343,12 +344,18 @@ namespace DockerConductor.ViewModels
                             if (hostAndPort is null) continue;
 
                             hostAndPort["Host"] = _ocelotConfigOrigHostCache[uiModel.Name];
-                            hostAndPort["Port"] = "80";
+                            hostAndPort["Port"] = 80;
                             _ocelotConfigOrigHostCache.Remove(uiModel.Name);
                         }
                     }
 
                     File.WriteAllText(OcelotConfigurationPath, OcelotConfig.ToString(Formatting.Indented));
+                }
+            );
+
+            ResetOcelotConfig = ReactiveCommand.Create(
+                () =>
+                {
                 }
             );
         }

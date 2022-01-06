@@ -8,7 +8,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Threading;
-using DockerConductor.Constants;
 using DockerConductor.Models;
 using DockerConductor.ViewModels;
 using DockerConductor.Views;
@@ -109,7 +108,7 @@ namespace DockerConductor.Helpers
 
             ocelotItemsContainer.Children.Clear();
             window.OcelotRouteUis.Clear();
-            foreach (var item in itemsToShow)
+            foreach (var item in itemsToShow.Reverse())
             {
                 var itemContainer = new StackPanel
                 {
@@ -125,30 +124,30 @@ namespace DockerConductor.Helpers
                         Width             = 200,
                         VerticalAlignment = VerticalAlignment.Center
                     },
-                    IsHostCheckBox = new CheckBox { Width = 70 },
-                    PortSelection = new ComboBox
+                    RadioButton80 = new RadioButton
                     {
-                        Items     = Consts.OcelotPortSelections.Select(p => new ComboBoxItem { Content = p }),
-                        IsEnabled = false,
-                        Width     = 130
+                        Content   = "80",
+                        Margin    = new Thickness(0, 0, 16, 0),
+                        IsChecked = true
                     },
-                    RadioButton80   = new RadioButton { Content = "80" },
-                    RadioButton5000 = new RadioButton { Content = "5000" },
-                    RadioButton5001 = new RadioButton { Content = "5001" },
+                    RadioButton5000 = new RadioButton
+                    {
+                        Content = "5000",
+                        Margin  = new Thickness(0, 0, 16, 0)
+                    },
+                    RadioButton5001 = new RadioButton
+                    {
+                        Content = "5001",
+                        Margin  = new Thickness(0, 0, 16, 0)
+                    },
                     RadioButton5002 = new RadioButton { Content = "5002" }
                 };
 
-                uiModel.IsHostCheckBox.Checked   += (_, _) => uiModel.PortSelection.IsEnabled = true;
-                uiModel.IsHostCheckBox.Unchecked += (_, _) => uiModel.PortSelection.IsEnabled = false;
-                uiModel.PortSelection.SelectionChanged += (_, args) =>
-                                                          {
-                                                              var index = Consts.OcelotPortSelections.FindIndex(s => s == args.AddedItems[0]?.ToString());
-                                                              uiModel.PortSelection.SelectedIndex = index;
-                                                          };
-
                 itemContainer.Children.Add(uiModel.NameTextBlock);
-                itemContainer.Children.Add(uiModel.IsHostCheckBox);
-                itemContainer.Children.Add(uiModel.PortSelection);
+                itemContainer.Children.Add(uiModel.RadioButton80);
+                itemContainer.Children.Add(uiModel.RadioButton5000);
+                itemContainer.Children.Add(uiModel.RadioButton5001);
+                itemContainer.Children.Add(uiModel.RadioButton5002);
                 ocelotItemsContainer.Children.Add(itemContainer);
                 window.OcelotRouteUis.Add(uiModel);
             }
