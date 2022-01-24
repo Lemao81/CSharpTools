@@ -10,6 +10,7 @@ namespace DockerConductor.Models
         public RadioButton? RadioButton5000 { get; set; }
         public RadioButton? RadioButton5001 { get; set; }
         public RadioButton? RadioButton5002 { get; set; }
+        public string       OrigHost        { get; set; } = string.Empty;
 
         public string Name   => NameTextBlock?.Text ?? string.Empty;
         public bool   IsHost => RadioButton80?.IsChecked != true;

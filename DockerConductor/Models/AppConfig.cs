@@ -16,6 +16,7 @@ namespace DockerConductor.Models
         public string              FirstBatchWait            { get; set; } = "10";
         public string              SecondBatch               { get; set; } = string.Empty;
         public string              SecondBatchWait           { get; set; } = "10";
+        public string              ExcludesStop              { get; set; } = string.Empty;
         public string              DbVolume                  { get; set; } = string.Empty;
         public IEnumerable<string> LastSelected              { get; set; } = Enumerable.Empty<string>();
 
@@ -31,6 +32,7 @@ namespace DockerConductor.Models
             viewModel.FirstBatchWait            = FirstBatchWait;
             viewModel.SecondBatch               = SecondBatch;
             viewModel.SecondBatchWait           = SecondBatchWait;
+            viewModel.ExcludesStop              = ExcludesStop;
             viewModel.DbVolume                  = DbVolume;
             viewModel.LastSelected              = LastSelected;
         }
@@ -47,6 +49,7 @@ namespace DockerConductor.Models
             FirstBatchWait            = viewModel.FirstBatchWait;
             SecondBatch               = viewModel.SecondBatch;
             SecondBatchWait           = viewModel.SecondBatchWait;
+            ExcludesStop              = viewModel.ExcludesStop;
             DbVolume                  = viewModel.DbVolume;
             LastSelected              = viewModel.LastSelected;
         }

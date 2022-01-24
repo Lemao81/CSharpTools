@@ -98,10 +98,12 @@ namespace DockerConductor.Helpers
 
         public static void UpdateOcelotItemList(MainWindow window)
         {
-            var ocelotConfigText = File.ReadAllText(window.ViewModel.OcelotConfigurationPath) ?? throw new InvalidOperationException();
-            var ocelotConfig     = JObject.Parse(ocelotConfigText);
+            var ocelotConfigString = File.ReadAllText(window.ViewModel.OcelotConfigurationPath) ?? throw new InvalidOperationException();
+            window.ViewModel.OcelotConfigString = ocelotConfigString;
+            var ocelotConfig = JObject.Parse(ocelotConfigString);
             window.ViewModel.OcelotConfig = ocelotConfig;
-            var itemsToShow = ocelotConfig["Routes"]?.Where(r => !string.IsNullOrEmpty(r["SwaggerKey"]?.ToString()));
+            var itemsToShow = ocelotConfig["Routes"]?.Where(IsRouteToConsider);
+
             if (itemsToShow is null) return;
 
             var ocelotItemsContainer = window.OcelotItemContainer ?? throw new InvalidOperationException();
@@ -116,11 +118,14 @@ namespace DockerConductor.Helpers
                     Margin      = new Thickness(0, 0, 0, 8)
                 };
 
+                var swaggerKey = item["SwaggerKey"]?.ToString();
+                var origHost   = (item["DownstreamHostAndPorts"] as JArray)?.First?["Host"]?.ToString() ?? string.Empty;
+
                 var uiModel = new OcelotRouteUi
                 {
                     NameTextBlock = new TextBlock
                     {
-                        Text              = item["SwaggerKey"]?.ToString(),
+                        Text              = swaggerKey,
                         Width             = 200,
                         VerticalAlignment = VerticalAlignment.Center
                     },
@@ -140,7 +145,8 @@ namespace DockerConductor.Helpers
                         Content = "5001",
                         Margin  = new Thickness(0, 0, 16, 0)
                     },
-                    RadioButton5002 = new RadioButton { Content = "5002" }
+                    RadioButton5002 = new RadioButton { Content = "5002" },
+                    OrigHost        = origHost
                 };
 
                 itemContainer.Children.Add(uiModel.NameTextBlock);
@@ -204,5 +210,10 @@ namespace DockerConductor.Helpers
         public static async Task<string[]> ShowYamlFileSelection(Window window, string title) => await ShowFileSelection(window, title, "yaml", "yml", "yaml");
 
         public static async Task<string[]> ShowJsonFileSelection(Window window, string title) => await ShowFileSelection(window, title, "json", "json");
+
+        private static bool IsRouteToConsider(JToken r) => !string.IsNullOrWhiteSpace(r["SwaggerKey"]?.ToString())
+                                                           && r["DownstreamHostAndPorts"] is JArray downStreams
+                                                           && downStreams.Any()
+                                                           && !string.IsNullOrWhiteSpace(downStreams.First!["Host"]?.ToString());
     }
 }

@@ -29,6 +29,7 @@ namespace DockerConductor.ViewModels
         private          int                        _firstBatchWait;
         private          string                     _secondBatch = string.Empty;
         private          int                        _secondBatchWait;
+        private          string                     _excludesStop              = string.Empty;
         private          string                     _dbVolume                  = string.Empty;
         private          string                     _ocelotConfigurationPath   = string.Empty;
         private readonly Dictionary<string, string> _ocelotConfigOrigHostCache = new();
@@ -52,8 +53,9 @@ namespace DockerConductor.ViewModels
                                                                   .Select(c => c.Content?.ToString())
                                                                   .Where(s => !string.IsNullOrWhiteSpace(s))!;
 
-        public IEnumerable<string> LastSelected { get; set; } = Enumerable.Empty<string>();
-        public JObject?            OcelotConfig { get; set; }
+        public IEnumerable<string> LastSelected       { get; set; } = Enumerable.Empty<string>();
+        public JObject?            OcelotConfig       { get; set; }
+        public string              OcelotConfigString { get; set; }
 
         public string DockerComposePath
         {
@@ -115,6 +117,12 @@ namespace DockerConductor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _secondBatchWait, int.TryParse(value, out _) ? int.Parse(value) : 0);
         }
 
+        public string ExcludesStop
+        {
+            get => _excludesStop;
+            set => this.RaiseAndSetIfChanged(ref _excludesStop, value);
+        }
+
         public string DbVolume
         {
             get => _dbVolume;
@@ -125,7 +133,10 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Task>? OpenDockerComposeOverrideFileSelection { get; set; }
         public ReactiveCommand<Unit, Task>? OcelotConfigurationFileSelection       { get; set; }
         public ReactiveCommand<Unit, Unit>? SaveConfiguration                      { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerComposeUpDelayed                 { get; set; }
         public ReactiveCommand<Unit, Task>? DockerComposeUp                        { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerComposeStop                      { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerComposeStart                     { get; set; }
         public ReactiveCommand<Unit, Task>? DockerComposeDown                      { get; set; }
         public ReactiveCommand<Unit, Task>? DockerComposeBuildOcelot               { get; set; }
         public ReactiveCommand<Unit, Task>? DockerPs                               { get; set; }
@@ -193,7 +204,7 @@ namespace DockerConductor.ViewModels
                 }
             );
 
-            DockerComposeUp = ReactiveCommand.Create(
+            DockerComposeUpDelayed = ReactiveCommand.Create(
                 async () =>
                 {
                     if (!SelectedServiceNames.Any()) return;
@@ -236,6 +247,49 @@ namespace DockerConductor.ViewModels
 
                     var command = Helper.ConcatCommand(basicCommand, rest);
                     await Helper.ExecuteCliCommand(command, _window);
+                }
+            );
+
+            DockerComposeUp = ReactiveCommand.Create(
+                async () =>
+                {
+                    var basicCommand = Helper.ConcatCommand(
+                        Consts.DockerCompose,
+                        Helper.ConcatFilePathArguments(DockerComposePath, DockerComposeOverridePath),
+                        "up",
+                        "-d",
+                        "--no-deps"
+                    );
+
+                    await Helper.ExecuteCliCommand(Helper.ConcatCommand(basicCommand, SelectedServiceNames), _window);
+                }
+            );
+
+            DockerComposeStop = ReactiveCommand.Create(
+                async () =>
+                {
+                    var basicCommand = Helper.ConcatCommand(
+                        Consts.DockerCompose,
+                        Helper.ConcatFilePathArguments(DockerComposePath, DockerComposeOverridePath),
+                        "stop"
+                    );
+
+                    var services = Helper.ExcludeByCommaSeparated(SelectedServiceNames, ExcludesStop).ToList();
+
+                    await Helper.ExecuteCliCommand(Helper.ConcatCommand(basicCommand, services), _window);
+                }
+            );
+
+            DockerComposeStart = ReactiveCommand.Create(
+                async () =>
+                {
+                    var basicCommand = Helper.ConcatCommand(
+                        Consts.DockerCompose,
+                        Helper.ConcatFilePathArguments(DockerComposePath, DockerComposeOverridePath),
+                        "start"
+                    );
+
+                    await Helper.ExecuteCliCommand(Helper.ConcatCommand(basicCommand, SelectedServiceNames), _window);
                 }
             );
 
@@ -330,11 +384,14 @@ namespace DockerConductor.ViewModels
                             var hostAndPort = (route["DownstreamHostAndPorts"] as JArray)?.FirstOrDefault();
                             if (hostAndPort is null) continue;
 
-                            if (!_ocelotConfigOrigHostCache.ContainsKey(uiModel.Name) && hostAndPort["Host"]?.ToString() is { } origHost)
+                            if (!_ocelotConfigOrigHostCache.ContainsKey(uiModel.Name))
                             {
-                                _ocelotConfigOrigHostCache[uiModel.Name] = origHost;
+                                _ocelotConfigOrigHostCache[uiModel.Name] = uiModel.OrigHost;
                             }
 
+                            // radioreport-angiographymrt-api",\s+"Port": (\d+)
+                            // var hostMatches = new Regex(uiModel.OrigHost).Match(OcelotConfigString);
+                            // var portMatches = new Regex($"{uiModel.OrigHost}\",\\s+\"Port\": (\\d+)").Match(OcelotConfigString);
                             hostAndPort["Host"] = "host.docker.internal";
                             hostAndPort["Port"] = uiModel.Port;
                         }

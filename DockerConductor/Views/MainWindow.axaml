@@ -27,7 +27,10 @@
                 </StackPanel>
                 <StackPanel Grid.Column="2" Grid.Row="0" Classes="content">
                     <StackPanel Classes="mb-1">
+                        <Button Content="Up delayed" Classes="panel-btn" Command="{Binding DockerComposeUpDelayed}" />
                         <Button Content="Up" Classes="panel-btn" Command="{Binding DockerComposeUp}" />
+                        <Button Content="Stop" Classes="panel-btn" Command="{Binding DockerComposeStop}" />
+                        <Button Content="Start" Classes="panel-btn" Command="{Binding DockerComposeStart}" />
                         <Button Content="Down" Classes="panel-btn" Command="{Binding DockerComposeDown}" />
                         <Button Content="PS" Classes="panel-btn" Command="{Binding DockerPs}" />
                         <Button Content="Rm db volume + prune" Classes="panel-btn" Command="{Binding DockerDbResetPrune}" />
@@ -41,7 +44,7 @@
         </TabItem>
 
         <TabItem Header="Ocelot" IsSelected="False" VerticalAlignment="Center">
-            <Grid ColumnDefinitions="*" RowDefinitions="9*,*" Classes="content" ShowGridLines="True">
+            <Grid ColumnDefinitions="*" RowDefinitions="9*,*" Classes="content" ShowGridLines="False">
                 <ScrollViewer Grid.Column="0" Grid.Row="0">
                     <StackPanel Name="OcelotItemContainer" Classes="content"></StackPanel>
                 </ScrollViewer>
@@ -54,7 +57,7 @@
         </TabItem>
 
         <TabItem Header="Configuration" IsSelected="False" VerticalAlignment="Center">
-            <Grid ColumnDefinitions="2*,3*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ShowGridLines="False"
+            <Grid ColumnDefinitions="2*,3*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ShowGridLines="False"
                   HorizontalAlignment="Stretch"
                   Classes="content">
                 <TextBlock Grid.Column="0" Grid.Row="0" Text="Path docker-compose.yml:" Classes="configuration-cell" />
@@ -93,10 +96,13 @@
                 <TextBlock Grid.Column="0" Grid.Row="9" Text="2. Batch Wait Sec:" Classes="configuration-cell" />
                 <TextBox Grid.Column="1" Grid.Row="9" Text="{Binding SecondBatchWait}" Classes="configuration-cell" />
 
-                <TextBlock Grid.Column="0" Grid.Row="10" Text="Db volume:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="10" Text="{Binding DbVolume}" Classes="configuration-cell" />
+                <TextBlock Grid.Column="0" Grid.Row="10" Text="Excludes from stop:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="10" Text="{Binding ExcludesStop}" Classes="configuration-cell" />
 
-                <StackPanel Grid.Column="0" Grid.Row="11" Classes="mt-5" Orientation="Horizontal">
+                <TextBlock Grid.Column="0" Grid.Row="11" Text="Db volume:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="11" Text="{Binding DbVolume}" Classes="configuration-cell" />
+
+                <StackPanel Grid.Column="0" Grid.Row="12" Classes="mt-5" Orientation="Horizontal">
                     <Button Content="Save" Classes="configuration-btn" Command="{Binding SaveConfiguration}" />
                 </StackPanel>
             </Grid>
