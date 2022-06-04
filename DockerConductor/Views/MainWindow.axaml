@@ -14,8 +14,8 @@
 
     <TabControl>
         <TabItem Header="Panel" IsSelected="True" VerticalAlignment="Center">
-            <Grid ColumnDefinitions="2*,*,*" RowDefinitions="*,2*" ShowGridLines="False" Classes="content">
-                <ScrollViewer Grid.Column="0" Grid.Row="0" Grid.RowSpan="2">
+            <Grid ColumnDefinitions="2*,*,*" RowDefinitions="Auto,Auto,*" ShowGridLines="False" Classes="content">
+                <ScrollViewer Grid.Column="0" Grid.Row="0" Grid.RowSpan="3">
                     <StackPanel Name="ServiceSelectionContainer" Classes="content" />
                 </ScrollViewer>
                 <StackPanel Grid.Column="1" Grid.Row="0" Classes="content">
@@ -25,19 +25,19 @@
                         <Button Content="Select usual" Classes="panel-btn" Command="{Binding SelectUsuals}" />
                     </StackPanel>
                 </StackPanel>
-                <StackPanel Grid.Column="2" Grid.Row="0" Classes="content">
-                    <StackPanel Classes="mb-1">
-                        <Button Content="Up delayed" Classes="panel-btn" Command="{Binding DockerComposeUpDelayed}" />
-                        <Button Content="Up" Classes="panel-btn" Command="{Binding DockerComposeUp}" />
-                        <Button Content="Stop" Classes="panel-btn" Command="{Binding DockerComposeStop}" />
-                        <Button Content="Start" Classes="panel-btn" Command="{Binding DockerComposeStart}" />
-                        <Button Content="Down" Classes="panel-btn" Command="{Binding DockerComposeDown}" />
-                        <Button Content="PS" Classes="panel-btn" Command="{Binding DockerPs}" />
-                        <Button Content="Rm db volume + prune" Classes="panel-btn" Command="{Binding DockerDbResetPrune}" />
-                        <Button Content="Build" Classes="panel-btn" Command="{Binding DockerBuildConfirmation}" />
-                    </StackPanel>
-                </StackPanel>
-                <ScrollViewer Name="ConsoleScrollViewer" HorizontalScrollBarVisibility="Auto" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
+                <Grid Grid.Column="2" Grid.Row="0" ColumnDefinitions="*,*" RowDefinitions="*,*,*,*" VerticalAlignment="Top" Classes="content">
+                    <Button Grid.Column="0" Grid.Row="0" Content="Up" Classes="panel-btn" Command="{Binding DockerComposeUp}" />
+                    <Button Grid.Column="1" Grid.Row="0" Content="Down" Classes="panel-btn" Command="{Binding DockerComposeDown}" />
+                    <Button Grid.Column="0" Grid.Row="1" Content="Start" Classes="panel-btn" Command="{Binding DockerComposeStart}" />
+                    <Button Grid.Column="1" Grid.Row="1" Content="Stop" Classes="panel-btn" Command="{Binding DockerComposeStop}" />
+                    <Button Grid.Column="0" Grid.Row="2" Content="PS" Classes="panel-btn" Command="{Binding DockerPs}" />
+                    <Button Grid.Column="1" Grid.Row="2" Content="Build" Classes="panel-btn" Command="{Binding DockerBuildConfirmation}" />
+                    <Button Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Content="Rm db volume + prune" Classes="panel-btn"
+                            Command="{Binding DockerDbResetPrune}" />
+                </Grid>
+                <TextBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding ExecutedCommand}" IsReadOnly="True" VerticalAlignment="Top"
+                         Classes="content" />
+                <ScrollViewer Name="ConsoleScrollViewer" HorizontalScrollBarVisibility="Auto" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" Classes="mt-1">
                     <TextBlock Name="ConsoleOutput" TextWrapping="Wrap" FontSize="10" Classes="content" Padding="0,0,32,32" />
                 </ScrollViewer>
             </Grid>
@@ -49,9 +49,8 @@
                     <StackPanel Name="OcelotItemContainer" Classes="content"></StackPanel>
                 </ScrollViewer>
                 <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal">
-                    <Button Content="Save" Classes="btn" Command="{Binding SaveOcelotConfig}" />
-                    <Button Content="Reset" Classes="btn" Command="{Binding ResetOcelotConfig}" />
                     <Button Content="Build ocelotapigateway" Classes="btn" Command="{Binding DockerComposeBuildOcelot}" />
+                    <Button Content="Reset" Classes="btn" Command="{Binding ResetOcelotConfig}" />
                 </StackPanel>
             </Grid>
         </TabItem>

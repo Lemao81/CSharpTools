@@ -11,7 +11,7 @@
         <Style Selector="Button.panel-btn">
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="Margin" Value="0,0,0,4" />
+            <Setter Property="Margin" Value="2,0,2,4" />
         </Style>
         <Style Selector="Grid.content">
             <Setter Property="Margin" Value="8" />
@@ -20,6 +20,9 @@
             <Setter Property="Margin" Value="8" />
         </Style>
         <Style Selector="TextBlock.content">
+            <Setter Property="Margin" Value="8" />
+        </Style>
+        <Style Selector="TextBox.content">
             <Setter Property="Margin" Value="8" />
         </Style>
         <Style Selector="TextBlock.configuration-cell">
@@ -42,6 +45,9 @@
         <!-- margins -->
         <Style Selector="StackPanel.mb-1">
             <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+        <Style Selector="ScrollViewer.mt-1">
+            <Setter Property="Margin" Value="0,8,0,0" />
         </Style>
         <Style Selector="StackPanel.mt-5">
             <Setter Property="Margin" Value="0,40,0,0" />

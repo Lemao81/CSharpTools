@@ -33,6 +33,7 @@ namespace DockerConductor.ViewModels
         private          string                     _dbVolume                  = string.Empty;
         private          string                     _ocelotConfigurationPath   = string.Empty;
         private readonly Dictionary<string, string> _ocelotConfigOrigHostCache = new();
+        private          string                     _executedCommand           = string.Empty;
 
         public MainWindowViewModel()
         {
@@ -129,6 +130,12 @@ namespace DockerConductor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _dbVolume, value);
         }
 
+        public string ExecutedCommand
+        {
+            get => _executedCommand;
+            set => this.RaiseAndSetIfChanged(ref _executedCommand, value);
+        }
+
         public ReactiveCommand<Unit, Task>? OpenDockerComposeFileSelection         { get; set; }
         public ReactiveCommand<Unit, Task>? OpenDockerComposeOverrideFileSelection { get; set; }
         public ReactiveCommand<Unit, Task>? OcelotConfigurationFileSelection       { get; set; }
@@ -145,7 +152,6 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Unit>? DeselectAll                            { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectThirdParties                     { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectUsuals                           { get; set; }
-        public ReactiveCommand<Unit, Unit>? SaveOcelotConfig                       { get; set; }
         public ReactiveCommand<Unit, Unit>? ResetOcelotConfig                      { get; set; }
 
         private void InitializeCommands()
@@ -309,6 +315,7 @@ namespace DockerConductor.ViewModels
             DockerComposeBuildOcelot = ReactiveCommand.Create(
                 async () =>
                 {
+                    SaveOcelot();
                     var basicCommand = GetBasicBuildCommand();
                     var command      = Helper.ConcatCommand(basicCommand, "ocelotapigateway");
                     await Helper.ExecuteCliCommand(command, _window);
@@ -367,49 +374,6 @@ namespace DockerConductor.ViewModels
 
             SelectUsuals = ReactiveCommand.Create(() => Helper.SelectMatchingContents(_window.ServiceSelectionCheckBoxes, Helper.SplitCommaSeparated(Usuals)));
 
-            SaveOcelotConfig = ReactiveCommand.Create(
-                () =>
-                {
-                    if (OcelotConfig?["Routes"] is not JArray routes) return;
-
-                    foreach (var routeToken in routes)
-                    {
-                        if (routeToken is not JObject route) return;
-
-                        var uiModel = _window.OcelotRouteUis.SingleOrDefault(u => u.Name == route["SwaggerKey"]?.ToString());
-                        if (uiModel is null) continue;
-
-                        if (uiModel.IsHost)
-                        {
-                            var hostAndPort = (route["DownstreamHostAndPorts"] as JArray)?.FirstOrDefault();
-                            if (hostAndPort is null) continue;
-
-                            if (!_ocelotConfigOrigHostCache.ContainsKey(uiModel.Name))
-                            {
-                                _ocelotConfigOrigHostCache[uiModel.Name] = uiModel.OrigHost;
-                            }
-
-                            // radioreport-angiographymrt-api",\s+"Port": (\d+)
-                            // var hostMatches = new Regex(uiModel.OrigHost).Match(OcelotConfigString);
-                            // var portMatches = new Regex($"{uiModel.OrigHost}\",\\s+\"Port\": (\\d+)").Match(OcelotConfigString);
-                            hostAndPort["Host"] = "host.docker.internal";
-                            hostAndPort["Port"] = uiModel.Port;
-                        }
-                        else if (_ocelotConfigOrigHostCache.ContainsKey(uiModel.Name))
-                        {
-                            var hostAndPort = (route["DownstreamHostAndPorts"] as JArray)?.FirstOrDefault();
-                            if (hostAndPort is null) continue;
-
-                            hostAndPort["Host"] = _ocelotConfigOrigHostCache[uiModel.Name];
-                            hostAndPort["Port"] = 80;
-                            _ocelotConfigOrigHostCache.Remove(uiModel.Name);
-                        }
-                    }
-
-                    File.WriteAllText(OcelotConfigurationPath, OcelotConfig.ToString(Formatting.Indented));
-                }
-            );
-
             ResetOcelotConfig = ReactiveCommand.Create(
                 () =>
                 {
@@ -434,6 +398,47 @@ namespace DockerConductor.ViewModels
             appConfig.MapFrom(this);
 
             File.WriteAllText(App.ConfigFileName, JsonConvert.SerializeObject(appConfig, Formatting.Indented));
+        }
+
+        private void SaveOcelot()
+        {
+            if (OcelotConfig?["Routes"] is not JArray routes) return;
+
+            foreach (var routeToken in routes)
+            {
+                if (routeToken is not JObject route) return;
+
+                var uiModel = _window.OcelotRouteUis.SingleOrDefault(u => u.Name == route["SwaggerKey"]?.ToString());
+                if (uiModel is null) continue;
+
+                if (uiModel.IsHost)
+                {
+                    var hostAndPort = (route["DownstreamHostAndPorts"] as JArray)?.FirstOrDefault();
+                    if (hostAndPort is null) continue;
+
+                    if (!_ocelotConfigOrigHostCache.ContainsKey(uiModel.Name))
+                    {
+                        _ocelotConfigOrigHostCache[uiModel.Name] = uiModel.OrigHost;
+                    }
+
+                    // radioreport-angiographymrt-api",\s+"Port": (\d+)
+                    // var hostMatches = new Regex(uiModel.OrigHost).Match(OcelotConfigString);
+                    // var portMatches = new Regex($"{uiModel.OrigHost}\",\\s+\"Port\": (\\d+)").Match(OcelotConfigString);
+                    hostAndPort["Host"] = "host.docker.internal";
+                    hostAndPort["Port"] = uiModel.Port;
+                }
+                else if (_ocelotConfigOrigHostCache.ContainsKey(uiModel.Name))
+                {
+                    var hostAndPort = (route["DownstreamHostAndPorts"] as JArray)?.FirstOrDefault();
+                    if (hostAndPort is null) continue;
+
+                    hostAndPort["Host"] = _ocelotConfigOrigHostCache[uiModel.Name];
+                    hostAndPort["Port"] = 80;
+                    _ocelotConfigOrigHostCache.Remove(uiModel.Name);
+                }
+            }
+
+            File.WriteAllText(OcelotConfigurationPath, OcelotConfig.ToString(Formatting.Indented));
         }
     }
 }

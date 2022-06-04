@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -41,7 +42,8 @@ namespace DockerConductor.Helpers
         {
             if (window.ConsoleOutput is null) return;
 
-            window.ConsoleOutput.Text = $"Executing: '{command}'\n\n";
+            window.ViewModel.ExecutedCommand = Regex.Replace(command, "-f \".*?\"\\s", "");
+            window.ConsoleOutput.Text        = string.Empty;
 
             var startInfo = new ProcessStartInfo("cmd.exe", $"/C {command}")
             {
@@ -81,11 +83,16 @@ namespace DockerConductor.Helpers
 
         public static void UpdateServiceCheckboxList(MainWindow window)
         {
-            var dockerComposeText = File.ReadAllText(window.ViewModel.DockerComposePath) ?? throw new InvalidOperationException();
-            var dockerCompose     = YamlDeserializer.Deserialize<DockerCompose>(dockerComposeText) ?? throw new InvalidOperationException();
-            var serviceNames = ExcludeByCommaSeparated(dockerCompose.Services.Keys, window.ViewModel.Excludes)
-                .OrderBy(s => s.Contains("radio") ? s.Contains("core") ? 1 : 2 : 0);
+            var dockerComposeText         = File.ReadAllText(window.ViewModel.DockerComposePath) ?? throw new InvalidOperationException();
+            var dockerComposeOverrideText = File.ReadAllText(window.ViewModel.DockerComposeOverridePath) ?? throw new InvalidOperationException();
+            var dockerCompose             = YamlDeserializer.Deserialize<DockerCompose>(dockerComposeText) ?? throw new InvalidOperationException();
+            var dockerComposeOverride     = YamlDeserializer.Deserialize<DockerCompose>(dockerComposeOverrideText) ?? throw new InvalidOperationException();
+            foreach (var key in dockerComposeOverride.Services.Keys.Where(k => !dockerCompose.Services.ContainsKey(k)))
+            {
+                dockerCompose.Services[key] = dockerComposeOverride.Services[key];
+            }
 
+            var serviceNames              = ExcludeByCommaSeparated(dockerCompose.Services.Keys, window.ViewModel.Excludes).OrderBy(SortServices);
             var serviceSelectionContainer = window.ServiceSelectionContainer ?? throw new InvalidOperationException();
 
             serviceSelectionContainer.Children.Clear();
@@ -93,6 +100,21 @@ namespace DockerConductor.Helpers
             {
                 var checkBox = new CheckBox { Content = serviceName };
                 serviceSelectionContainer.Children.Add(checkBox);
+            }
+
+            int SortServices(string name)
+            {
+                if (!name.Contains("radio")) return 1;
+
+                if (name.Contains("core")) return 2;
+
+                if (name.Contains("knee")) return 3;
+
+                if (name.Contains("shoulder")) return 4;
+
+                if (name.Contains("thoraxct")) return 5;
+
+                return 6;
             }
         }
 
