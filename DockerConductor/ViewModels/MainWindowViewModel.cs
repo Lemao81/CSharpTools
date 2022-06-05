@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DockerConductor.Constants;
 using MessageBox.Avalonia.DTO;
@@ -20,12 +22,10 @@ namespace DockerConductor.ViewModels
     public class MainWindowViewModel : ViewModelBase
     {
         private readonly MainWindow                 _window;
-        private          string                     _dockerComposePath         = string.Empty;
-        private          string                     _dockerComposeOverridePath = string.Empty;
-        private          string                     _excludes                  = string.Empty;
-        private          string                     _thirdParties              = string.Empty;
-        private          string                     _usuals                    = string.Empty;
-        private          string                     _firstBatch                = string.Empty;
+        private          string                     _excludes     = string.Empty;
+        private          string                     _thirdParties = string.Empty;
+        private          string                     _usuals       = string.Empty;
+        private          string                     _firstBatch   = string.Empty;
         private          int                        _firstBatchWait;
         private          string                     _secondBatch = string.Empty;
         private          int                        _secondBatchWait;
@@ -34,6 +34,8 @@ namespace DockerConductor.ViewModels
         private          string                     _ocelotConfigurationPath   = string.Empty;
         private readonly Dictionary<string, string> _ocelotConfigOrigHostCache = new();
         private          string                     _executedCommand           = string.Empty;
+        private          string                     _frontendRepoPath          = string.Empty;
+        private          string                     _backendRepoPath           = string.Empty;
 
         public MainWindowViewModel()
         {
@@ -58,17 +60,25 @@ namespace DockerConductor.ViewModels
         public JObject?            OcelotConfig       { get; set; }
         public string              OcelotConfigString { get; set; }
 
-        public string DockerComposePath
+        public string BackendRepoPath
         {
-            get => _dockerComposePath;
-            set => this.RaiseAndSetIfChanged(ref _dockerComposePath, value);
+            get => _backendRepoPath;
+            set => this.RaiseAndSetIfChanged(ref _backendRepoPath, value);
         }
 
-        public string DockerComposeOverridePath
+        public string BackendDockerComposePath => Path.Join(BackendRepoPath, "docker-compose.yml");
+
+        public string BackendDockerComposeOverridePath => Path.Join(BackendRepoPath, "docker-compose.override.yml");
+
+        public string FrontendRepoPath
         {
-            get => _dockerComposeOverridePath;
-            set => this.RaiseAndSetIfChanged(ref _dockerComposeOverridePath, value);
+            get => _frontendRepoPath;
+            set => this.RaiseAndSetIfChanged(ref _frontendRepoPath, value);
         }
+
+        public string FrontendDockerComposePath => Path.Join(FrontendRepoPath, "docker-compose.yml");
+
+        public string FrontendDockerComposeOverridePath => Path.Join(FrontendRepoPath, "docker-compose.override.yml");
 
         public string OcelotConfigurationPath
         {
@@ -136,49 +146,48 @@ namespace DockerConductor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _executedCommand, value);
         }
 
-        public ReactiveCommand<Unit, Task>? OpenDockerComposeFileSelection         { get; set; }
-        public ReactiveCommand<Unit, Task>? OpenDockerComposeOverrideFileSelection { get; set; }
-        public ReactiveCommand<Unit, Task>? OcelotConfigurationFileSelection       { get; set; }
-        public ReactiveCommand<Unit, Unit>? SaveConfiguration                      { get; set; }
-        public ReactiveCommand<Unit, Task>? DockerComposeUpDelayed                 { get; set; }
-        public ReactiveCommand<Unit, Task>? DockerComposeUp                        { get; set; }
-        public ReactiveCommand<Unit, Task>? DockerComposeStop                      { get; set; }
-        public ReactiveCommand<Unit, Task>? DockerComposeStart                     { get; set; }
-        public ReactiveCommand<Unit, Task>? DockerComposeDown                      { get; set; }
-        public ReactiveCommand<Unit, Task>? DockerComposeBuildOcelot               { get; set; }
-        public ReactiveCommand<Unit, Task>? DockerPs                               { get; set; }
-        public ReactiveCommand<Unit, Task>? DockerDbResetPrune                     { get; set; }
-        public ReactiveCommand<Unit, Task>? DockerBuildConfirmation                { get; set; }
-        public ReactiveCommand<Unit, Unit>? DeselectAll                            { get; set; }
-        public ReactiveCommand<Unit, Unit>? SelectThirdParties                     { get; set; }
-        public ReactiveCommand<Unit, Unit>? SelectUsuals                           { get; set; }
-        public ReactiveCommand<Unit, Unit>? ResetOcelotConfig                      { get; set; }
+        public ReactiveCommand<Unit, Task>? OpenBackendFolderSelection       { get; set; }
+        public ReactiveCommand<Unit, Task>? OpenFrontendFolderSelection      { get; set; }
+        public ReactiveCommand<Unit, Task>? OcelotConfigurationFileSelection { get; set; }
+        public ReactiveCommand<Unit, Unit>? SaveConfiguration                { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerComposeUpDelayed           { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerComposeUp                  { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerComposeStop                { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerComposeStart               { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerComposeDown                { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerComposeBuildOcelot         { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerPs                         { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerDbResetPrune               { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerBuildConfirmation          { get; set; }
+        public ReactiveCommand<Unit, Task>? FrontendDockerComposeUp          { get; set; }
+        public ReactiveCommand<Unit, Task>? FrontendDockerComposeDown        { get; set; }
+        public ReactiveCommand<Unit, Task>? FrontendBuild                    { get; set; }
+        public ReactiveCommand<Unit, Unit>? FrontendAdjustDevConfig          { get; set; }
+        public ReactiveCommand<Unit, Unit>? DeselectAll                      { get; set; }
+        public ReactiveCommand<Unit, Unit>? SelectThirdParties               { get; set; }
+        public ReactiveCommand<Unit, Unit>? SelectUsuals                     { get; set; }
+        public ReactiveCommand<Unit, Unit>? ResetOcelotConfig                { get; set; }
 
         private void InitializeCommands()
         {
-            OpenDockerComposeFileSelection = ReactiveCommand.Create(
+            OpenBackendFolderSelection = ReactiveCommand.Create(
                 async () =>
                 {
-                    var files = await Helper.ShowYamlFileSelection(_window, "Select docker-compose.yml");
-                    if (files.Length > 0)
+                    var path = await Helper.ShowFolderSelection(_window, "Select backend repo folder");
+                    if (!string.IsNullOrEmpty(path))
                     {
-                        DockerComposePath = files[0];
-
-                        if (!string.IsNullOrWhiteSpace(DockerComposePath))
-                        {
-                            Helper.UpdateServiceCheckboxList(_window);
-                        }
+                        BackendRepoPath = path;
                     }
                 }
             );
 
-            OpenDockerComposeOverrideFileSelection = ReactiveCommand.Create(
+            OpenFrontendFolderSelection = ReactiveCommand.Create(
                 async () =>
                 {
-                    var files = await Helper.ShowYamlFileSelection(_window, "Select docker-compose.override.yml");
-                    if (files.Length > 0)
+                    var path = await Helper.ShowFolderSelection(_window, "Select frontend repo folder");
+                    if (!string.IsNullOrEmpty(path))
                     {
-                        DockerComposeOverridePath = files[0];
+                        FrontendRepoPath = path;
                     }
                 }
             );
@@ -203,7 +212,7 @@ namespace DockerConductor.ViewModels
                 () =>
                 {
                     WriteConfig();
-                    if (!string.IsNullOrWhiteSpace(DockerComposePath))
+                    if (!string.IsNullOrWhiteSpace(BackendDockerComposePath) && !string.IsNullOrWhiteSpace(BackendDockerComposeOverridePath))
                     {
                         Helper.UpdateServiceCheckboxList(_window);
                     }
@@ -217,7 +226,7 @@ namespace DockerConductor.ViewModels
 
                     var basicCommand = Helper.ConcatCommand(
                         Consts.DockerCompose,
-                        Helper.ConcatFilePathArguments(DockerComposePath, DockerComposeOverridePath),
+                        Helper.ConcatFilePathArguments(BackendDockerComposePath, BackendDockerComposeOverridePath),
                         "up",
                         "-d",
                         "--no-deps"
@@ -261,7 +270,7 @@ namespace DockerConductor.ViewModels
                 {
                     var basicCommand = Helper.ConcatCommand(
                         Consts.DockerCompose,
-                        Helper.ConcatFilePathArguments(DockerComposePath, DockerComposeOverridePath),
+                        Helper.ConcatFilePathArguments(BackendDockerComposePath, BackendDockerComposeOverridePath),
                         "up",
                         "-d",
                         "--no-deps"
@@ -276,7 +285,7 @@ namespace DockerConductor.ViewModels
                 {
                     var basicCommand = Helper.ConcatCommand(
                         Consts.DockerCompose,
-                        Helper.ConcatFilePathArguments(DockerComposePath, DockerComposeOverridePath),
+                        Helper.ConcatFilePathArguments(BackendDockerComposePath, BackendDockerComposeOverridePath),
                         "stop"
                     );
 
@@ -291,7 +300,7 @@ namespace DockerConductor.ViewModels
                 {
                     var basicCommand = Helper.ConcatCommand(
                         Consts.DockerCompose,
-                        Helper.ConcatFilePathArguments(DockerComposePath, DockerComposeOverridePath),
+                        Helper.ConcatFilePathArguments(BackendDockerComposePath, BackendDockerComposeOverridePath),
                         "start"
                     );
 
@@ -304,7 +313,7 @@ namespace DockerConductor.ViewModels
                 {
                     var command = Helper.ConcatCommand(
                         Consts.DockerCompose,
-                        Helper.ConcatFilePathArguments(DockerComposePath, DockerComposeOverridePath),
+                        Helper.ConcatFilePathArguments(BackendDockerComposePath, BackendDockerComposeOverridePath),
                         "down"
                     );
 
@@ -358,6 +367,48 @@ namespace DockerConductor.ViewModels
                 }
             );
 
+            FrontendBuild = ReactiveCommand.Create(
+                async () =>
+                {
+                    var command = Helper.ConcatCommand(
+                        Consts.DockerCompose,
+                        Helper.ConcatFilePathArguments(FrontendDockerComposePath, FrontendDockerComposeOverridePath),
+                        "build"
+                    );
+
+                    await Helper.ExecuteCliCommand(command, _window);
+                }
+            );
+
+            FrontendAdjustDevConfig = ReactiveCommand.Create(AdjustDevConfig);
+
+            FrontendDockerComposeUp = ReactiveCommand.Create(
+                async () =>
+                {
+                    var command = Helper.ConcatCommand(
+                        Consts.DockerCompose,
+                        Helper.ConcatFilePathArguments(FrontendDockerComposePath, FrontendDockerComposeOverridePath),
+                        "up",
+                        "-d"
+                    );
+
+                    await Helper.ExecuteCliCommand(command, _window);
+                }
+            );
+
+            FrontendDockerComposeDown = ReactiveCommand.Create(
+                async () =>
+                {
+                    var command = Helper.ConcatCommand(
+                        Consts.DockerCompose,
+                        Helper.ConcatFilePathArguments(FrontendDockerComposePath, FrontendDockerComposeOverridePath),
+                        "down"
+                    );
+
+                    await Helper.ExecuteCliCommand(command, _window);
+                }
+            );
+
             DeselectAll = ReactiveCommand.Create(
                 () =>
                 {
@@ -385,7 +436,7 @@ namespace DockerConductor.ViewModels
         {
             var basicCommand = Helper.ConcatCommand(
                 Consts.DockerCompose,
-                Helper.ConcatFilePathArguments(DockerComposePath, DockerComposeOverridePath),
+                Helper.ConcatFilePathArguments(BackendDockerComposePath, BackendDockerComposeOverridePath),
                 "build"
             );
 
@@ -439,6 +490,14 @@ namespace DockerConductor.ViewModels
             }
 
             File.WriteAllText(OcelotConfigurationPath, OcelotConfig.ToString(Formatting.Indented));
+        }
+
+        private void AdjustDevConfig()
+        {
+            var path = Path.Join(FrontendRepoPath, "src", "assets", "config", "config.dev.json");
+            var text = File.ReadAllText(path, Encoding.UTF8);
+            text = Regex.Replace(text, "http:\\/\\/(.*)\",", "http://localhost\",");
+            File.WriteAllText(path, text, Encoding.UTF8);
         }
     }
 }

@@ -83,8 +83,8 @@ namespace DockerConductor.Helpers
 
         public static void UpdateServiceCheckboxList(MainWindow window)
         {
-            var dockerComposeText         = File.ReadAllText(window.ViewModel.DockerComposePath) ?? throw new InvalidOperationException();
-            var dockerComposeOverrideText = File.ReadAllText(window.ViewModel.DockerComposeOverridePath) ?? throw new InvalidOperationException();
+            var dockerComposeText         = File.ReadAllText(window.ViewModel.BackendDockerComposePath) ?? throw new InvalidOperationException();
+            var dockerComposeOverrideText = File.ReadAllText(window.ViewModel.BackendDockerComposeOverridePath) ?? throw new InvalidOperationException();
             var dockerCompose             = YamlDeserializer.Deserialize<DockerCompose>(dockerComposeText) ?? throw new InvalidOperationException();
             var dockerComposeOverride     = YamlDeserializer.Deserialize<DockerCompose>(dockerComposeOverrideText) ?? throw new InvalidOperationException();
             foreach (var key in dockerComposeOverride.Services.Keys.Where(k => !dockerCompose.Services.ContainsKey(k)))
@@ -212,7 +212,18 @@ namespace DockerConductor.Helpers
             }
         }
 
-        public static async Task<string[]> ShowFileSelection(Window window, string title, string filterName, params string[] filterExtensions)
+        public static async Task<string[]> ShowYamlFileSelection(Window window, string title) => await ShowFileSelection(window, title, "yaml", "yml", "yaml");
+
+        public static async Task<string[]> ShowJsonFileSelection(Window window, string title) => await ShowFileSelection(window, title, "json", "json");
+
+        public static async Task<string> ShowFolderSelection(Window window, string title)
+        {
+            var folderDialog = new OpenFolderDialog { Title = title };
+
+            return await folderDialog.ShowAsync(window);
+        }
+
+        private static async Task<string[]> ShowFileSelection(Window window, string title, string filterName, params string[] filterExtensions)
         {
             var fileDialog = new OpenFileDialog { AllowMultiple = false };
             fileDialog.Filters.Add(
@@ -228,10 +239,6 @@ namespace DockerConductor.Helpers
 
             return files;
         }
-
-        public static async Task<string[]> ShowYamlFileSelection(Window window, string title) => await ShowFileSelection(window, title, "yaml", "yml", "yaml");
-
-        public static async Task<string[]> ShowJsonFileSelection(Window window, string title) => await ShowFileSelection(window, title, "json", "json");
 
         private static bool IsRouteToConsider(JToken r) => !string.IsNullOrWhiteSpace(r["SwaggerKey"]?.ToString())
                                                            && r["DownstreamHostAndPorts"] is JArray downStreams

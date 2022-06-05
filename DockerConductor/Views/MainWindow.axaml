@@ -25,15 +25,25 @@
                         <Button Content="Select usual" Classes="panel-btn" Command="{Binding SelectUsuals}" />
                     </StackPanel>
                 </StackPanel>
-                <Grid Grid.Column="2" Grid.Row="0" ColumnDefinitions="*,*" RowDefinitions="*,*,*,*" VerticalAlignment="Top" Classes="content">
+                <Grid Grid.Column="2" Grid.Row="0" ColumnDefinitions="*,*" RowDefinitions="*,*,*,*,*,*" VerticalAlignment="Top" Classes="content">
+                    <!-- row 1 -->
                     <Button Grid.Column="0" Grid.Row="0" Content="Up" Classes="panel-btn" Command="{Binding DockerComposeUp}" />
                     <Button Grid.Column="1" Grid.Row="0" Content="Down" Classes="panel-btn" Command="{Binding DockerComposeDown}" />
+                    <!-- row 2 -->
                     <Button Grid.Column="0" Grid.Row="1" Content="Start" Classes="panel-btn" Command="{Binding DockerComposeStart}" />
                     <Button Grid.Column="1" Grid.Row="1" Content="Stop" Classes="panel-btn" Command="{Binding DockerComposeStop}" />
+                    <!-- row 3 -->
                     <Button Grid.Column="0" Grid.Row="2" Content="PS" Classes="panel-btn" Command="{Binding DockerPs}" />
                     <Button Grid.Column="1" Grid.Row="2" Content="Build" Classes="panel-btn" Command="{Binding DockerBuildConfirmation}" />
+                    <!-- row 4 -->
                     <Button Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Content="Rm db volume + prune" Classes="panel-btn"
                             Command="{Binding DockerDbResetPrune}" />
+                    <!-- row 5 -->
+                    <Button Grid.Column="0" Grid.Row="4" Content="FE Up" Classes="panel-btn" Command="{Binding FrontendDockerComposeUp}" />
+                    <Button Grid.Column="1" Grid.Row="4" Content="FE Down" Classes="panel-btn" Command="{Binding FrontendDockerComposeDown}" />
+                    <!-- row 6 -->
+                    <Button Grid.Column="0" Grid.Row="5" Content="FE Build" Classes="panel-btn" Command="{Binding FrontendBuild}" />
+                    <Button Grid.Column="1" Grid.Row="5" Content="FE Config" Classes="panel-btn" Command="{Binding FrontendAdjustDevConfig}" />
                 </Grid>
                 <TextBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding ExecutedCommand}" IsReadOnly="True" VerticalAlignment="Top"
                          Classes="content" />
@@ -59,15 +69,16 @@
             <Grid ColumnDefinitions="2*,3*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ShowGridLines="False"
                   HorizontalAlignment="Stretch"
                   Classes="content">
-                <TextBlock Grid.Column="0" Grid.Row="0" Text="Path docker-compose.yml:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding DockerComposePath}" Classes="configuration-cell" />
-                <Button Grid.Column="2" Grid.Row="0" Content="Select..." Classes="configuration-btn"
-                        Command="{Binding OpenDockerComposeFileSelection}" />
 
-                <TextBlock Grid.Column="0" Grid.Row="1" Text="Path docker-compose.override.yml:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding DockerComposeOverridePath}" Classes="configuration-cell" />
+                <TextBlock Grid.Column="0" Grid.Row="0" Text="Path backend repo:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding BackendRepoPath}" Classes="configuration-cell" />
+                <Button Grid.Column="2" Grid.Row="0" Content="Select..." Classes="configuration-btn"
+                        Command="{Binding OpenBackendFolderSelection}" />
+
+                <TextBlock Grid.Column="0" Grid.Row="1" Text="Path frontend repo:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding FrontendRepoPath}" Classes="configuration-cell" />
                 <Button Grid.Column="2" Grid.Row="1" Content="Select..." Classes="configuration-btn"
-                        Command="{Binding OpenDockerComposeOverrideFileSelection}" />
+                        Command="{Binding OpenFrontendFolderSelection}" />
 
                 <TextBlock Grid.Column="0" Grid.Row="2" Text="Path ocelotConfiguration.json:" Classes="configuration-cell" />
                 <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding OcelotConfigurationPath}" Classes="configuration-cell" />

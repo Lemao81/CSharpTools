@@ -49,7 +49,7 @@ namespace DockerConductor
 
                 appConfig.MapInto(mainWindowViewModel);
 
-                if (!string.IsNullOrWhiteSpace(appConfig.DockerComposePath))
+                if (!string.IsNullOrWhiteSpace(appConfig.BackendRepoPath))
                 {
                     Helper.UpdateServiceCheckboxList(mainWindow);
                 }
