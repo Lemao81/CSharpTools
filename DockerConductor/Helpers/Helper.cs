@@ -42,7 +42,7 @@ namespace DockerConductor.Helpers
         {
             if (window.ConsoleOutput is null) return;
 
-            window.ViewModel.ExecutedCommand = Regex.Replace(command, "-f \".*?\"\\s", "");
+            window.ViewModel.ExecutedCommand = command;
             window.ConsoleOutput.Text        = string.Empty;
 
             var startInfo = new ProcessStartInfo("cmd.exe", $"/C {command}")

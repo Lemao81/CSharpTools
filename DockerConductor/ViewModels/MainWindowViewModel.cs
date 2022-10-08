@@ -292,28 +292,26 @@ namespace DockerConductor.ViewModels
             DockerComposeStop = ReactiveCommand.Create(
                 async () =>
                 {
-                    var basicCommand = Helper.ConcatCommand(
+                    var command = Helper.ConcatCommand(
                         Consts.DockerCompose,
                         Helper.ConcatFilePathArguments(BackendDockerComposePath, BackendDockerComposeOverridePath),
                         "stop"
                     );
 
-                    var services = Helper.ExcludeByCommaSeparated(SelectedServiceNames, ExcludesStop).ToList();
-
-                    await Helper.ExecuteCliCommand(Helper.ConcatCommand(basicCommand, services), _window);
+                    await Helper.ExecuteCliCommand(command, _window);
                 }
             );
 
             DockerComposeStart = ReactiveCommand.Create(
                 async () =>
                 {
-                    var basicCommand = Helper.ConcatCommand(
+                    var command = Helper.ConcatCommand(
                         Consts.DockerCompose,
                         Helper.ConcatFilePathArguments(BackendDockerComposePath, BackendDockerComposeOverridePath),
                         "start"
                     );
 
-                    await Helper.ExecuteCliCommand(Helper.ConcatCommand(basicCommand, SelectedServiceNames), _window);
+                    await Helper.ExecuteCliCommand(Helper.ConcatCommand(command), _window);
                 }
             );
 
