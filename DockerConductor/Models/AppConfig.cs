@@ -18,6 +18,7 @@ namespace DockerConductor.Models
         public string              SecondBatchWait         { get; set; } = "10";
         public string              ExcludesStop            { get; set; } = string.Empty;
         public string              DbVolume                { get; set; } = string.Empty;
+        public string              DevServerIp             { get; set; } = string.Empty;
         public IEnumerable<string> LastSelected            { get; set; } = Enumerable.Empty<string>();
 
         public void MapInto(MainWindowViewModel viewModel)
@@ -34,6 +35,7 @@ namespace DockerConductor.Models
             viewModel.SecondBatchWait         = SecondBatchWait;
             viewModel.ExcludesStop            = ExcludesStop;
             viewModel.DbVolume                = DbVolume;
+            viewModel.DevServerIp             = DevServerIp;
             viewModel.LastSelected            = LastSelected;
         }
 
@@ -51,6 +53,7 @@ namespace DockerConductor.Models
             SecondBatchWait         = viewModel.SecondBatchWait;
             ExcludesStop            = viewModel.ExcludesStop;
             DbVolume                = viewModel.DbVolume;
+            DevServerIp             = viewModel.DevServerIp;
             LastSelected            = viewModel.LastSelected;
         }
     }

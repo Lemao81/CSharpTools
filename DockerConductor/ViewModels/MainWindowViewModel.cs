@@ -31,6 +31,7 @@ namespace DockerConductor.ViewModels
         private          int                        _secondBatchWait;
         private          string                     _excludesStop              = string.Empty;
         private          string                     _dbVolume                  = string.Empty;
+        public           string                     _devServerIp               = string.Empty;
         private          string                     _ocelotConfigurationPath   = string.Empty;
         private readonly Dictionary<string, string> _ocelotConfigOrigHostCache = new();
         private          string                     _executedCommand           = string.Empty;
@@ -140,6 +141,12 @@ namespace DockerConductor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _dbVolume, value);
         }
 
+        public string DevServerIp
+        {
+            get => _devServerIp;
+            set => this.RaiseAndSetIfChanged(ref _devServerIp, value);
+        }
+
         public string ExecutedCommand
         {
             get => _executedCommand;
@@ -162,7 +169,8 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Task>? FrontendDockerComposeUp          { get; set; }
         public ReactiveCommand<Unit, Task>? FrontendDockerComposeDown        { get; set; }
         public ReactiveCommand<Unit, Task>? FrontendBuild                    { get; set; }
-        public ReactiveCommand<Unit, Unit>? FrontendAdjustDevConfig          { get; set; }
+        public ReactiveCommand<Unit, Unit>? FrontendAdjustDevConfigLocalhost { get; set; }
+        public ReactiveCommand<Unit, Unit>? FrontendAdjustDevConfigDevServer { get; set; }
         public ReactiveCommand<Unit, Unit>? DeselectAll                      { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectThirdParties               { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectUsuals                     { get; set; }
@@ -380,7 +388,9 @@ namespace DockerConductor.ViewModels
                 }
             );
 
-            FrontendAdjustDevConfig = ReactiveCommand.Create(AdjustDevConfig);
+            FrontendAdjustDevConfigLocalhost = ReactiveCommand.Create(AdjustDevConfigLocalhost);
+
+            FrontendAdjustDevConfigDevServer = ReactiveCommand.Create(AdjustDevConfigDevServer);
 
             FrontendDockerComposeUp = ReactiveCommand.Create(
                 async () =>
@@ -492,11 +502,29 @@ namespace DockerConductor.ViewModels
             File.WriteAllText(OcelotConfigurationPath, OcelotConfig.ToString(Formatting.Indented));
         }
 
-        private void AdjustDevConfig()
+        private void AdjustDevConfigLocalhost() => AdjustDevConfigs("localhost");
+
+        private void AdjustDevConfigDevServer() => AdjustDevConfigs(DevServerIp);
+
+        private void AdjustDevConfigs(string host)
+        {
+            AdjustWebDevConfig(host);
+            AdjustClientInstituteConfig(host);
+        }
+
+        private void AdjustWebDevConfig(string host)
         {
             var path = Path.Join(FrontendRepoPath, "src", "assets", "config", "config.dev.json");
             var text = File.ReadAllText(path, Encoding.UTF8);
-            text = Regex.Replace(text, "http:\\/\\/(.*)\",", "http://localhost\",");
+            text = Regex.Replace(text, "http:\\/\\/(.*)\",", $"http://{host}\",");
+            File.WriteAllText(path, text, Encoding.UTF8);
+        }
+
+        private void AdjustClientInstituteConfig(string host)
+        {
+            var path = Path.Join(FrontendRepoPath, "electron", "config", "system", "config", "institute_config.json");
+            var text = File.ReadAllText(path, Encoding.UTF8);
+            text = Regex.Replace(text, "http:\\/\\/(.*)\",", $"http://{host}\",");
             File.WriteAllText(path, text, Encoding.UTF8);
         }
     }
