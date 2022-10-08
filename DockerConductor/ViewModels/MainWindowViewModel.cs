@@ -171,6 +171,7 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Task>? FrontendBuild                    { get; set; }
         public ReactiveCommand<Unit, Unit>? FrontendAdjustDevConfigLocalhost { get; set; }
         public ReactiveCommand<Unit, Unit>? FrontendAdjustDevConfigDevServer { get; set; }
+        public ReactiveCommand<Unit, Unit>? FrontendRemoveModules            { get; set; }
         public ReactiveCommand<Unit, Unit>? DeselectAll                      { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectThirdParties               { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectUsuals                     { get; set; }
@@ -392,6 +393,8 @@ namespace DockerConductor.ViewModels
 
             FrontendAdjustDevConfigDevServer = ReactiveCommand.Create(AdjustDevConfigDevServer);
 
+            FrontendRemoveModules = ReactiveCommand.Create(RemoveFrontendModulePageFolders);
+
             FrontendDockerComposeUp = ReactiveCommand.Create(
                 async () =>
                 {
@@ -510,6 +513,8 @@ namespace DockerConductor.ViewModels
         {
             AdjustWebDevConfig(host);
             AdjustClientInstituteConfig(host);
+
+            if (_window.ConsoleOutput != null) _window.ConsoleOutput.Text = $"Config files adjusted to host {host}";
         }
 
         private void AdjustWebDevConfig(string host)
@@ -526,6 +531,41 @@ namespace DockerConductor.ViewModels
             var text = File.ReadAllText(path, Encoding.UTF8);
             text = Regex.Replace(text, "http:\\/\\/(.*)\",", $"http://{host}\",");
             File.WriteAllText(path, text, Encoding.UTF8);
+        }
+
+        private void RemoveFrontendModulePageFolders()
+        {
+            RemoveModulePageFolders();
+            AdjustRoutingFile();
+
+            if (_window.ConsoleOutput != null) _window.ConsoleOutput.Text = "Module page folders removed";
+        }
+
+        private void RemoveModulePageFolders()
+        {
+            var noDelete          = new[] { "kneeMRT", "shared" };
+            var moduleFolderPaths = Directory.EnumerateDirectories(Path.Join(FrontendRepoPath, "src", "app", "pages")).Where(p => !noDelete.Any(p.Contains));
+            foreach (var folderPath in moduleFolderPaths)
+            {
+                var di = new DirectoryInfo(folderPath);
+                if (di.Exists)
+                {
+                    di.Delete(true);
+                }
+            }
+        }
+
+        private void AdjustRoutingFile()
+        {
+            var routingFilePath = Path.Join(FrontendRepoPath, "src", "app", "shared", "authorized", "authorized-routing.module.ts");
+            var lines           = File.ReadAllLines(routingFilePath);
+            if (lines.Length < 183) return;
+
+            var newLines = new List<string>();
+            newLines.AddRange(lines.Take(25));
+            newLines.AddRange(lines.Take(37).Skip(33));
+            newLines.AddRange(lines.Skip(117));
+            File.WriteAllLines(routingFilePath, newLines);
         }
     }
 }
