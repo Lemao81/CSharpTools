@@ -7,7 +7,7 @@
     </Application.DataTemplates>
 
     <Application.Styles>
-        <FluentTheme Mode="Light" />
+        <FluentTheme Mode="Dark" />
         <Style Selector="Button.panel-btn">
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
