@@ -12,6 +12,10 @@ using System.Reactive;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Layout;
+using Docker.DotNet;
+using Docker.DotNet.Models;
 using DockerConductor.Constants;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
@@ -37,6 +41,7 @@ namespace DockerConductor.ViewModels
         private          string                     _executedCommand           = string.Empty;
         private          string                     _frontendRepoPath          = string.Empty;
         private          string                     _backendRepoPath           = string.Empty;
+        private          DockerClient               _dockerClient;
 
         public MainWindowViewModel()
         {
@@ -51,6 +56,8 @@ namespace DockerConductor.ViewModels
                                    LastSelected = SelectedServiceNames;
                                    WriteConfig();
                                };
+
+            _dockerClient = new DockerClientConfiguration(new Uri("npipe://./pipe/docker_engine")).CreateClient();
         }
 
         public IEnumerable<string> SelectedServiceNames => _window.ServiceSelectionCheckBoxes.Where(c => c.IsChecked == true)
@@ -176,6 +183,12 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Unit>? SelectThirdParties               { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectUsuals                     { get; set; }
         public ReactiveCommand<Unit, Unit>? ResetOcelotConfig                { get; set; }
+        public ReactiveCommand<Unit, Task>? RefreshDockerContainerPanels     { get; set; }
+
+        public async Task OnContainerTabTappedAsync()
+        {
+            await UpdateDockerContainerPanelList();
+        }
 
         private void InitializeCommands()
         {
@@ -441,6 +454,8 @@ namespace DockerConductor.ViewModels
                 {
                 }
             );
+
+            RefreshDockerContainerPanels = ReactiveCommand.Create(async () => await UpdateDockerContainerPanelList());
         }
 
         private string GetBasicBuildCommand()
@@ -564,6 +579,163 @@ namespace DockerConductor.ViewModels
             newLines.AddRange(lines.Take(37).Skip(33));
             newLines.AddRange(lines.Skip(117));
             File.WriteAllLines(routingFilePath, newLines);
+        }
+
+        private async Task UpdateDockerContainerPanelList()
+        {
+            var containerPanelContainer = _window.DockerContainerPanelContainer ?? throw new InvalidOperationException();
+            containerPanelContainer.Children.Clear();
+            if (_window.DockerApiStatus != null) _window.DockerApiStatus.Text = string.Empty;
+
+            var containersApi = await _dockerClient.Containers.ListContainersAsync(new ContainersListParameters { All = true });
+            var containers = containersApi.Select(
+                                              c => new DockerContainer
+                                              {
+                                                  Id    = c.ID,
+                                                  Name  = c.Names.First().TrimStart('/'),
+                                                  State = c.State
+                                              }
+                                          )
+                                          .OrderBy(c => c.Name)
+                                          .ToList();
+
+            const double nameWidth    = 400.0;
+            const double stateWidth   = 70.0;
+            const double buttonWidth  = 70.0;
+            var          buttonMargin = new Thickness(4, 0, 4, 0);
+            foreach (var container in containers)
+            {
+                var stack = new StackPanel
+                {
+                    Orientation       = Orientation.Horizontal,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin            = new Thickness(4, 8, 8, 4)
+                };
+
+                var nameBlock = new TextBlock
+                {
+                    Text              = container.Name,
+                    Width             = nameWidth,
+                    VerticalAlignment = VerticalAlignment.Center,
+                };
+
+                var stateBlock = new TextBlock
+                {
+                    Text              = container.State,
+                    Width             = stateWidth,
+                    VerticalAlignment = VerticalAlignment.Center,
+                };
+
+                var stopButton = new Button
+                {
+                    Content                    = "Stop",
+                    Width                      = buttonWidth,
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    Margin                     = buttonMargin
+                };
+
+                stopButton.Click += async (_, _) => await ExecuteDockerCommandHandler(
+                                                        () => ExecuteDockerApiCommand(
+                                                            () => _dockerClient.Containers.StopContainerAsync(container.Id, new ContainerStopParameters())
+                                                        ),
+                                                        $"Container {container.Name} stopped"
+                                                    );
+
+                var startButton = new Button
+                {
+                    Content                    = "Start",
+                    Width                      = buttonWidth,
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    Margin                     = buttonMargin
+                };
+
+                startButton.Click += async (_, _) => await ExecuteDockerCommandHandler(
+                                                         () => ExecuteDockerApiCommand(
+                                                             () => _dockerClient.Containers.StartContainerAsync(container.Id, new ContainerStartParameters())
+                                                         ),
+                                                         $"Container {container.Name} started"
+                                                     );
+
+                var restartButton = new Button
+                {
+                    Content                    = "Restart",
+                    Width                      = buttonWidth,
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    Margin                     = buttonMargin
+                };
+
+                restartButton.Click += async (_, _) => await ExecuteDockerCommandHandler(
+                                                           () => ExecuteDockerApiCommand(
+                                                               () => _dockerClient.Containers.RestartContainerAsync(
+                                                                   container.Id,
+                                                                   new ContainerRestartParameters()
+                                                               )
+                                                           ),
+                                                           $"Container {container.Name} restarted"
+                                                       );
+
+                var removeButton = new Button
+                {
+                    Content                    = "Remove",
+                    Width                      = buttonWidth,
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    Margin                     = buttonMargin
+                };
+
+                removeButton.Click += async (_, _) => await ExecuteDockerCommandHandler(
+                                                          () => ExecuteDockerApiCommand(
+                                                              () => _dockerClient.Containers.RemoveContainerAsync(
+                                                                  container.Id,
+                                                                  new ContainerRemoveParameters { Force = true }
+                                                              )
+                                                          ),
+                                                          $"Container {container.Name} removed"
+                                                      );
+
+                stack.Children.AddRange(new Control[] { nameBlock, stateBlock, stopButton, startButton, restartButton, removeButton });
+                containerPanelContainer.Children.Add(stack);
+            }
+        }
+
+        private async Task ExecuteDockerCommandHandler(Func<Task<bool>> action, string successMessage)
+        {
+            var success = await action();
+            if (success)
+            {
+                if (_window.DockerApiStatus != null) _window.DockerApiStatus.Text = successMessage;
+            }
+        }
+
+        private static async Task<bool> ExecuteDockerApiCommand(Func<Task> action)
+        {
+            try
+            {
+                await action();
+
+                return true;
+            }
+            catch (DockerApiException exception)
+            {
+                var message = JObject.Parse(exception.ResponseBody)["message"]?.ToString() ?? exception.ResponseBody;
+                MessageBoxHelper.ShowErrorMessage(message, "Invalid operation");
+
+                return false;
+            }
+        }
+
+        private static async Task<bool> ExecuteDockerApiCommand(Func<Task<bool>> action)
+        {
+            try
+            {
+                return await action();
+            }
+            catch (DockerApiException exception)
+            {
+                var message = JObject.Parse(exception.ResponseBody)["message"]?.ToString() ?? exception.ResponseBody;
+                MessageBoxHelper.ShowErrorMessage(message, "Invalid operation");
+
+                return false;
+            }
         }
     }
 }

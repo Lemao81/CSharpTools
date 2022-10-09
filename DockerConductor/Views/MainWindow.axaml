@@ -14,6 +14,7 @@
     </Design.DataContext>
 
     <TabControl>
+        <!-- Panel -->
         <TabItem Header="Panel" IsSelected="True" VerticalAlignment="Center">
             <Grid ColumnDefinitions="2*,*,*" RowDefinitions="Auto,Auto,*" ShowGridLines="False" Classes="content">
                 <ScrollViewer Grid.Column="0" Grid.Row="0" Grid.RowSpan="3">
@@ -43,10 +44,10 @@
                     <Button Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2" Content="FE remove modules" Classes="panel-btn"
                             Command="{Binding FrontendRemoveModules}" />
                     <!-- row 6 -->
-                    <Button Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2" Content="FE Config localhost" Classes="panel-btn"
+                    <Button Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2" Content="FE config localhost" Classes="panel-btn"
                             Command="{Binding FrontendAdjustDevConfigLocalhost}" />
                     <!-- row 7 -->
-                    <Button Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2" Content="FE Config develop" Classes="panel-btn"
+                    <Button Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2" Content="FE config develop" Classes="panel-btn"
                             Command="{Binding FrontendAdjustDevConfigDevServer}" />
                     <!-- row 8 -->
                     <Button Grid.Column="0" Grid.Row="7" Content="FE Build" Classes="panel-btn" Command="{Binding FrontendBuild}" />
@@ -62,6 +63,7 @@
             </Grid>
         </TabItem>
 
+        <!-- Ocelot -->
         <TabItem Header="Ocelot" IsSelected="False" VerticalAlignment="Center">
             <Grid ColumnDefinitions="*" RowDefinitions="9*,*" Classes="content" ShowGridLines="False">
                 <ScrollViewer Grid.Column="0" Grid.Row="0">
@@ -74,6 +76,7 @@
             </Grid>
         </TabItem>
 
+        <!-- Configuration -->
         <TabItem Header="Configuration" IsSelected="False" VerticalAlignment="Center">
             <Grid ColumnDefinitions="2*,3*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto, Auto" ShowGridLines="False"
                   HorizontalAlignment="Stretch"
@@ -127,6 +130,19 @@
                 <StackPanel Grid.Column="0" Grid.Row="13" Classes="mt-5" Orientation="Horizontal">
                     <Button Content="Save" Classes="configuration-btn" Command="{Binding SaveConfiguration}" />
                 </StackPanel>
+            </Grid>
+        </TabItem>
+
+        <!-- Container -->
+        <TabItem Header="Container" IsSelected="False" VerticalAlignment="Center" Tapped="ContainerTab_OnTapped">
+            <Grid ColumnDefinitions="*" RowDefinitions="Auto,Auto,Auto" ShowGridLines="False" HorizontalAlignment="Stretch" Classes="content">
+                <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal" Classes="content">
+                    <Button Content="Refresh" Command="{Binding RefreshDockerContainerPanels}" Classes="btn" />
+                </StackPanel>
+                <ScrollViewer Grid.Column="0" Grid.Row="1">
+                    <StackPanel Name="DockerContainerPanelContainer" Classes="content" />
+                </ScrollViewer>
+                <TextBlock Grid.Column="0" Grid.Row="2" Name="DockerApiStatus" Margin="8,32,8,8" />
             </Grid>
         </TabItem>
     </TabControl>
