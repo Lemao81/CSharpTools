@@ -42,6 +42,7 @@ namespace DockerConductor.ViewModels
         private          string                     _frontendRepoPath          = string.Empty;
         private          string                     _backendRepoPath           = string.Empty;
         private          DockerClient               _dockerClient;
+        private          Encoding                   _encoding = new UTF8Encoding(false);
 
         public MainWindowViewModel()
         {
@@ -184,6 +185,7 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Unit>? SelectUsuals                     { get; set; }
         public ReactiveCommand<Unit, Unit>? ResetOcelotConfig                { get; set; }
         public ReactiveCommand<Unit, Task>? RefreshDockerContainerPanels     { get; set; }
+        public ReactiveCommand<Unit, Unit>? UnmockVault                      { get; set; }
 
         public async Task OnContainerTabTappedAsync()
         {
@@ -456,6 +458,8 @@ namespace DockerConductor.ViewModels
             );
 
             RefreshDockerContainerPanels = ReactiveCommand.Create(async () => await UpdateDockerContainerPanelList());
+
+            UnmockVault = ReactiveCommand.Create(SetVaultNotMockedEnvVariables);
         }
 
         private string GetBasicBuildCommand()
@@ -533,17 +537,17 @@ namespace DockerConductor.ViewModels
         private void AdjustWebDevConfig(string host)
         {
             var path = Path.Join(FrontendRepoPath, "src", "assets", "config", "config.dev.json");
-            var text = File.ReadAllText(path, Encoding.UTF8);
+            var text = File.ReadAllText(path, _encoding);
             text = Regex.Replace(text, "http:\\/\\/(.*)\",", $"http://{host}\",");
-            File.WriteAllText(path, text, Encoding.UTF8);
+            File.WriteAllText(path, text, _encoding);
         }
 
         private void AdjustClientInstituteConfig(string host)
         {
             var path = Path.Join(FrontendRepoPath, "electron", "config", "system", "config", "institute_config.json");
-            var text = File.ReadAllText(path, Encoding.UTF8);
+            var text = File.ReadAllText(path, _encoding);
             text = Regex.Replace(text, "http:\\/\\/(.*)\",", $"http://{host}\",");
-            File.WriteAllText(path, text, Encoding.UTF8);
+            File.WriteAllText(path, text, _encoding);
         }
 
         private void RemoveFrontendModulePageFolders()
@@ -556,7 +560,7 @@ namespace DockerConductor.ViewModels
 
         private void RemoveModulePageFolders()
         {
-            var noDelete          = new[] { "kneeMRT", "shared" };
+            var noDelete          = new[] { "kneeMRT", "spineMRT", "shared" };
             var moduleFolderPaths = Directory.EnumerateDirectories(Path.Join(FrontendRepoPath, "src", "app", "pages")).Where(p => !noDelete.Any(p.Contains));
             foreach (var folderPath in moduleFolderPaths)
             {
@@ -576,9 +580,18 @@ namespace DockerConductor.ViewModels
 
             var newLines = new List<string>();
             newLines.AddRange(lines.Take(25));
-            newLines.AddRange(lines.Take(37).Skip(33));
+            newLines.AddRange(lines.Take(41).Skip(33));
             newLines.AddRange(lines.Skip(117));
             File.WriteAllLines(routingFilePath, newLines);
+        }
+
+        private void SetVaultNotMockedEnvVariables()
+        {
+            var path = Path.Join(BackendRepoPath, ".env");
+            var text = File.ReadAllText(path, _encoding);
+            text = text.Replace("VAULT_IS_MOCKED=true", "VAULT_IS_MOCKED=false");
+            text = text.Replace("VAULT_IS_VAULTCONFIGOVERRIDE=false", "VAULT_IS_VAULTCONFIGOVERRIDE=true");
+            File.WriteAllText(path, text, _encoding);
         }
 
         private async Task UpdateDockerContainerPanelList()

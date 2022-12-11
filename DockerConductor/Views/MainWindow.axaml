@@ -27,7 +27,7 @@
                         <Button Content="Select usual" Classes="panel-btn" Command="{Binding SelectUsuals}" />
                     </StackPanel>
                 </StackPanel>
-                <Grid Grid.Column="2" Grid.Row="0" ColumnDefinitions="*,*" RowDefinitions="*,*,*,*,*,*,*,*,*" VerticalAlignment="Top" Classes="content">
+                <Grid Grid.Column="2" Grid.Row="0" ColumnDefinitions="*,*" RowDefinitions="*,*,*,*,*,*,*,*,*,*" VerticalAlignment="Top" Classes="content">
                     <!-- row 1 -->
                     <Button Grid.Column="0" Grid.Row="0" Content="Up" Classes="panel-btn" Command="{Binding DockerComposeUp}" />
                     <Button Grid.Column="1" Grid.Row="0" Content="Down" Classes="panel-btn" Command="{Binding DockerComposeDown}" />
@@ -50,10 +50,13 @@
                     <Button Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2" Content="FE config develop" Classes="panel-btn"
                             Command="{Binding FrontendAdjustDevConfigDevServer}" />
                     <!-- row 8 -->
-                    <Button Grid.Column="0" Grid.Row="7" Content="FE Build" Classes="panel-btn" Command="{Binding FrontendBuild}" />
+                    <Button Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2" Content="Unmock vault" Classes="panel-btn"
+                            Command="{Binding UnmockVault}" />
                     <!-- row 9 -->
-                    <Button Grid.Column="0" Grid.Row="8" Content="FE Up" Classes="panel-btn" Command="{Binding FrontendDockerComposeUp}" />
-                    <Button Grid.Column="1" Grid.Row="8" Content="FE Down" Classes="panel-btn" Command="{Binding FrontendDockerComposeDown}" />
+                    <Button Grid.Column="0" Grid.Row="8" Content="FE Build" Classes="panel-btn" Command="{Binding FrontendBuild}" />
+                    <!-- row 10 -->
+                    <Button Grid.Column="0" Grid.Row="9" Content="FE Up" Classes="panel-btn" Command="{Binding FrontendDockerComposeUp}" />
+                    <Button Grid.Column="1" Grid.Row="10" Content="FE Down" Classes="panel-btn" Command="{Binding FrontendDockerComposeDown}" />
                 </Grid>
                 <TextBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding ExecutedCommand}" IsReadOnly="True" VerticalAlignment="Top"
                          Classes="content" />
