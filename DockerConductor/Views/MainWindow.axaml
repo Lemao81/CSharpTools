@@ -38,7 +38,7 @@
                         <Button Grid.Column="0" Grid.Row="1" Content="Stop" Classes="panel-btn" Command="{Binding DockerComposeStop}" />
                         <Button Grid.Column="1" Grid.Row="1" Content="Start" Classes="panel-btn" Command="{Binding DockerComposeStart}" />
                         <Button Grid.Column="0" Grid.Row="2" Content="PS" Classes="panel-btn" Command="{Binding DockerPs}" />
-                        <Button Grid.Column="1" Grid.Row="2" Content="Build" Classes="panel-btn" Command="{Binding DockerBuildConfirmation}" />
+                        <Button Grid.Column="1" Grid.Row="2" Content="Build all" Classes="panel-btn" Command="{Binding DockerBuildAllConfirmation}" />
                         <Button Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Content="Rm db volume + prune" Classes="panel-btn"
                                 Command="{Binding DockerDbResetPrune}" />
                         <Button Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2" Content="Unmock vault" Classes="panel-btn"
@@ -77,8 +77,9 @@
                 </ScrollViewer>
                 <StackPanel Grid.Column="1" Grid.Row="0" Classes="content">
                     <StackPanel Classes="mb-1">
+                        <Button Content="Select all" Classes="panel-btn" Command="{Binding BuildSelectAll}" />
                         <Button Content="Deselect all" Classes="panel-btn" Command="{Binding BuildDeselectAll}" />
-                        <Button Content="Build" Classes="panel-btn" Command="{Binding BackendBuild}" />
+                        <Button Content="Build" Classes="panel-btn" Command="{Binding BackendSelectedBuild}" />
                     </StackPanel>
                 </StackPanel>
             </Grid>

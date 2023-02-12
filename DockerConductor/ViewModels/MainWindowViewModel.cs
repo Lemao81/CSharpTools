@@ -178,15 +178,16 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Task>? DockerComposeBuildOcelot         { get; set; }
         public ReactiveCommand<Unit, Task>? DockerPs                         { get; set; }
         public ReactiveCommand<Unit, Task>? DockerDbResetPrune               { get; set; }
-        public ReactiveCommand<Unit, Task>? DockerBuildConfirmation          { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerBuildAllConfirmation       { get; set; }
         public ReactiveCommand<Unit, Task>? FrontendDockerComposeUp          { get; set; }
         public ReactiveCommand<Unit, Task>? FrontendDockerComposeDown        { get; set; }
-        public ReactiveCommand<Unit, Task>? BackendBuild                     { get; set; }
+        public ReactiveCommand<Unit, Task>? BackendSelectedBuild             { get; set; }
         public ReactiveCommand<Unit, Task>? FrontendBuild                    { get; set; }
         public ReactiveCommand<Unit, Unit>? FrontendAdjustDevConfigLocalhost { get; set; }
         public ReactiveCommand<Unit, Unit>? FrontendAdjustDevConfigDevServer { get; set; }
         public ReactiveCommand<Unit, Unit>? FrontendRemoveModules            { get; set; }
         public ReactiveCommand<Unit, Unit>? DeselectAll                      { get; set; }
+        public ReactiveCommand<Unit, Unit>? BuildSelectAll                   { get; set; }
         public ReactiveCommand<Unit, Unit>? BuildDeselectAll                 { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectThirdParties               { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectUsuals                     { get; set; }
@@ -366,14 +367,14 @@ namespace DockerConductor.ViewModels
                 }
             );
 
-            DockerBuildConfirmation = ReactiveCommand.Create(
+            DockerBuildAllConfirmation = ReactiveCommand.Create(
                 async () =>
                 {
                     var result = await MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
                                                      new MessageBoxStandardParams
                                                      {
                                                          ContentTitle          = "Build",
-                                                         ContentMessage        = "Sure you want to build?",
+                                                         ContentMessage        = "Sure you want to build all?",
                                                          ButtonDefinitions     = ButtonEnum.YesNo,
                                                          WindowStartupLocation = WindowStartupLocation.CenterOwner,
                                                          Icon                  = Icon.Warning
@@ -383,14 +384,18 @@ namespace DockerConductor.ViewModels
 
                     if (result == ButtonResult.Yes)
                     {
-                        var basicCommand = GetBasicBuildCommand(BackendDockerComposePath, BackendDockerComposeOverridePath);
-                        var command      = Helper.ConcatCommand(basicCommand, SelectedServiceNames);
+                        var command = Helper.ConcatCommand(
+                            Consts.DockerCompose,
+                            Helper.ConcatFilePathArguments(BackendDockerComposePath, BackendDockerComposeOverridePath),
+                            "build"
+                        );
+
                         await Helper.ExecuteCliCommand(command, _window);
                     }
                 }
             );
 
-            BackendBuild = ReactiveCommand.Create(
+            BackendSelectedBuild = ReactiveCommand.Create(
                 async () =>
                 {
                     var selectedBuildNames = SelectedBuildNames.ToArray();
@@ -473,6 +478,16 @@ namespace DockerConductor.ViewModels
                     foreach (var button in _window.BuildSelectionToggleButtons)
                     {
                         button.IsChecked = false;
+                    }
+                }
+            );
+
+            BuildSelectAll = ReactiveCommand.Create(
+                () =>
+                {
+                    foreach (var button in _window.BuildSelectionToggleButtons)
+                    {
+                        button.IsChecked = true;
                     }
                 }
             );
