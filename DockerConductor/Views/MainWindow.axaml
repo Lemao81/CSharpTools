@@ -78,6 +78,19 @@
                 </StackPanel>
             </Grid>
         </TabItem>
+        
+        <!-- Container -->
+        <TabItem Header="Container" IsSelected="False" VerticalAlignment="Center" Tapped="ContainerTab_OnTapped">
+            <Grid ColumnDefinitions="*" RowDefinitions="Auto,Auto,Auto" ShowGridLines="False" HorizontalAlignment="Stretch" Classes="content">
+                <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal" Classes="content">
+                    <Button Content="Refresh" Command="{Binding RefreshDockerContainerPanels}" Classes="btn" />
+                </StackPanel>
+                <ScrollViewer Grid.Column="0" Grid.Row="1">
+                    <StackPanel Name="DockerContainerPanelContainer" Classes="content" />
+                </ScrollViewer>
+                <TextBlock Grid.Column="0" Grid.Row="2" Name="DockerApiStatus" Margin="8,32,8,8" />
+            </Grid>
+        </TabItem>
 
         <!-- Configuration -->
         <TabItem Header="Configuration" IsSelected="False" VerticalAlignment="Center">
@@ -133,19 +146,6 @@
                 <StackPanel Grid.Column="0" Grid.Row="13" Classes="mt-5" Orientation="Horizontal">
                     <Button Content="Save" Classes="configuration-btn" Command="{Binding SaveConfiguration}" />
                 </StackPanel>
-            </Grid>
-        </TabItem>
-
-        <!-- Container -->
-        <TabItem Header="Container" IsSelected="False" VerticalAlignment="Center" Tapped="ContainerTab_OnTapped">
-            <Grid ColumnDefinitions="*" RowDefinitions="Auto,Auto,Auto" ShowGridLines="False" HorizontalAlignment="Stretch" Classes="content">
-                <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal" Classes="content">
-                    <Button Content="Refresh" Command="{Binding RefreshDockerContainerPanels}" Classes="btn" />
-                </StackPanel>
-                <ScrollViewer Grid.Column="0" Grid.Row="1">
-                    <StackPanel Name="DockerContainerPanelContainer" Classes="content" />
-                </ScrollViewer>
-                <TextBlock Grid.Column="0" Grid.Row="2" Name="DockerApiStatus" Margin="8,32,8,8" />
             </Grid>
         </TabItem>
     </TabControl>
