@@ -66,6 +66,10 @@ namespace DockerConductor.ViewModels
                                                                   .Select(c => c.Content?.ToString())
                                                                   .Where(s => !string.IsNullOrWhiteSpace(s))!;
 
+        public IEnumerable<string> SelectedBuildNames => _window.BuildSelectionToggleButtons.Where(c => c.IsChecked == true)
+                                                                .Select(c => c.Content?.ToString())
+                                                                .Where(s => !string.IsNullOrWhiteSpace(s))!;
+
         public IEnumerable<string> LastSelected      { get; set; } = Enumerable.Empty<string>();
         public string[]            OcelotConfigLines { get; set; } = Array.Empty<string>();
         public List<OcelotRoute>   OcelotRoutes      { get; }      = new();
@@ -177,11 +181,13 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Task>? DockerBuildConfirmation          { get; set; }
         public ReactiveCommand<Unit, Task>? FrontendDockerComposeUp          { get; set; }
         public ReactiveCommand<Unit, Task>? FrontendDockerComposeDown        { get; set; }
+        public ReactiveCommand<Unit, Task>? BackendBuild                     { get; set; }
         public ReactiveCommand<Unit, Task>? FrontendBuild                    { get; set; }
         public ReactiveCommand<Unit, Unit>? FrontendAdjustDevConfigLocalhost { get; set; }
         public ReactiveCommand<Unit, Unit>? FrontendAdjustDevConfigDevServer { get; set; }
         public ReactiveCommand<Unit, Unit>? FrontendRemoveModules            { get; set; }
         public ReactiveCommand<Unit, Unit>? DeselectAll                      { get; set; }
+        public ReactiveCommand<Unit, Unit>? BuildDeselectAll                 { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectThirdParties               { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectUsuals                     { get; set; }
         public ReactiveCommand<Unit, Task>? ResetOcelotConfig                { get; set; }
@@ -239,7 +245,7 @@ namespace DockerConductor.ViewModels
                     WriteConfig();
                     if (!string.IsNullOrWhiteSpace(BackendDockerComposePath) && !string.IsNullOrWhiteSpace(BackendDockerComposeOverridePath))
                     {
-                        Helper.UpdateServiceCheckboxList(_window);
+                        Helper.UpdateServiceNameLists(_window);
                     }
                 }
             );
@@ -384,6 +390,27 @@ namespace DockerConductor.ViewModels
                 }
             );
 
+            BackendBuild = ReactiveCommand.Create(
+                async () =>
+                {
+                    var selectedBuildNames = SelectedBuildNames.ToArray();
+                    if (!selectedBuildNames.Any()) return;
+
+                    foreach (var button in _window.BuildSelectionToggleButtons)
+                    {
+                        button.IsChecked = false;
+                    }
+
+                    var basicCommand = Helper.ConcatCommand(
+                        Consts.DockerCompose,
+                        Helper.ConcatFilePathArguments(BackendDockerComposePath, BackendDockerComposeOverridePath),
+                        "build"
+                    );
+
+                    await Helper.ExecuteCliCommand(Helper.ConcatCommand(basicCommand, selectedBuildNames), _window);
+                }
+            );
+
             FrontendBuild = ReactiveCommand.Create(
                 async () =>
                 {
@@ -436,6 +463,16 @@ namespace DockerConductor.ViewModels
                     foreach (var checkBox in _window.ServiceSelectionCheckBoxes)
                     {
                         checkBox.IsChecked = false;
+                    }
+                }
+            );
+
+            BuildDeselectAll = ReactiveCommand.Create(
+                () =>
+                {
+                    foreach (var button in _window.BuildSelectionToggleButtons)
+                    {
+                        button.IsChecked = false;
                     }
                 }
             );

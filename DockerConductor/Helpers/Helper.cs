@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
 using Avalonia.Threading;
 using DockerConductor.Models;
@@ -80,7 +81,7 @@ namespace DockerConductor.Helpers
                                                            };
         }
 
-        public static void UpdateServiceCheckboxList(MainWindow window)
+        public static void UpdateServiceNameLists(MainWindow window)
         {
             var dockerComposeText         = File.ReadAllText(window.ViewModel.BackendDockerComposePath) ?? throw new InvalidOperationException();
             var dockerComposeOverrideText = File.ReadAllText(window.ViewModel.BackendDockerComposeOverridePath) ?? throw new InvalidOperationException();
@@ -91,14 +92,27 @@ namespace DockerConductor.Helpers
                 dockerCompose.Services[key] = dockerComposeOverride.Services[key];
             }
 
-            var serviceNames              = ExcludeByCommaSeparated(dockerCompose.Services.Keys, window.ViewModel.Excludes).OrderBy(SortServices);
-            var serviceSelectionContainer = window.ServiceSelectionContainer ?? throw new InvalidOperationException();
+            var serviceNames = ExcludeByCommaSeparated(dockerCompose.Services.Keys, window.ViewModel.Excludes).OrderBy(SortServices);
 
+            var serviceSelectionContainer = window.ServiceSelectionContainer ?? throw new InvalidOperationException();
             serviceSelectionContainer.Children.Clear();
             foreach (var serviceName in serviceNames)
             {
                 var checkBox = new CheckBox { Content = serviceName };
                 serviceSelectionContainer.Children.Add(checkBox);
+            }
+
+            var buildSelectionContainer = window.BuildSelectionContainer ?? throw new InvalidOperationException();
+            buildSelectionContainer.Children.Clear();
+            foreach (var serviceName in serviceNames.Where(BuildSelectionNameFilter))
+            {
+                var button = new ToggleButton
+                {
+                    Content = serviceName,
+                    Classes = new Classes("toggle-btn")
+                };
+
+                buildSelectionContainer.Children.Add(button);
             }
 
             int SortServices(string name)
@@ -115,6 +129,8 @@ namespace DockerConductor.Helpers
 
                 return 6;
             }
+
+            bool BuildSelectionNameFilter(string name) => name.Contains("radioreport") || name.Contains("ocelot");
         }
 
         public static void UpdateOcelotItemList(MainWindow window)

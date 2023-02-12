@@ -51,7 +51,7 @@ namespace DockerConductor
 
                 if (!string.IsNullOrWhiteSpace(appConfig.BackendRepoPath))
                 {
-                    Helper.UpdateServiceCheckboxList(mainWindow);
+                    Helper.UpdateServiceNameLists(mainWindow);
                 }
 
                 if (!string.IsNullOrWhiteSpace(appConfig.OcelotConfigurationPath))

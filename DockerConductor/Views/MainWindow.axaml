@@ -31,7 +31,7 @@
 
                     <!-- Backend -->
                     <TextBlock Grid.Column="0" Grid.Row="0" Text="Backend" Classes="content bold" />
-                    
+
                     <Grid Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" ColumnDefinitions="*,*" RowDefinitions="*,*,*,*,*">
                         <Button Grid.Column="0" Grid.Row="0" Content="Up" Classes="panel-btn" Command="{Binding DockerComposeUp}" />
                         <Button Grid.Column="1" Grid.Row="0" Content="Down" Classes="panel-btn" Command="{Binding DockerComposeDown}" />
@@ -47,7 +47,7 @@
 
                     <!-- Frontend -->
                     <TextBlock Grid.Column="0" Grid.Row="2" Text="Frontend" Classes="content bold" />
-                    
+
                     <Grid Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" ColumnDefinitions="*,*" RowDefinitions="*,*,*,*,*">
                         <Button Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Content="FE remove modules" Classes="panel-btn"
                                 Command="{Binding FrontendRemoveModules}" />
@@ -66,6 +66,21 @@
                 <ScrollViewer Name="ConsoleScrollViewer" HorizontalScrollBarVisibility="Auto" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" Classes="mt-1">
                     <TextBlock Name="ConsoleOutput" TextWrapping="Wrap" FontSize="10" Classes="content" Padding="0,0,32,32" />
                 </ScrollViewer>
+            </Grid>
+        </TabItem>
+
+        <!-- Build -->
+        <TabItem Header="Build" VerticalAlignment="Center">
+            <Grid ColumnDefinitions="3*,2*" RowDefinitions="Auto,Auto" ShowGridLines="False" Classes="content">
+                <ScrollViewer Grid.Column="0" Grid.Row="0" Grid.RowSpan="2">
+                    <StackPanel Name="BuildSelectionContainer" Classes="content" />
+                </ScrollViewer>
+                <StackPanel Grid.Column="1" Grid.Row="0" Classes="content">
+                    <StackPanel Classes="mb-1">
+                        <Button Content="Deselect all" Classes="panel-btn" Command="{Binding BuildDeselectAll}" />
+                        <Button Content="Build" Classes="panel-btn" Command="{Binding BackendBuild}" />
+                    </StackPanel>
+                </StackPanel>
             </Grid>
         </TabItem>
 
