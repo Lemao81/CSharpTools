@@ -77,7 +77,7 @@
                 </ScrollViewer>
                 <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal">
                     <Button Content="Build ocelotapigateway" Classes="btn" Command="{Binding DockerComposeBuildOcelot}" />
-                    <Button Content="Reset" Classes="btn" Command="{Binding ResetOcelotConfig}" />
+                    <Button Content="Reset (+ build)" Classes="btn" Command="{Binding ResetOcelotConfig}" />
                 </StackPanel>
             </Grid>
         </TabItem>

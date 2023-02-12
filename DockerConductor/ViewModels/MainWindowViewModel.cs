@@ -16,10 +16,12 @@ using Avalonia;
 using Avalonia.Layout;
 using Docker.DotNet;
 using Docker.DotNet.Models;
+using DockerConductor.Commands;
 using DockerConductor.Constants;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using Newtonsoft.Json.Linq;
+using static DockerConductor.Helpers.DockerComposeCommandHelper;
 
 namespace DockerConductor.ViewModels
 {
@@ -182,7 +184,7 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Unit>? DeselectAll                      { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectThirdParties               { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectUsuals                     { get; set; }
-        public ReactiveCommand<Unit, Unit>? ResetOcelotConfig                { get; set; }
+        public ReactiveCommand<Unit, Task>? ResetOcelotConfig                { get; set; }
         public ReactiveCommand<Unit, Task>? RefreshDockerContainerPanels     { get; set; }
         public ReactiveCommand<Unit, Unit>? UnmockVault                      { get; set; }
 
@@ -342,15 +344,9 @@ namespace DockerConductor.ViewModels
                 }
             );
 
-            DockerComposeBuildOcelot = ReactiveCommand.Create(
-                async () =>
-                {
-                    SaveOcelot();
-                    var basicCommand = GetBasicBuildCommand();
-                    var command      = Helper.ConcatCommand(basicCommand, "ocelotapigateway");
-                    // await Helper.ExecuteCliCommand(command, _window);
-                }
-            );
+            DockerComposeBuildOcelot = ReactiveCommand.Create(async () => await BuildOcelotCommandExecution.ExecuteAsync(_window));
+
+            ResetOcelotConfig = ReactiveCommand.Create(async () => await ResetOcelotConfigCommandExecution.ExecuteAsync(_window));
 
             DockerPs = ReactiveCommand.Create(async () => await Helper.ExecuteCliCommand(Helper.ConcatCommand("docker", "ps"), _window));
 
@@ -381,7 +377,7 @@ namespace DockerConductor.ViewModels
 
                     if (result == ButtonResult.Yes)
                     {
-                        var basicCommand = GetBasicBuildCommand();
+                        var basicCommand = GetBasicBuildCommand(BackendDockerComposePath, BackendDockerComposeOverridePath);
                         var command      = Helper.ConcatCommand(basicCommand, SelectedServiceNames);
                         await Helper.ExecuteCliCommand(command, _window);
                     }
@@ -450,26 +446,9 @@ namespace DockerConductor.ViewModels
 
             SelectUsuals = ReactiveCommand.Create(() => Helper.SelectMatchingContents(_window.ServiceSelectionCheckBoxes, Helper.SplitCommaSeparated(Usuals)));
 
-            ResetOcelotConfig = ReactiveCommand.Create(
-                () =>
-                {
-                }
-            );
-
             RefreshDockerContainerPanels = ReactiveCommand.Create(async () => await UpdateDockerContainerPanelList());
 
             UnmockVault = ReactiveCommand.Create(SetVaultNotMockedEnvVariables);
-        }
-
-        private string GetBasicBuildCommand()
-        {
-            var basicCommand = Helper.ConcatCommand(
-                Consts.DockerCompose,
-                Helper.ConcatFilePathArguments(BackendDockerComposePath, BackendDockerComposeOverridePath),
-                "build"
-            );
-
-            return basicCommand;
         }
 
         private void WriteConfig()
@@ -478,62 +457,6 @@ namespace DockerConductor.ViewModels
             appConfig.MapFrom(this);
 
             File.WriteAllText(App.ConfigFileName, JsonConvert.SerializeObject(appConfig, Formatting.Indented));
-        }
-
-        private void SaveOcelot()
-        {
-            foreach (var route in OcelotRoutes)
-            {
-                var uiModel = _window.OcelotRouteUis.SingleOrDefault(u => u.Name == route.Name);
-                if (uiModel is null) continue;
-
-                if (uiModel.IsInternalHost)
-                {
-                    if (string.IsNullOrEmpty(route.OrigHost))
-                    {
-                        route.OrigHost = uiModel.OrigHost;
-                    }
-
-                    ReplaceHost(route, Consts.InternalHost);
-                    ReplacePort(route, uiModel.Port);
-                    AlignWebSocketEntryIfExist(uiModel, Consts.InternalHost);
-                }
-                else if (!string.IsNullOrEmpty(route.OrigHost))
-                {
-                    ReplaceHost(route, route.OrigHost);
-                    ReplacePort(route, 80);
-                    AlignWebSocketEntryIfExist(uiModel, route.OrigHost);
-                }
-            }
-
-            File.WriteAllLines(_ocelotConfigurationPath, OcelotConfigLines);
-
-            void ReplaceHost(OcelotRoute route, string host)
-            {
-                route.Host = host;
-                OcelotConfigLines[route.HostIndex] = Regex.Replace(
-                    OcelotConfigLines[route.HostIndex],
-                    RegexHelper.InBetweenRegexPattern(": \"", "\""),
-                    route.Host
-                );
-            }
-
-            void ReplacePort(OcelotRoute route, int port)
-            {
-                route.Port                         = port.ToString();
-                OcelotConfigLines[route.PortIndex] = Regex.Replace(OcelotConfigLines[route.PortIndex], "\\d+", route.Port);
-            }
-
-            void AlignWebSocketEntryIfExist(OcelotRouteUi uiModel, string host)
-            {
-                var webSocketRoute =
-                    OcelotRoutes.FirstOrDefault(r => r.Path.Contains(uiModel.Name, StringComparison.InvariantCultureIgnoreCase) && r.IsWebSocket);
-
-                if (webSocketRoute == null) return;
-
-                ReplaceHost(webSocketRoute, host);
-                ReplacePort(webSocketRoute, uiModel.Port);
-            }
         }
 
         private void AdjustDevConfigLocalhost() => AdjustDevConfigs("localhost");
