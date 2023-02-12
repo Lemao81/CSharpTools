@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
 namespace DockerConductor.Models
 {
     public class OcelotRoute
     {
-        public string                         DownstreamPathTemplate { get; set; } = string.Empty;
-        public string                         DownstreamScheme       { get; set; } = string.Empty;
-        public IEnumerable<OcelotHostAndPort> DownstreamHostAndPorts { get; set; } = Enumerable.Empty<OcelotHostAndPort>();
-        public string                         UpstreamPathTemplate   { get; set; } = string.Empty;
-        public IEnumerable<string>            UpstreamHttpMethod     { get; set; } = Enumerable.Empty<string>();
-        public string                         SwaggerKey             { get; set; } = string.Empty;
+        public string Name      { get; set; }
+        public string Host      { get; set; }
+        public int    HostIndex { get; set; }
+        public string OrigHost  { get; set; }
+        public string Port      { get; set; }
+        public int    PortIndex { get; set; }
+        public string Schema    { get; set; }
+
+        public bool HasSwaggerKey => !string.IsNullOrWhiteSpace(Name);
+        public bool IsWebSocket   => Schema == "ws";
     }
 }

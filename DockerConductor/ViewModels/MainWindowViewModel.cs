@@ -25,24 +25,23 @@ namespace DockerConductor.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private readonly MainWindow                 _window;
-        private          string                     _excludes     = string.Empty;
-        private          string                     _thirdParties = string.Empty;
-        private          string                     _usuals       = string.Empty;
-        private          string                     _firstBatch   = string.Empty;
-        private          int                        _firstBatchWait;
-        private          string                     _secondBatch = string.Empty;
-        private          int                        _secondBatchWait;
-        private          string                     _excludesStop              = string.Empty;
-        private          string                     _dbVolume                  = string.Empty;
-        public           string                     _devServerIp               = string.Empty;
-        private          string                     _ocelotConfigurationPath   = string.Empty;
-        private readonly Dictionary<string, string> _ocelotConfigOrigHostCache = new();
-        private          string                     _executedCommand           = string.Empty;
-        private          string                     _frontendRepoPath          = string.Empty;
-        private          string                     _backendRepoPath           = string.Empty;
-        private          DockerClient               _dockerClient;
-        private          Encoding                   _encoding = new UTF8Encoding(false);
+        private readonly MainWindow   _window;
+        private          string       _excludes     = string.Empty;
+        private          string       _thirdParties = string.Empty;
+        private          string       _usuals       = string.Empty;
+        private          string       _firstBatch   = string.Empty;
+        private          int          _firstBatchWait;
+        private          string       _secondBatch = string.Empty;
+        private          int          _secondBatchWait;
+        private          string       _excludesStop            = string.Empty;
+        private          string       _dbVolume                = string.Empty;
+        public           string       _devServerIp             = string.Empty;
+        private          string       _ocelotConfigurationPath = string.Empty;
+        private          string       _executedCommand         = string.Empty;
+        private          string       _frontendRepoPath        = string.Empty;
+        private          string       _backendRepoPath         = string.Empty;
+        private          DockerClient _dockerClient;
+        private          Encoding     _encoding = new UTF8Encoding(false);
 
         public MainWindowViewModel()
         {
@@ -65,11 +64,9 @@ namespace DockerConductor.ViewModels
                                                                   .Select(c => c.Content?.ToString())
                                                                   .Where(s => !string.IsNullOrWhiteSpace(s))!;
 
-        public IEnumerable<string>    LastSelected       { get; set; } = Enumerable.Empty<string>();
-        public JObject?               OcelotConfig       { get; set; }
-        public string                 OcelotConfigString { get; set; }
-        public string[]               OcelotConfigLines  { get; set; } = Array.Empty<string>();
-        public List<OcelotParseRoute> OcelotParseRoutes  { get; }      = new();
+        public IEnumerable<string> LastSelected      { get; set; } = Enumerable.Empty<string>();
+        public string[]            OcelotConfigLines { get; set; } = Array.Empty<string>();
+        public List<OcelotRoute>   OcelotRoutes      { get; }      = new();
 
         public string BackendRepoPath
         {
@@ -485,7 +482,7 @@ namespace DockerConductor.ViewModels
 
         private void SaveOcelot()
         {
-            foreach (var route in OcelotParseRoutes)
+            foreach (var route in OcelotRoutes)
             {
                 var uiModel = _window.OcelotRouteUis.SingleOrDefault(u => u.Name == route.Name);
                 if (uiModel is null) continue;
@@ -509,7 +506,7 @@ namespace DockerConductor.ViewModels
 
             File.WriteAllLines(_ocelotConfigurationPath, OcelotConfigLines);
 
-            void ReplaceHost(OcelotParseRoute route, string host)
+            void ReplaceHost(OcelotRoute route, string host)
             {
                 route.Host = host;
                 OcelotConfigLines[route.HostIndex] = Regex.Replace(
@@ -519,7 +516,7 @@ namespace DockerConductor.ViewModels
                 );
             }
 
-            void ReplacePort(OcelotParseRoute route, int port)
+            void ReplacePort(OcelotRoute route, int port)
             {
                 route.Port                         = port.ToString();
                 OcelotConfigLines[route.PortIndex] = Regex.Replace(OcelotConfigLines[route.PortIndex], "\\d+", route.Port);

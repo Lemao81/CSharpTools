@@ -12,7 +12,6 @@ using DockerConductor.Models;
 using DockerConductor.Services;
 using DockerConductor.ViewModels;
 using DockerConductor.Views;
-using Newtonsoft.Json.Linq;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -120,19 +119,19 @@ namespace DockerConductor.Helpers
 
         public static void UpdateOcelotItemList(MainWindow window)
         {
-            var ocelotConfigString = File.ReadAllText(window.ViewModel.OcelotConfigurationPath) ?? throw new InvalidOperationException();
-            window.ViewModel.OcelotConfigString = ocelotConfigString;
-            var ocelotConfig = JObject.Parse(ocelotConfigString);
-            window.ViewModel.OcelotConfig = ocelotConfig;
-            var itemsToShow = ocelotConfig["Routes"]?.Where(IsRouteToConsider);
+            window.ViewModel.OcelotConfigLines = File.ReadAllLines(window.ViewModel.OcelotConfigurationPath);
+            window.ViewModel.OcelotRoutes.Clear();
+            var parseRoutes = new OcelotConfigurationParser().Parse(window.ViewModel.OcelotConfigLines);
+            window.ViewModel.OcelotRoutes.AddRange(parseRoutes);
 
-            if (itemsToShow is null) return;
+            var itemsToShow = window.ViewModel.OcelotRoutes.Where(r => r.HasSwaggerKey).Reverse().ToList();
+            if (!itemsToShow.Any()) return;
 
             var ocelotItemsContainer = window.OcelotItemContainer ?? throw new InvalidOperationException();
 
             ocelotItemsContainer.Children.Clear();
             window.OcelotRouteUis.Clear();
-            foreach (var item in itemsToShow.Reverse())
+            foreach (var item in itemsToShow)
             {
                 var itemContainer = new StackPanel
                 {
@@ -140,14 +139,11 @@ namespace DockerConductor.Helpers
                     Margin      = new Thickness(0, 0, 0, 8)
                 };
 
-                var swaggerKey = item["SwaggerKey"]?.ToString();
-                var origHost   = (item["DownstreamHostAndPorts"] as JArray)?.First?["Host"]?.ToString() ?? string.Empty;
-
                 var uiModel = new OcelotRouteUi
                 {
                     NameTextBlock = new TextBlock
                     {
-                        Text              = swaggerKey,
+                        Text              = item.Name,
                         Width             = 200,
                         VerticalAlignment = VerticalAlignment.Center
                     },
@@ -168,7 +164,7 @@ namespace DockerConductor.Helpers
                         Margin  = new Thickness(0, 0, 16, 0)
                     },
                     RadioButton5002 = new RadioButton { Content = "5002" },
-                    OrigHost        = origHost
+                    OrigHost        = item.Host
                 };
 
                 itemContainer.Children.Add(uiModel.NameTextBlock);
@@ -179,10 +175,6 @@ namespace DockerConductor.Helpers
                 ocelotItemsContainer.Children.Add(itemContainer);
                 window.OcelotRouteUis.Add(uiModel);
             }
-
-            window.ViewModel.OcelotConfigLines = File.ReadAllLines(window.ViewModel.OcelotConfigurationPath);
-            window.ViewModel.OcelotParseRoutes.Clear();
-            window.ViewModel.OcelotParseRoutes.AddRange(new OcelotConfigurationParser().Parse(window.ViewModel.OcelotConfigLines));
         }
 
         public static string ConcatCommand(params string[] parts)
@@ -243,10 +235,5 @@ namespace DockerConductor.Helpers
 
             return files;
         }
-
-        private static bool IsRouteToConsider(JToken r) => !string.IsNullOrWhiteSpace(r["SwaggerKey"]?.ToString())
-                                                           && r["DownstreamHostAndPorts"] is JArray downStreams
-                                                           && downStreams.Any()
-                                                           && !string.IsNullOrWhiteSpace(downStreams.First!["Host"]?.ToString());
     }
 }

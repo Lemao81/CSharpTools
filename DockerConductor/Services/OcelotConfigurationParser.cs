@@ -6,13 +6,13 @@ namespace DockerConductor.Services
 {
     public class OcelotConfigurationParser
     {
-        public List<OcelotParseRoute> Parse(string[] lines)
+        public List<OcelotRoute> Parse(string[] lines)
         {
-            var               isRoutes           = false;
-            var               isPendingRoute     = false;
-            var               isPendingSubObject = false;
-            OcelotParseRoute? pendingRoute       = null;
-            var               routes             = new List<OcelotParseRoute>();
+            var          isRoutes           = false;
+            var          isPendingRoute     = false;
+            var          isPendingSubObject = false;
+            OcelotRoute? pendingRoute       = null;
+            var          routes             = new List<OcelotRoute>();
 
             for (var i = 0; i < lines.Length; i++)
             {
@@ -28,7 +28,7 @@ namespace DockerConductor.Services
                 if (!isPendingRoute && IsObjectStart(line))
                 {
                     isPendingRoute = true;
-                    pendingRoute   = new OcelotParseRoute();
+                    pendingRoute   = new OcelotRoute();
                     continue;
                 }
 
