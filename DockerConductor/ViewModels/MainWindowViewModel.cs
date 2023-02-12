@@ -65,9 +65,11 @@ namespace DockerConductor.ViewModels
                                                                   .Select(c => c.Content?.ToString())
                                                                   .Where(s => !string.IsNullOrWhiteSpace(s))!;
 
-        public IEnumerable<string> LastSelected       { get; set; } = Enumerable.Empty<string>();
-        public JObject?            OcelotConfig       { get; set; }
-        public string              OcelotConfigString { get; set; }
+        public IEnumerable<string>    LastSelected       { get; set; } = Enumerable.Empty<string>();
+        public JObject?               OcelotConfig       { get; set; }
+        public string                 OcelotConfigString { get; set; }
+        public string[]               OcelotConfigLines  { get; set; } = Array.Empty<string>();
+        public List<OcelotParseRoute> OcelotParseRoutes  { get; }      = new();
 
         public string BackendRepoPath
         {
@@ -483,43 +485,45 @@ namespace DockerConductor.ViewModels
 
         private void SaveOcelot()
         {
-            if (OcelotConfig?["Routes"] is not JArray routes) return;
-
-            foreach (var routeToken in routes)
+            foreach (var route in OcelotParseRoutes)
             {
-                if (routeToken is not JObject route) return;
-
-                var uiModel = _window.OcelotRouteUis.SingleOrDefault(u => u.Name == route["SwaggerKey"]?.ToString());
+                var uiModel = _window.OcelotRouteUis.SingleOrDefault(u => u.Name == route.Name);
                 if (uiModel is null) continue;
 
-                if (uiModel.IsHost)
+                if (uiModel.IsInternalHost)
                 {
-                    var hostAndPort = (route["DownstreamHostAndPorts"] as JArray)?.FirstOrDefault();
-                    if (hostAndPort is null) continue;
-
-                    if (!_ocelotConfigOrigHostCache.ContainsKey(uiModel.Name))
+                    if (string.IsNullOrEmpty(route.OrigHost))
                     {
-                        _ocelotConfigOrigHostCache[uiModel.Name] = uiModel.OrigHost;
+                        route.OrigHost = uiModel.OrigHost;
                     }
 
-                    // radioreport-angiographymrt-api",\s+"Port": (\d+)
-                    // var hostMatches = new Regex(uiModel.OrigHost).Match(OcelotConfigString);
-                    // var portMatches = new Regex($"{uiModel.OrigHost}\",\\s+\"Port\": (\\d+)").Match(OcelotConfigString);
-                    hostAndPort["Host"] = "host.docker.internal";
-                    hostAndPort["Port"] = uiModel.Port;
+                    ReplaceHost(route, "host.docker.internal");
+                    ReplacePort(route, uiModel.Port);
                 }
-                else if (_ocelotConfigOrigHostCache.ContainsKey(uiModel.Name))
+                else if (!string.IsNullOrEmpty(route.OrigHost))
                 {
-                    var hostAndPort = (route["DownstreamHostAndPorts"] as JArray)?.FirstOrDefault();
-                    if (hostAndPort is null) continue;
-
-                    hostAndPort["Host"] = _ocelotConfigOrigHostCache[uiModel.Name];
-                    hostAndPort["Port"] = 80;
-                    _ocelotConfigOrigHostCache.Remove(uiModel.Name);
+                    ReplaceHost(route, route.OrigHost);
+                    ReplacePort(route, 80);
                 }
             }
 
-            File.WriteAllText(OcelotConfigurationPath, OcelotConfig.ToString(Formatting.Indented));
+            File.WriteAllLines(_ocelotConfigurationPath, OcelotConfigLines);
+
+            void ReplaceHost(OcelotParseRoute route, string host)
+            {
+                route.Host = host;
+                OcelotConfigLines[route.HostIndex] = Regex.Replace(
+                    OcelotConfigLines[route.HostIndex],
+                    RegexHelper.InBetweenRegexPattern(": \"", "\""),
+                    route.Host
+                );
+            }
+
+            void ReplacePort(OcelotParseRoute route, int port)
+            {
+                route.Port                         = port.ToString();
+                OcelotConfigLines[route.PortIndex] = Regex.Replace(OcelotConfigLines[route.PortIndex], "\\d+", route.Port);
+            }
         }
 
         private void AdjustDevConfigLocalhost() => AdjustDevConfigs("localhost");

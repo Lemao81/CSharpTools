@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Threading;
 using DockerConductor.Models;
+using DockerConductor.Services;
 using DockerConductor.ViewModels;
 using DockerConductor.Views;
 using Newtonsoft.Json.Linq;
@@ -179,6 +179,10 @@ namespace DockerConductor.Helpers
                 ocelotItemsContainer.Children.Add(itemContainer);
                 window.OcelotRouteUis.Add(uiModel);
             }
+
+            window.ViewModel.OcelotConfigLines = File.ReadAllLines(window.ViewModel.OcelotConfigurationPath);
+            window.ViewModel.OcelotParseRoutes.Clear();
+            window.ViewModel.OcelotParseRoutes.AddRange(new OcelotConfigurationParser().Parse(window.ViewModel.OcelotConfigLines));
         }
 
         public static string ConcatCommand(params string[] parts)

@@ -21,15 +21,15 @@ namespace DockerConductor.Views
 #endif
         }
 
-        public MainWindowViewModel   ViewModel                     => DataContext as MainWindowViewModel ?? throw new InvalidOperationException();
-        public StackPanel?           ServiceSelectionContainer     { get; set; }
-        public IEnumerable<CheckBox> ServiceSelectionCheckBoxes    => ServiceSelectionContainer?.Children.Cast<CheckBox>() ?? new List<CheckBox>();
-        public TextBlock?            ConsoleOutput                 { get; set; }
-        public ScrollViewer?         ConsoleScrollViewer           { get; set; }
-        public StackPanel?           OcelotItemContainer           { get; set; }
-        public List<OcelotRouteUi>   OcelotRouteUis                { get; } = new();
-        public StackPanel?           DockerContainerPanelContainer { get; set; }
-        public TextBlock?            DockerApiStatus               { get; set; }
+        public MainWindowViewModel    ViewModel                     => DataContext as MainWindowViewModel ?? throw new InvalidOperationException();
+        public StackPanel?            ServiceSelectionContainer     { get; set; }
+        public IEnumerable<CheckBox>  ServiceSelectionCheckBoxes    => ServiceSelectionContainer?.Children.Cast<CheckBox>() ?? new List<CheckBox>();
+        public TextBlock?             ConsoleOutput                 { get; set; }
+        public ScrollViewer?          ConsoleScrollViewer           { get; set; }
+        public StackPanel?            OcelotItemContainer           { get; set; }
+        public List<OcelotRouteUi>    OcelotRouteUis                { get; } = new();
+        public StackPanel?            DockerContainerPanelContainer { get; set; }
+        public TextBlock?             DockerApiStatus               { get; set; }
 
         private void InitializeComponent()
         {

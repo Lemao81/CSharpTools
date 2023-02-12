@@ -12,8 +12,8 @@ namespace DockerConductor.Models
         public RadioButton? RadioButton5002 { get; set; }
         public string       OrigHost        { get; set; } = string.Empty;
 
-        public string Name   => NameTextBlock?.Text ?? string.Empty;
-        public bool   IsHost => RadioButton80?.IsChecked != true;
+        public string Name           => NameTextBlock?.Text ?? string.Empty;
+        public bool   IsInternalHost => RadioButton80?.IsChecked != true;
 
         public int Port
         {
