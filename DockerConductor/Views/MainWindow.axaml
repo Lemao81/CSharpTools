@@ -27,36 +27,39 @@
                         <Button Content="Select usual" Classes="panel-btn" Command="{Binding SelectUsuals}" />
                     </StackPanel>
                 </StackPanel>
-                <Grid Grid.Column="2" Grid.Row="0" ColumnDefinitions="*,*" RowDefinitions="*,*,*,*,*,*,*,*,*,*" VerticalAlignment="Top" Classes="content">
-                    <!-- row 1 -->
-                    <Button Grid.Column="0" Grid.Row="0" Content="Up" Classes="panel-btn" Command="{Binding DockerComposeUp}" />
-                    <Button Grid.Column="1" Grid.Row="0" Content="Down" Classes="panel-btn" Command="{Binding DockerComposeDown}" />
-                    <!-- row 2 -->
-                    <Button Grid.Column="0" Grid.Row="1" Content="Stop" Classes="panel-btn" Command="{Binding DockerComposeStop}" />
-                    <Button Grid.Column="1" Grid.Row="1" Content="Start" Classes="panel-btn" Command="{Binding DockerComposeStart}" />
-                    <!-- row 3 -->
-                    <Button Grid.Column="0" Grid.Row="2" Content="PS" Classes="panel-btn" Command="{Binding DockerPs}" />
-                    <Button Grid.Column="1" Grid.Row="2" Content="Build" Classes="panel-btn" Command="{Binding DockerBuildConfirmation}" />
-                    <!-- row 4 -->
-                    <Button Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Content="Rm db volume + prune" Classes="panel-btn"
-                            Command="{Binding DockerDbResetPrune}" />
-                    <!-- row 5 -->
-                    <Button Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2" Content="FE remove modules" Classes="panel-btn"
-                            Command="{Binding FrontendRemoveModules}" />
-                    <!-- row 6 -->
-                    <Button Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2" Content="FE config localhost" Classes="panel-btn"
-                            Command="{Binding FrontendAdjustDevConfigLocalhost}" />
-                    <!-- row 7 -->
-                    <Button Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2" Content="FE config develop" Classes="panel-btn"
-                            Command="{Binding FrontendAdjustDevConfigDevServer}" />
-                    <!-- row 8 -->
-                    <Button Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2" Content="Unmock vault" Classes="panel-btn"
-                            Command="{Binding UnmockVault}" />
-                    <!-- row 9 -->
-                    <Button Grid.Column="0" Grid.Row="8" Content="FE Build" Classes="panel-btn" Command="{Binding FrontendBuild}" />
-                    <!-- row 10 -->
-                    <Button Grid.Column="0" Grid.Row="9" Content="FE Up" Classes="panel-btn" Command="{Binding FrontendDockerComposeUp}" />
-                    <Button Grid.Column="1" Grid.Row="10" Content="FE Down" Classes="panel-btn" Command="{Binding FrontendDockerComposeDown}" />
+                <Grid Grid.Column="2" Grid.Row="0" ColumnDefinitions="*,*" RowDefinitions="*,*,*,*,*,*,*,*,*,*,*,*" VerticalAlignment="Top" Classes="content">
+
+                    <!-- Backend -->
+                    <TextBlock Grid.Column="0" Grid.Row="0" Text="Backend" Classes="content bold" />
+                    
+                    <Grid Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" ColumnDefinitions="*,*" RowDefinitions="*,*,*,*,*">
+                        <Button Grid.Column="0" Grid.Row="0" Content="Up" Classes="panel-btn" Command="{Binding DockerComposeUp}" />
+                        <Button Grid.Column="1" Grid.Row="0" Content="Down" Classes="panel-btn" Command="{Binding DockerComposeDown}" />
+                        <Button Grid.Column="0" Grid.Row="1" Content="Stop" Classes="panel-btn" Command="{Binding DockerComposeStop}" />
+                        <Button Grid.Column="1" Grid.Row="1" Content="Start" Classes="panel-btn" Command="{Binding DockerComposeStart}" />
+                        <Button Grid.Column="0" Grid.Row="2" Content="PS" Classes="panel-btn" Command="{Binding DockerPs}" />
+                        <Button Grid.Column="1" Grid.Row="2" Content="Build" Classes="panel-btn" Command="{Binding DockerBuildConfirmation}" />
+                        <Button Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Content="Rm db volume + prune" Classes="panel-btn"
+                                Command="{Binding DockerDbResetPrune}" />
+                        <Button Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2" Content="Unmock vault" Classes="panel-btn"
+                                Command="{Binding UnmockVault}" />
+                    </Grid>
+
+                    <!-- Frontend -->
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="Frontend" Classes="content bold" />
+                    
+                    <Grid Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" ColumnDefinitions="*,*" RowDefinitions="*,*,*,*,*">
+                        <Button Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Content="FE remove modules" Classes="panel-btn"
+                                Command="{Binding FrontendRemoveModules}" />
+                        <Button Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Content="FE config localhost" Classes="panel-btn"
+                                Command="{Binding FrontendAdjustDevConfigLocalhost}" />
+                        <Button Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Content="FE config develop" Classes="panel-btn"
+                                Command="{Binding FrontendAdjustDevConfigDevServer}" />
+                        <Button Grid.Column="0" Grid.Row="3" Content="FE Build" Classes="panel-btn" Command="{Binding FrontendBuild}" />
+                        <Button Grid.Column="0" Grid.Row="4" Content="FE Up" Classes="panel-btn" Command="{Binding FrontendDockerComposeUp}" />
+                        <Button Grid.Column="1" Grid.Row="4" Content="FE Down" Classes="panel-btn" Command="{Binding FrontendDockerComposeDown}" />
+                    </Grid>
+
                 </Grid>
                 <TextBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding ExecutedCommand}" IsReadOnly="True" VerticalAlignment="Top"
                          Classes="content" />
@@ -78,7 +81,7 @@
                 </StackPanel>
             </Grid>
         </TabItem>
-        
+
         <!-- Container -->
         <TabItem Header="Container" IsSelected="False" VerticalAlignment="Center" Tapped="ContainerTab_OnTapped">
             <Grid ColumnDefinitions="*" RowDefinitions="Auto,Auto,Auto" ShowGridLines="False" HorizontalAlignment="Stretch" Classes="content">

@@ -589,8 +589,8 @@ namespace DockerConductor.ViewModels
         {
             var path = Path.Join(BackendRepoPath, ".env");
             var text = File.ReadAllText(path, _encoding);
-            text = text.Replace("VAULT_IS_MOCKED=true", "VAULT_IS_MOCKED=false");
-            text = text.Replace("VAULT_IS_VAULTCONFIGOVERRIDE=false", "VAULT_IS_VAULTCONFIGOVERRIDE=true");
+            text = text.Replace("VAULT_IS_MOCKED=\"true\"", "VAULT_IS_MOCKED=\"false\"");
+            text = text.Replace("VAULT_IS_VAULTCONFIGOVERRIDE=\"false\"", "VAULT_IS_VAULTCONFIGOVERRIDE=\"true\"");
             File.WriteAllText(path, text, _encoding);
         }
 
