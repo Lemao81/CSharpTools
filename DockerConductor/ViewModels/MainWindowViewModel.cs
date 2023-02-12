@@ -348,7 +348,7 @@ namespace DockerConductor.ViewModels
                     SaveOcelot();
                     var basicCommand = GetBasicBuildCommand();
                     var command      = Helper.ConcatCommand(basicCommand, "ocelotapigateway");
-                    await Helper.ExecuteCliCommand(command, _window);
+                    // await Helper.ExecuteCliCommand(command, _window);
                 }
             );
 
@@ -494,13 +494,15 @@ namespace DockerConductor.ViewModels
                         route.OrigHost = uiModel.OrigHost;
                     }
 
-                    ReplaceHost(route, "host.docker.internal");
+                    ReplaceHost(route, Consts.InternalHost);
                     ReplacePort(route, uiModel.Port);
+                    AlignWebSocketEntryIfExist(uiModel, Consts.InternalHost);
                 }
                 else if (!string.IsNullOrEmpty(route.OrigHost))
                 {
                     ReplaceHost(route, route.OrigHost);
                     ReplacePort(route, 80);
+                    AlignWebSocketEntryIfExist(uiModel, route.OrigHost);
                 }
             }
 
@@ -520,6 +522,17 @@ namespace DockerConductor.ViewModels
             {
                 route.Port                         = port.ToString();
                 OcelotConfigLines[route.PortIndex] = Regex.Replace(OcelotConfigLines[route.PortIndex], "\\d+", route.Port);
+            }
+
+            void AlignWebSocketEntryIfExist(OcelotRouteUi uiModel, string host)
+            {
+                var webSocketRoute =
+                    OcelotRoutes.FirstOrDefault(r => r.Path.Contains(uiModel.Name, StringComparison.InvariantCultureIgnoreCase) && r.IsWebSocket);
+
+                if (webSocketRoute == null) return;
+
+                ReplaceHost(webSocketRoute, host);
+                ReplacePort(webSocketRoute, uiModel.Port);
             }
         }
 

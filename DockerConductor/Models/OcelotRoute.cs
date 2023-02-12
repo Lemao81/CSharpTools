@@ -9,6 +9,7 @@ namespace DockerConductor.Models
         public string Port      { get; set; }
         public int    PortIndex { get; set; }
         public string Schema    { get; set; }
+        public string Path      { get; set; }
 
         public bool HasSwaggerKey => !string.IsNullOrWhiteSpace(Name);
         public bool IsWebSocket   => Schema == "ws";

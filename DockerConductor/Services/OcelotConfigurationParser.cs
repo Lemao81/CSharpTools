@@ -83,6 +83,12 @@ namespace DockerConductor.Services
                     {
                         pendingRoute.Schema = schemaMatch.Groups[1].Value;
                     }
+
+                    var pathMatch = Regex.Match(line, "\"DownstreamPathTemplate\": \"(.*?)\"");
+                    if (pathMatch.Success)
+                    {
+                        pendingRoute.Path = pathMatch.Groups[1].Value;
+                    }
                 }
             }
 
