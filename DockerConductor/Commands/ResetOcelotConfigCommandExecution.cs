@@ -12,8 +12,8 @@ namespace DockerConductor.Commands
         public static async Task ExecuteAsync(MainWindow window)
         {
             await ResetAndSaveOcelotAsync(window);
-            await ExecuteBuildAsync(window);
             window.OcelotRouteUis.ForEach(ui => ui.RadioButton80.IsChecked = true);
+            await ExecuteBuildAsync(window);
         }
 
         private static async Task ResetAndSaveOcelotAsync(MainWindow window)

@@ -214,13 +214,13 @@ namespace DockerConductor.Helpers
 
         public static IEnumerable<string> SplitCommaSeparated(string str) => str.Split(",").Select(s => s.Trim()).Where(s => !string.IsNullOrWhiteSpace(s));
 
-        public static void SelectMatchingContents(IEnumerable<CheckBox> checkBoxes, IEnumerable<string> strings)
+        public static void SelectMatchingContents(IEnumerable<ToggleButton> toggleButtons, IEnumerable<string> strings)
         {
-            foreach (var checkBox in checkBoxes.Where(
+            foreach (var button in toggleButtons.Where(
                          c => strings.Any(t => c.Content != null && c.Content.ToString()!.Contains(t, StringComparison.InvariantCultureIgnoreCase))
                      ))
             {
-                checkBox.IsChecked = true;
+                button.IsChecked = true;
             }
         }
 

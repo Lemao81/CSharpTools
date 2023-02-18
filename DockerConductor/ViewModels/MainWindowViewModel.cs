@@ -21,7 +21,6 @@ using DockerConductor.Constants;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using Newtonsoft.Json.Linq;
-using static DockerConductor.Helpers.DockerComposeCommandHelper;
 
 namespace DockerConductor.ViewModels
 {
@@ -30,7 +29,8 @@ namespace DockerConductor.ViewModels
         private readonly MainWindow   _window;
         private          string       _excludes     = string.Empty;
         private          string       _thirdParties = string.Empty;
-        private          string       _usuals       = string.Empty;
+        private          string       _startUsuals  = string.Empty;
+        private          string       _buildUsuals  = string.Empty;
         private          string       _firstBatch   = string.Empty;
         private          int          _firstBatchWait;
         private          string       _secondBatch = string.Empty;
@@ -112,10 +112,16 @@ namespace DockerConductor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _thirdParties, value);
         }
 
-        public string Usuals
+        public string StartUsuals
         {
-            get => _usuals;
-            set => this.RaiseAndSetIfChanged(ref _usuals, value);
+            get => _startUsuals;
+            set => this.RaiseAndSetIfChanged(ref _startUsuals, value);
+        }
+
+        public string BuildUsuals
+        {
+            get => _buildUsuals;
+            set => this.RaiseAndSetIfChanged(ref _buildUsuals, value);
         }
 
         public string FirstBatch
@@ -190,7 +196,8 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Unit>? BuildSelectAll                   { get; set; }
         public ReactiveCommand<Unit, Unit>? BuildDeselectAll                 { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectThirdParties               { get; set; }
-        public ReactiveCommand<Unit, Unit>? SelectUsuals                     { get; set; }
+        public ReactiveCommand<Unit, Unit>? SelectStartUsuals                { get; set; }
+        public ReactiveCommand<Unit, Unit>? SelectBuildUsuals                { get; set; }
         public ReactiveCommand<Unit, Task>? ResetOcelotConfig                { get; set; }
         public ReactiveCommand<Unit, Task>? RefreshDockerContainerPanels     { get; set; }
         public ReactiveCommand<Unit, Unit>? UnmockVault                      { get; set; }
@@ -496,7 +503,13 @@ namespace DockerConductor.ViewModels
                 () => Helper.SelectMatchingContents(_window.ServiceSelectionCheckBoxes, Helper.SplitCommaSeparated(ThirdParties))
             );
 
-            SelectUsuals = ReactiveCommand.Create(() => Helper.SelectMatchingContents(_window.ServiceSelectionCheckBoxes, Helper.SplitCommaSeparated(Usuals)));
+            SelectStartUsuals = ReactiveCommand.Create(
+                () => Helper.SelectMatchingContents(_window.ServiceSelectionCheckBoxes, Helper.SplitCommaSeparated(StartUsuals))
+            );
+
+            SelectBuildUsuals = ReactiveCommand.Create(
+                () => Helper.SelectMatchingContents(_window.BuildSelectionToggleButtons, Helper.SplitCommaSeparated(BuildUsuals))
+            );
 
             RefreshDockerContainerPanels = ReactiveCommand.Create(async () => await UpdateDockerContainerPanelList());
 

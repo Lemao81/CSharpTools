@@ -11,7 +11,8 @@ namespace DockerConductor.Models
         public string              OcelotConfigurationPath { get; set; } = string.Empty;
         public string              Excludes                { get; set; } = string.Empty;
         public string              ThirdParties            { get; set; } = string.Empty;
-        public string              Usuals                  { get; set; } = string.Empty;
+        public string              StartUsuals             { get; set; } = string.Empty;
+        public string              BuildUsuals             { get; set; } = string.Empty;
         public string              FirstBatch              { get; set; } = string.Empty;
         public string              FirstBatchWait          { get; set; } = "10";
         public string              SecondBatch             { get; set; } = string.Empty;
@@ -28,7 +29,8 @@ namespace DockerConductor.Models
             viewModel.OcelotConfigurationPath = OcelotConfigurationPath;
             viewModel.Excludes                = Excludes;
             viewModel.ThirdParties            = ThirdParties;
-            viewModel.Usuals                  = Usuals;
+            viewModel.StartUsuals             = StartUsuals;
+            viewModel.BuildUsuals             = BuildUsuals;
             viewModel.FirstBatch              = FirstBatch;
             viewModel.FirstBatchWait          = FirstBatchWait;
             viewModel.SecondBatch             = SecondBatch;
@@ -46,7 +48,8 @@ namespace DockerConductor.Models
             OcelotConfigurationPath = viewModel.OcelotConfigurationPath;
             Excludes                = viewModel.Excludes;
             ThirdParties            = viewModel.ThirdParties;
-            Usuals                  = viewModel.Usuals;
+            StartUsuals             = viewModel.StartUsuals;
+            BuildUsuals             = viewModel.BuildUsuals;
             FirstBatch              = viewModel.FirstBatch;
             FirstBatchWait          = viewModel.FirstBatchWait;
             SecondBatch             = viewModel.SecondBatch;
