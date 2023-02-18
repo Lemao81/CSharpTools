@@ -43,7 +43,7 @@ namespace DockerConductor.Helpers
             if (window.ConsoleOutput is null) return;
 
             window.ViewModel.ExecutedCommand = command;
-            window.ConsoleOutput.Text        = string.Empty;
+            window.ViewModel.ClearOutput();
 
             var startInfo = new ProcessStartInfo("cmd.exe", $"/C {command}")
             {
@@ -73,8 +73,8 @@ namespace DockerConductor.Helpers
                                                                    Dispatcher.UIThread.InvokeAsync(
                                                                        () =>
                                                                        {
-                                                                           window.ConsoleOutput.Text += args.Data + "\n";
-                                                                           window.ConsoleScrollViewer?.ScrollToEnd();
+                                                                           window.ViewModel.AddOutput(args.Data);
+                                                                           window.ConsoleOutput?.ScrollIntoView(window.ViewModel.ConsoleOutputItems.Count - 1);
                                                                        }
                                                                    );
                                                                }

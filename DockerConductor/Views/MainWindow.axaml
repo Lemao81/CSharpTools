@@ -16,7 +16,7 @@
     <TabControl>
         <!-- Panel -->
         <TabItem Header="Panel" IsSelected="True" VerticalAlignment="Center">
-            <Grid ColumnDefinitions="2*,*,*" RowDefinitions="Auto,Auto,*" ShowGridLines="False" Classes="content">
+            <Grid ColumnDefinitions="3*,2*,2*" RowDefinitions="Auto,Auto,*" ShowGridLines="False" Classes="content">
                 <ScrollViewer Grid.Column="0" Grid.Row="0" Grid.RowSpan="3">
                     <StackPanel Name="ServiceSelectionContainer" Classes="content" />
                 </ScrollViewer>
@@ -63,9 +63,18 @@
                 </Grid>
                 <TextBox Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding ExecutedCommand}" IsReadOnly="True" VerticalAlignment="Top"
                          Classes="content" />
-                <ScrollViewer Name="ConsoleScrollViewer" HorizontalScrollBarVisibility="Auto" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" Classes="mt-1">
-                    <TextBlock Name="ConsoleOutput" TextWrapping="Wrap" FontSize="10" Classes="content" Padding="0,0,32,32" />
-                </ScrollViewer>
+                <ListBox Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" Name="ConsoleOutput" Items="{Binding ConsoleOutputItems}" SelectionMode="Single"
+                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         Classes="content console-output-list"
+                         Padding="0,0,32,32">
+                    <ListBox.Styles>
+                        <Style Selector="ListBoxItem">
+                            <Setter Property="Margin" Value="0,0,0,0" />
+                            <Setter Property="Padding" Value="0,0,0,0" />
+                        </Style>
+                    </ListBox.Styles>
+                </ListBox>
             </Grid>
         </TabItem>
 

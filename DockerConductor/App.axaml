@@ -14,7 +14,7 @@
             <Setter Property="Margin" Value="2,0,2,4" />
         </Style>
         <Style Selector="ToggleButton.toggle-btn">
-            <Setter Property="Width" Value="350"/>
+            <Setter Property="Width" Value="350" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
             <Setter Property="Padding" Value="12,8,12,8" />
             <Setter Property="Margin" Value="4,0,4,8" />
@@ -50,8 +50,31 @@
             <Setter Property="Padding" Value="12,8,12,8" />
             <Setter Property="Margin" Value="4,4,4,4" />
         </Style>
+        <Style Selector="ListBox.content">
+            <Setter Property="Margin" Value="8" />
+            <Setter Property="Padding" Value="8" />
+        </Style>
+        <Style Selector="ListBox.console-output-list">
+            <Setter Property="ItemsPanel">
+                <ItemsPanelTemplate>
+                    <StackPanel Classes="console-output-panel" />
+                </ItemsPanelTemplate>
+            </Setter>
+            <Setter Property="ItemTemplate">
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" Classes="console-output-item" />
+                </DataTemplate>
+            </Setter>
+        </Style>
+        <Style Selector="StackPanel.console-output-panel">
+            <Setter Property="Margin" Value="8" />
+        </Style>
+        <Style Selector="TextBlock.console-output-item">
+            <Setter Property="FontSize" Value="13" />
+        </Style>
 
         <!-- margins -->
+        <!-- left top right down -->
         <Style Selector="StackPanel.mb-1">
             <Setter Property="Margin" Value="0,0,0,8" />
         </Style>

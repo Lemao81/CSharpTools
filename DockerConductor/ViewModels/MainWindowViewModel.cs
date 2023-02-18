@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reactive;
@@ -18,6 +19,7 @@ using Docker.DotNet;
 using Docker.DotNet.Models;
 using DockerConductor.Commands;
 using DockerConductor.Constants;
+using DockerConductor.Extensions;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using Newtonsoft.Json.Linq;
@@ -26,24 +28,25 @@ namespace DockerConductor.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private readonly MainWindow   _window;
-        private          string       _excludes     = string.Empty;
-        private          string       _thirdParties = string.Empty;
-        private          string       _startUsuals  = string.Empty;
-        private          string       _buildUsuals  = string.Empty;
-        private          string       _firstBatch   = string.Empty;
-        private          int          _firstBatchWait;
-        private          string       _secondBatch = string.Empty;
-        private          int          _secondBatchWait;
-        private          string       _excludesStop            = string.Empty;
-        private          string       _dbVolume                = string.Empty;
-        public           string       _devServerIp             = string.Empty;
-        private          string       _ocelotConfigurationPath = string.Empty;
-        private          string       _executedCommand         = string.Empty;
-        private          string       _frontendRepoPath        = string.Empty;
-        private          string       _backendRepoPath         = string.Empty;
-        private          DockerClient _dockerClient;
-        private          Encoding     _encoding = new UTF8Encoding(false);
+        private readonly MainWindow                   _window;
+        private          string                       _excludes     = string.Empty;
+        private          string                       _thirdParties = string.Empty;
+        private          string                       _startUsuals  = string.Empty;
+        private          string                       _buildUsuals  = string.Empty;
+        private          string                       _firstBatch   = string.Empty;
+        private          int                          _firstBatchWait;
+        private          string                       _secondBatch = string.Empty;
+        private          int                          _secondBatchWait;
+        private          string                       _excludesStop            = string.Empty;
+        private          string                       _dbVolume                = string.Empty;
+        public           string                       _devServerIp             = string.Empty;
+        private          string                       _ocelotConfigurationPath = string.Empty;
+        private          string                       _executedCommand         = string.Empty;
+        private          string                       _frontendRepoPath        = string.Empty;
+        private          string                       _backendRepoPath         = string.Empty;
+        private          DockerClient                 _dockerClient;
+        private          Encoding                     _encoding           = new UTF8Encoding(false);
+        private          ObservableCollection<string> _consoleOutputItems = new();
 
         public MainWindowViewModel()
         {
@@ -170,6 +173,12 @@ namespace DockerConductor.ViewModels
         {
             get => _executedCommand;
             set => this.RaiseAndSetIfChanged(ref _executedCommand, value);
+        }
+
+        public ObservableCollection<string> ConsoleOutputItems
+        {
+            get => _consoleOutputItems;
+            set => this.RaiseAndSetIfChanged(ref _consoleOutputItems, value);
         }
 
         public ReactiveCommand<Unit, Task>? OpenBackendFolderSelection       { get; set; }
@@ -533,7 +542,7 @@ namespace DockerConductor.ViewModels
             AdjustWebDevConfig(host);
             AdjustClientInstituteConfig(host);
 
-            if (_window.ConsoleOutput != null) _window.ConsoleOutput.Text = $"Config files adjusted to host {host}";
+            _window.ViewModel.SetOutput($"Config files adjusted to host {host}");
         }
 
         private void AdjustWebDevConfig(string host)
@@ -557,7 +566,7 @@ namespace DockerConductor.ViewModels
             RemoveModulePageFolders();
             AdjustRoutingFile();
 
-            if (_window.ConsoleOutput != null) _window.ConsoleOutput.Text = "Module page folders removed";
+            _window.ViewModel.SetOutput("Module page folders removed");
         }
 
         private void RemoveModulePageFolders()
@@ -751,6 +760,19 @@ namespace DockerConductor.ViewModels
 
                 return false;
             }
+        }
+
+        public void ClearOutput() => ConsoleOutputItems.Clear();
+
+        public void SetOutput(string text)
+        {
+            ClearOutput();
+            AddOutput(text);
+        }
+
+        public void AddOutput(string text)
+        {
+            ConsoleOutputItems.Add(text);
         }
     }
 }
