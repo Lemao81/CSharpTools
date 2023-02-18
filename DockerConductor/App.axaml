@@ -28,11 +28,19 @@
         <Style Selector="TextBlock.content">
             <Setter Property="Margin" Value="8" />
         </Style>
+        <Style Selector="TextBlock.content-command-label">
+            <Setter Property="Margin" Value="8,8,8,0" />
+        </Style>
         <Style Selector="TextBlock.bold">
             <Setter Property="FontWeight" Value="700" />
         </Style>
         <Style Selector="TextBox.content">
             <Setter Property="Margin" Value="8" />
+        </Style>
+        <Style Selector="TextBox.content-command">
+            <Setter Property="Margin" Value="4,4,4,8" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Padding" Value="4" />
         </Style>
         <Style Selector="TextBlock.configuration-cell">
             <Setter Property="VerticalAlignment" Value="Center" />
@@ -51,7 +59,7 @@
             <Setter Property="Margin" Value="4,4,4,4" />
         </Style>
         <Style Selector="ListBox.content">
-            <Setter Property="Margin" Value="8" />
+            <Setter Property="Margin" Value="4" />
             <Setter Property="Padding" Value="8" />
         </Style>
         <Style Selector="ListBox.console-output-list">
