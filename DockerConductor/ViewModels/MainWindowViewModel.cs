@@ -19,7 +19,6 @@ using Docker.DotNet;
 using Docker.DotNet.Models;
 using DockerConductor.Commands;
 using DockerConductor.Constants;
-using DockerConductor.Extensions;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using Newtonsoft.Json.Linq;
@@ -211,10 +210,17 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Task>? RefreshDockerContainerPanels     { get; set; }
         public ReactiveCommand<Unit, Unit>? UnmockVault                      { get; set; }
 
-        public async Task OnContainerTabTappedAsync()
+        public async Task OnContainerTabTappedAsync() => await UpdateDockerContainerPanelList();
+
+        public void ClearOutput() => ConsoleOutputItems.Clear();
+
+        public void SetOutput(string text)
         {
-            await UpdateDockerContainerPanelList();
+            ClearOutput();
+            AddOutput(text);
         }
+
+        public void AddOutput(string text) => ConsoleOutputItems.Add(text);
 
         private void InitializeCommands()
         {
@@ -760,19 +766,6 @@ namespace DockerConductor.ViewModels
 
                 return false;
             }
-        }
-
-        public void ClearOutput() => ConsoleOutputItems.Clear();
-
-        public void SetOutput(string text)
-        {
-            ClearOutput();
-            AddOutput(text);
-        }
-
-        public void AddOutput(string text)
-        {
-            ConsoleOutputItems.Add(text);
         }
     }
 }

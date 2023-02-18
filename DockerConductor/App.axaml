@@ -65,7 +65,7 @@
         <Style Selector="ListBox.console-output-list">
             <Setter Property="ItemsPanel">
                 <ItemsPanelTemplate>
-                    <StackPanel Classes="console-output-panel" />
+                    <VirtualizingStackPanel Classes="console-output-panel" />
                 </ItemsPanelTemplate>
             </Setter>
             <Setter Property="ItemTemplate">
@@ -74,7 +74,7 @@
                 </DataTemplate>
             </Setter>
         </Style>
-        <Style Selector="StackPanel.console-output-panel">
+        <Style Selector="VirtualizingStackPanel.console-output-panel">
             <Setter Property="Margin" Value="8" />
         </Style>
         <Style Selector="TextBlock.console-output-item">

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -64,19 +65,15 @@ namespace DockerConductor.Helpers
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
             await process.WaitForExitAsync();
+            await DispatchConsoleOutput(window, " ----- BUILD FINISHED ----- ");
+
             process.Close();
 
-            DataReceivedEventHandler OnOutputReceived() => (_, args) =>
+            DataReceivedEventHandler OnOutputReceived() => async (_, args) =>
                                                            {
                                                                if (args.Data != null)
                                                                {
-                                                                   Dispatcher.UIThread.InvokeAsync(
-                                                                       () =>
-                                                                       {
-                                                                           window.ViewModel.AddOutput(args.Data);
-                                                                           window.ConsoleOutput?.ScrollIntoView(window.ViewModel.ConsoleOutputItems.Count - 1);
-                                                                       }
-                                                                   );
+                                                                   await DispatchConsoleOutput(window, args.Data);
                                                                }
                                                            };
         }
@@ -250,6 +247,21 @@ namespace DockerConductor.Helpers
             var files = await fileDialog.ShowAsync(window);
 
             return files;
+        }
+
+        private static async Task DispatchConsoleOutput(MainWindow window, params string[] texts)
+        {
+            await Dispatcher.UIThread.InvokeAsync(
+                () =>
+                {
+                    foreach (var text in texts)
+                    {
+                        window.ViewModel.AddOutput(text);
+                    }
+
+                    window.ConsoleOutput?.ScrollIntoView(((ObservableCollection<string>)window.ConsoleOutput.Items).Last());
+                }
+            );
         }
     }
 }
