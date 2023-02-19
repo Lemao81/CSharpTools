@@ -32,6 +32,7 @@ namespace DockerConductor.Views
         public List<OcelotRouteUi>       OcelotRouteUis                { get; } = new();
         public StackPanel?               DockerContainerPanelContainer { get; set; }
         public TextBlock?                DockerApiStatus               { get; set; }
+        public TabControl?               TabControl                    { get; set; }
 
         private void InitializeComponent()
         {
@@ -43,6 +44,7 @@ namespace DockerConductor.Views
             OcelotItemContainer           = this.Find<StackPanel>("OcelotItemContainer");
             DockerContainerPanelContainer = this.Find<StackPanel>("DockerContainerPanelContainer");
             DockerApiStatus               = this.Find<TextBlock>("DockerApiStatus");
+            TabControl                    = this.Find<TabControl>("TabControl");
         }
 
         private void ContainerTab_OnTapped(object? _, RoutedEventArgs __) => Dispatcher.UIThread.InvokeAsync(() => ViewModel.OnContainerTabTappedAsync());

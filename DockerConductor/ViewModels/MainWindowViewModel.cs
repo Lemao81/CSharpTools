@@ -19,6 +19,7 @@ using Docker.DotNet;
 using Docker.DotNet.Models;
 using DockerConductor.Commands;
 using DockerConductor.Constants;
+using DockerConductor.Extensions;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 using Newtonsoft.Json.Linq;
@@ -425,7 +426,7 @@ namespace DockerConductor.ViewModels
 
                     foreach (var button in _window.BuildSelectionToggleButtons)
                     {
-                        button.IsChecked = false;
+                        button.UnCheck();
                     }
 
                     var basicCommand = Helper.ConcatCommand(
@@ -499,7 +500,7 @@ namespace DockerConductor.ViewModels
                 {
                     foreach (var button in _window.BuildSelectionToggleButtons)
                     {
-                        button.IsChecked = false;
+                        button.UnCheck();
                     }
                 }
             );
@@ -509,7 +510,7 @@ namespace DockerConductor.ViewModels
                 {
                     foreach (var button in _window.BuildSelectionToggleButtons)
                     {
-                        button.IsChecked = true;
+                        button.Check();
                     }
                 }
             );

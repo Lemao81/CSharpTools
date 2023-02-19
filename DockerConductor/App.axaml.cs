@@ -3,6 +3,7 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using DockerConductor.Extensions;
 using DockerConductor.Helpers;
 using DockerConductor.Models;
 using DockerConductor.ViewModels;
@@ -63,7 +64,7 @@ namespace DockerConductor
                 {
                     foreach (var checkBox in mainWindow.ServiceSelectionCheckBoxes.Where(c => appConfig.LastSelected.Contains(c.Content.ToString())))
                     {
-                        checkBox.IsChecked = true;
+                        checkBox.Check();
                     }
                 }
             }

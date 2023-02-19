@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DockerConductor.Constants;
+using DockerConductor.Extensions;
 using DockerConductor.Helpers;
 using DockerConductor.Models;
 using DockerConductor.Views;
@@ -15,6 +16,7 @@ namespace DockerConductor.Commands
         public static async Task ExecuteAsync(MainWindow window)
         {
             await ReplaceAndSaveOcelotAsync(window);
+            window.TabControl.SwitchToTab(TabItemIndex.Panel);
             await ExecuteBuildAsync(window);
         }
 

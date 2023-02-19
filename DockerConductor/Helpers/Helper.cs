@@ -10,6 +10,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
 using Avalonia.Threading;
+using DockerConductor.Extensions;
 using DockerConductor.Models;
 using DockerConductor.Services;
 using DockerConductor.ViewModels;
@@ -217,7 +218,7 @@ namespace DockerConductor.Helpers
                          c => strings.Any(t => c.Content != null && c.Content.ToString()!.Contains(t, StringComparison.InvariantCultureIgnoreCase))
                      ))
             {
-                button.IsChecked = true;
+                button.Check();
             }
         }
 
