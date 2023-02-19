@@ -40,7 +40,7 @@ namespace DockerConductor.Helpers
             return strings.Where(s => filters.Any(f => f.Contains(s, StringComparison.InvariantCultureIgnoreCase)));
         }
 
-        public static async Task ExecuteCliCommand(string command, MainWindow window)
+        public static async Task ExecuteCliCommandAsync(string command, MainWindow window, bool showFinishedHint = true)
         {
             if (window.ConsoleOutput is null) return;
 
@@ -66,7 +66,10 @@ namespace DockerConductor.Helpers
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
             await process.WaitForExitAsync();
-            await DispatchConsoleOutput(window, " ----- BUILD FINISHED ----- ");
+            if (showFinishedHint)
+            {
+                await DispatchConsoleOutput(window, " ----- OPERATION FINISHED ----- ");
+            }
 
             process.Close();
 

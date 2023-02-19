@@ -9,9 +9,11 @@ using static DockerConductor.Helpers.DockerComposeCommandHelper;
 
 namespace DockerConductor.Commands
 {
-    public static class ResetOcelotConfigCommandExecution
+    public class ResetOcelotConfigCommandExecution : CommandExecutionBase
     {
-        public static async Task ExecuteAsync(MainWindow window)
+        public static ResetOcelotConfigCommandExecution Instance = new();
+
+        protected override async Task DoExecuteAsync(MainWindow window)
         {
             await ResetAndSaveOcelotAsync(window);
             window.OcelotRouteUis.ForEach(ui => ui.RadioButton80.Check());
@@ -40,7 +42,7 @@ namespace DockerConductor.Commands
         {
             var basicCommand = GetBasicBuildCommand(window.ViewModel.BackendDockerComposePath, window.ViewModel.BackendDockerComposeOverridePath);
             var command      = Helper.ConcatCommand(basicCommand, "ocelotapigateway");
-            await Helper.ExecuteCliCommand(command, window);
+            await Helper.ExecuteCliCommandAsync(command, window);
         }
     }
 }

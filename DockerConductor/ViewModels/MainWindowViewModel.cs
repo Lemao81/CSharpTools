@@ -223,6 +223,18 @@ namespace DockerConductor.ViewModels
 
         public void AddOutput(string text) => ConsoleOutputItems.Add(text);
 
+        public void SwitchBusy()
+        {
+            _window.PanelBusyBeacon?.SwitchBusy();
+            _window.BuildBusyBeacon?.SwitchBusy();
+        }
+
+        public void SwitchIdle()
+        {
+            _window.PanelBusyBeacon?.SwitchIdle();
+            _window.BuildBusyBeacon?.SwitchIdle();
+        }
+
         private void InitializeCommands()
         {
             OpenBackendFolderSelection = ReactiveCommand.Create(
@@ -294,7 +306,7 @@ namespace DockerConductor.ViewModels
                     if (firstBatch.Any())
                     {
                         var firstBatchCommand = Helper.ConcatCommand(basicCommand, firstBatch);
-                        await Helper.ExecuteCliCommand(firstBatchCommand, _window);
+                        await Helper.ExecuteCliCommandAsync(firstBatchCommand, _window);
 
                         if (secondBatch.Any() || rest.Any())
                         {
@@ -305,7 +317,7 @@ namespace DockerConductor.ViewModels
                     if (secondBatch.Any())
                     {
                         var secondBatchCommand = Helper.ConcatCommand(basicCommand, secondBatch);
-                        await Helper.ExecuteCliCommand(secondBatchCommand, _window);
+                        await Helper.ExecuteCliCommandAsync(secondBatchCommand, _window);
 
                         if (rest.Any())
                         {
@@ -316,24 +328,11 @@ namespace DockerConductor.ViewModels
                     if (!rest.Any()) return;
 
                     var command = Helper.ConcatCommand(basicCommand, rest);
-                    await Helper.ExecuteCliCommand(command, _window);
+                    await Helper.ExecuteCliCommandAsync(command, _window);
                 }
             );
 
-            DockerComposeUp = ReactiveCommand.Create(
-                async () =>
-                {
-                    var basicCommand = Helper.ConcatCommand(
-                        Consts.DockerCompose,
-                        Helper.ConcatFilePathArguments(BackendDockerComposePath, BackendDockerComposeOverridePath),
-                        "up",
-                        "-d",
-                        "--no-deps"
-                    );
-
-                    await Helper.ExecuteCliCommand(Helper.ConcatCommand(basicCommand, SelectedServiceNames), _window);
-                }
-            );
+            DockerComposeUp = ReactiveCommand.Create(async () => await DockerComposeUpCommandExecution.Instance.ExecuteAsync(_window));
 
             DockerComposeStop = ReactiveCommand.Create(
                 async () =>
@@ -344,7 +343,7 @@ namespace DockerConductor.ViewModels
                         "stop"
                     );
 
-                    await Helper.ExecuteCliCommand(command, _window);
+                    await Helper.ExecuteCliCommandAsync(command, _window);
                 }
             );
 
@@ -357,38 +356,15 @@ namespace DockerConductor.ViewModels
                         "start"
                     );
 
-                    await Helper.ExecuteCliCommand(Helper.ConcatCommand(command), _window);
+                    await Helper.ExecuteCliCommandAsync(Helper.ConcatCommand(command), _window);
                 }
             );
 
-            DockerComposeDown = ReactiveCommand.Create(
-                async () =>
-                {
-                    var command = Helper.ConcatCommand(
-                        Consts.DockerCompose,
-                        Helper.ConcatFilePathArguments(BackendDockerComposePath, BackendDockerComposeOverridePath),
-                        "down"
-                    );
-
-                    await Helper.ExecuteCliCommand(command, _window);
-                }
-            );
-
-            DockerComposeBuildOcelot = ReactiveCommand.Create(async () => await BuildOcelotCommandExecution.ExecuteAsync(_window));
-
-            ResetOcelotConfig = ReactiveCommand.Create(async () => await ResetOcelotConfigCommandExecution.ExecuteAsync(_window));
-
-            DockerPs = ReactiveCommand.Create(async () => await Helper.ExecuteCliCommand(Helper.ConcatCommand("docker", "ps"), _window));
-
-            DockerDbResetPrune = ReactiveCommand.Create(
-                async () =>
-                {
-                    if (string.IsNullOrWhiteSpace(DbVolume)) return;
-
-                    var command = $"docker volume rm {DbVolume} && docker system prune -f";
-                    await Helper.ExecuteCliCommand(command, _window);
-                }
-            );
+            DockerComposeDown = ReactiveCommand.Create(async () => await DockerComposeDownCommandExecution.Instance.ExecuteAsync(_window));
+            DockerComposeBuildOcelot = ReactiveCommand.Create(async () => await BuildOcelotCommandExecution.Instance.ExecuteAsync(_window));
+            ResetOcelotConfig = ReactiveCommand.Create(async () => await ResetOcelotConfigCommandExecution.Instance.ExecuteAsync(_window));
+            DockerPs = ReactiveCommand.Create(async () => await Helper.ExecuteCliCommandAsync(Helper.ConcatCommand("docker", "ps"), _window, false));
+            DockerDbResetPrune = ReactiveCommand.Create(async () => await DockerDbResetPruneCommandExecution.Instance.ExecuteAsync(_window));
 
             DockerBuildAllConfirmation = ReactiveCommand.Create(
                 async () =>
@@ -407,37 +383,12 @@ namespace DockerConductor.ViewModels
 
                     if (result == ButtonResult.Yes)
                     {
-                        var command = Helper.ConcatCommand(
-                            Consts.DockerCompose,
-                            Helper.ConcatFilePathArguments(BackendDockerComposePath, BackendDockerComposeOverridePath),
-                            "build"
-                        );
-
-                        await Helper.ExecuteCliCommand(command, _window);
+                        await DockerBuildAllCommandExecution.Instance.ExecuteAsync(_window);
                     }
                 }
             );
 
-            BackendSelectedBuild = ReactiveCommand.Create(
-                async () =>
-                {
-                    var selectedBuildNames = SelectedBuildNames.ToArray();
-                    if (!selectedBuildNames.Any()) return;
-
-                    foreach (var button in _window.BuildSelectionToggleButtons)
-                    {
-                        button.UnCheck();
-                    }
-
-                    var basicCommand = Helper.ConcatCommand(
-                        Consts.DockerCompose,
-                        Helper.ConcatFilePathArguments(BackendDockerComposePath, BackendDockerComposeOverridePath),
-                        "build"
-                    );
-
-                    await Helper.ExecuteCliCommand(Helper.ConcatCommand(basicCommand, selectedBuildNames), _window);
-                }
-            );
+            BackendSelectedBuild = ReactiveCommand.Create(async () => await BackendSelectedBuildCommandExecution.Instance.ExecuteAsync(_window));
 
             FrontendBuild = ReactiveCommand.Create(
                 async () =>
@@ -448,15 +399,13 @@ namespace DockerConductor.ViewModels
                         "build"
                     );
 
-                    await Helper.ExecuteCliCommand(command, _window);
+                    await Helper.ExecuteCliCommandAsync(command, _window);
                 }
             );
 
             FrontendAdjustDevConfigLocalhost = ReactiveCommand.Create(AdjustDevConfigLocalhost);
-
             FrontendAdjustDevConfigDevServer = ReactiveCommand.Create(AdjustDevConfigDevServer);
-
-            FrontendRemoveModules = ReactiveCommand.Create(RemoveFrontendModulePageFolders);
+            FrontendRemoveModules            = ReactiveCommand.Create(RemoveFrontendModulePageFolders);
 
             FrontendDockerComposeUp = ReactiveCommand.Create(
                 async () =>
@@ -468,7 +417,7 @@ namespace DockerConductor.ViewModels
                         "-d"
                     );
 
-                    await Helper.ExecuteCliCommand(command, _window);
+                    await Helper.ExecuteCliCommandAsync(command, _window);
                 }
             );
 
@@ -481,7 +430,7 @@ namespace DockerConductor.ViewModels
                         "down"
                     );
 
-                    await Helper.ExecuteCliCommand(command, _window);
+                    await Helper.ExecuteCliCommandAsync(command, _window);
                 }
             );
 

@@ -7,6 +7,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using DockerConductor.CustomViews;
 using DockerConductor.Models;
 using DockerConductor.ViewModels;
 
@@ -33,6 +34,8 @@ namespace DockerConductor.Views
         public StackPanel?               DockerContainerPanelContainer { get; set; }
         public TextBlock?                DockerApiStatus               { get; set; }
         public TabControl?               TabControl                    { get; set; }
+        public BusyBeacon?               PanelBusyBeacon               { get; set; }
+        public BusyBeacon?               BuildBusyBeacon               { get; set; }
 
         private void InitializeComponent()
         {
@@ -45,6 +48,8 @@ namespace DockerConductor.Views
             DockerContainerPanelContainer = this.Find<StackPanel>("DockerContainerPanelContainer");
             DockerApiStatus               = this.Find<TextBlock>("DockerApiStatus");
             TabControl                    = this.Find<TabControl>("TabControl");
+            PanelBusyBeacon               = this.Find<BusyBeacon>("PanelBusyBeacon");
+            BuildBusyBeacon               = this.Find<BusyBeacon>("BuildBusyBeacon");
         }
 
         private void ContainerTab_OnTapped(object? _, RoutedEventArgs __) => Dispatcher.UIThread.InvokeAsync(() => ViewModel.OnContainerTabTappedAsync());

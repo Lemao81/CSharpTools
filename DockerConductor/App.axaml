@@ -1,6 +1,7 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:DockerConductor"
+             xmlns:customViews="clr-namespace:DockerConductor.CustomViews"
              x:Class="DockerConductor.App">
     <Application.DataTemplates>
         <local:ViewLocator />
@@ -8,47 +9,11 @@
 
     <Application.Styles>
         <FluentTheme Mode="Dark" />
+        <!-- Button -->
         <Style Selector="Button.panel-btn">
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
             <Setter Property="Margin" Value="2,0,2,4" />
-        </Style>
-        <Style Selector="ToggleButton.toggle-btn">
-            <Setter Property="Width" Value="350" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="Padding" Value="12,8,12,8" />
-            <Setter Property="Margin" Value="4,0,4,8" />
-        </Style>
-        <Style Selector="Grid.content">
-            <Setter Property="Margin" Value="8" />
-        </Style>
-        <Style Selector="StackPanel.content">
-            <Setter Property="Margin" Value="8" />
-        </Style>
-        <Style Selector="TextBlock.content">
-            <Setter Property="Margin" Value="8" />
-        </Style>
-        <Style Selector="TextBlock.content-command-label">
-            <Setter Property="Margin" Value="8,8,8,0" />
-        </Style>
-        <Style Selector="TextBlock.bold">
-            <Setter Property="FontWeight" Value="700" />
-        </Style>
-        <Style Selector="TextBox.content">
-            <Setter Property="Margin" Value="8" />
-        </Style>
-        <Style Selector="TextBox.content-command">
-            <Setter Property="Margin" Value="4,4,4,8" />
-            <Setter Property="FontSize" Value="11" />
-            <Setter Property="Padding" Value="4" />
-        </Style>
-        <Style Selector="TextBlock.configuration-cell">
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="Margin" Value="4,8,4,4" />
-        </Style>
-        <Style Selector="TextBox.configuration-cell">
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="Margin" Value="4,8,4,4" />
         </Style>
         <Style Selector="Button.configuration-btn">
             <Setter Property="Padding" Value="12,8,12,8" />
@@ -58,6 +23,62 @@
             <Setter Property="Padding" Value="12,8,12,8" />
             <Setter Property="Margin" Value="4,4,4,4" />
         </Style>
+        <!-- TextBox -->
+        <Style Selector="TextBox.content">
+            <Setter Property="Margin" Value="8" />
+        </Style>
+        <Style Selector="TextBox.content-command">
+            <Setter Property="Margin" Value="4,4,4,8" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Padding" Value="4" />
+        </Style>
+        <Style Selector="TextBox.configuration-cell">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="4,8,4,4" />
+        </Style>
+        <!-- TextBlock -->
+        <Style Selector="TextBlock.content">
+            <Setter Property="Margin" Value="8" />
+        </Style>
+        <Style Selector="TextBlock.content-command-label">
+            <Setter Property="Margin" Value="8,8,8,0" />
+        </Style>
+        <Style Selector="TextBlock.bold">
+            <Setter Property="FontWeight" Value="700" />
+        </Style>
+        <Style Selector="TextBlock.configuration-cell">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="4,8,4,4" />
+        </Style>
+        <Style Selector="TextBlock.console-output-item">
+            <Setter Property="FontSize" Value="13" />
+        </Style>
+        <!-- ToggleButton -->
+        <Style Selector="ToggleButton.toggle-btn">
+            <Setter Property="Width" Value="350" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="Padding" Value="12,8,12,8" />
+            <Setter Property="Margin" Value="4,0,4,8" />
+        </Style>
+        <!-- Grid -->
+        <Style Selector="Grid.content">
+            <Setter Property="Margin" Value="8" />
+        </Style>
+        <!-- StackPanel -->
+        <Style Selector="StackPanel.content">
+            <Setter Property="Margin" Value="8" />
+        </Style>
+        <Style Selector="StackPanel.mb-1">
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+        <Style Selector="StackPanel.mt-5">
+            <Setter Property="Margin" Value="0,40,0,0" />
+        </Style>
+        <!-- DockPanel -->
+        <Style Selector="DockPanel.content">
+            <Setter Property="Margin" Value="8" />
+        </Style>
+        <!-- ListBox -->
         <Style Selector="ListBox.content">
             <Setter Property="Margin" Value="4" />
             <Setter Property="Padding" Value="8" />
@@ -74,23 +95,21 @@
                 </DataTemplate>
             </Setter>
         </Style>
+        <!-- VirtualizingStackPanel -->
         <Style Selector="VirtualizingStackPanel.console-output-panel">
-            <Setter Property="Margin" Value="8" />
+            <Setter Property="Margin" Value="8,24,8,8" />
         </Style>
-        <Style Selector="TextBlock.console-output-item">
-            <Setter Property="FontSize" Value="13" />
-        </Style>
-
-        <!-- margins -->
-        <!-- left top right down -->
-        <Style Selector="StackPanel.mb-1">
-            <Setter Property="Margin" Value="0,0,0,8" />
-        </Style>
+        <!-- ScrollViewer -->
         <Style Selector="ScrollViewer.mt-1">
             <Setter Property="Margin" Value="0,8,0,0" />
         </Style>
-        <Style Selector="StackPanel.mt-5">
-            <Setter Property="Margin" Value="0,40,0,0" />
+        <!-- BusyBeacon -->
+        <Style Selector="customViews|BusyBeacon.mt-2">
+            <Setter Property="Margin" Value="0,16,0,0"></Setter>
         </Style>
+
     </Application.Styles>
 </Application>
+
+<!-- margins -->
+<!-- left top right down -->

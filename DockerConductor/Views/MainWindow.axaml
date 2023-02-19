@@ -3,6 +3,7 @@
         xmlns:vm="using:DockerConductor.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:customViews="clr-namespace:DockerConductor.CustomViews"
         mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="1000"
         x:Class="DockerConductor.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
@@ -17,16 +18,24 @@
         <!-- Panel -->
         <TabItem Header="Panel" IsSelected="True" VerticalAlignment="Center">
             <Grid ColumnDefinitions="3*,2*,2*" RowDefinitions="Auto,Auto,Auto,*" ShowGridLines="False" Classes="content">
+                <!-- Column 0 -->
                 <ScrollViewer Grid.Column="0" Grid.Row="0" Grid.RowSpan="4">
                     <StackPanel Name="ServiceSelectionContainer" Classes="content" />
                 </ScrollViewer>
-                <StackPanel Grid.Column="1" Grid.Row="0" Classes="content">
-                    <StackPanel Classes="mb-1">
-                        <Button Content="Deselect all" Classes="panel-btn" Command="{Binding DeselectAll}" />
-                        <Button Content="Select 3rd party" Classes="panel-btn" Command="{Binding SelectThirdParties}" />
-                        <Button Content="Select usual" Classes="panel-btn" Command="{Binding SelectStartUsuals}" />
+
+                <!-- Column 1 -->
+                <DockPanel Grid.Column="1" Grid.Row="0" Classes="content" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <StackPanel DockPanel.Dock="Top">
+                        <StackPanel Classes="mb-1">
+                            <Button Content="Deselect all" Classes="panel-btn" Command="{Binding DeselectAll}" />
+                            <Button Content="Select 3rd party" Classes="panel-btn" Command="{Binding SelectThirdParties}" />
+                            <Button Content="Select usual" Classes="panel-btn" Command="{Binding SelectStartUsuals}" />
+                        </StackPanel>
                     </StackPanel>
-                </StackPanel>
+                    <customViews:BusyBeacon Name="PanelBusyBeacon" DockPanel.Dock="Bottom" HorizontalAlignment="Left" VerticalAlignment="Bottom" />
+                </DockPanel>
+
+                <!-- Column 2 -->
                 <Grid Grid.Column="2" Grid.Row="0" ColumnDefinitions="*,*" RowDefinitions="*,*,*,*,*,*,*,*,*,*,*,*" VerticalAlignment="Top" Classes="content">
 
                     <!-- Backend -->
@@ -61,7 +70,7 @@
                     </Grid>
 
                 </Grid>
-                <TextBlock Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Text="Command:" Classes="content-command-label" VerticalAlignment="Bottom"/>
+                <TextBlock Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Text="Command:" Classes="content-command-label" VerticalAlignment="Bottom" />
                 <TextBox Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding ExecutedCommand}" VerticalAlignment="Top" IsReadOnly="True"
                          Classes="content-command" TextWrapping="Wrap" />
                 <ListBox Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2" Name="ConsoleOutput" Items="{Binding ConsoleOutputItems}" SelectionMode="Single"
@@ -91,6 +100,7 @@
                         <Button Content="Deselect all" Classes="panel-btn" Command="{Binding BuildDeselectAll}" />
                         <Button Content="Select usual" Classes="panel-btn" Command="{Binding SelectBuildUsuals}" />
                         <Button Content="Build" Classes="panel-btn" Command="{Binding BackendSelectedBuild}" />
+                        <customViews:BusyBeacon Name="BuildBusyBeacon" Classes="mt-2"  HorizontalAlignment="Left" VerticalAlignment="Bottom" />
                     </StackPanel>
                 </StackPanel>
                 <TextBlock Grid.Column="2" Grid.Row="0" />
