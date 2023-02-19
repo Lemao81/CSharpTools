@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -40,7 +41,11 @@ namespace DockerConductor.Helpers
             return strings.Where(s => filters.Any(f => f.Contains(s, StringComparison.InvariantCultureIgnoreCase)));
         }
 
-        public static async Task ExecuteCliCommandAsync(string command, MainWindow window, bool showFinishedHint = true)
+        public static async Task ExecuteCliCommandAsync(
+            string              command,
+            MainWindow          window,
+            bool                showFinishedHint = true,
+            Func<string, bool>? outputFilter     = null)
         {
             if (window.ConsoleOutput is null) return;
 
@@ -55,7 +60,9 @@ namespace DockerConductor.Helpers
                 WorkingDirectory       = @"C:\Windows\System32",
                 RedirectStandardInput  = true,
                 RedirectStandardOutput = true,
-                RedirectStandardError  = true
+                RedirectStandardError  = true,
+                StandardOutputEncoding = Encoding.UTF8,
+                StandardErrorEncoding = Encoding.UTF8
             };
 
             var process = new Process();
@@ -75,10 +82,10 @@ namespace DockerConductor.Helpers
 
             DataReceivedEventHandler OnOutputReceived() => async (_, args) =>
                                                            {
-                                                               if (args.Data != null)
-                                                               {
-                                                                   await DispatchConsoleOutput(window, args.Data);
-                                                               }
+                                                               if (args.Data == null) return;
+                                                               if (outputFilter != null && !outputFilter.Invoke(args.Data)) return;
+
+                                                               await DispatchConsoleOutput(window, args.Data);
                                                            };
         }
 

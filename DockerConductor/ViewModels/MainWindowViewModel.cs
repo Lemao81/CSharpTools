@@ -192,6 +192,7 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Task>? DockerComposeDown                { get; set; }
         public ReactiveCommand<Unit, Task>? DockerComposeBuildOcelot         { get; set; }
         public ReactiveCommand<Unit, Task>? DockerPs                         { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerPsExited                   { get; set; }
         public ReactiveCommand<Unit, Task>? DockerDbResetPrune               { get; set; }
         public ReactiveCommand<Unit, Task>? DockerBuildAllConfirmation       { get; set; }
         public ReactiveCommand<Unit, Task>? FrontendDockerComposeUp          { get; set; }
@@ -364,6 +365,15 @@ namespace DockerConductor.ViewModels
             DockerComposeBuildOcelot = ReactiveCommand.Create(async () => await BuildOcelotCommandExecution.Instance.ExecuteAsync(_window));
             ResetOcelotConfig = ReactiveCommand.Create(async () => await ResetOcelotConfigCommandExecution.Instance.ExecuteAsync(_window));
             DockerPs = ReactiveCommand.Create(async () => await Helper.ExecuteCliCommandAsync(Helper.ConcatCommand("docker", "ps"), _window, false));
+            DockerPsExited = ReactiveCommand.Create(
+                async () => await Helper.ExecuteCliCommandAsync(
+                                Helper.ConcatCommand("docker", "ps"),
+                                _window,
+                                false,
+                                s => s.Contains("CONTAINER") || s.Contains("Exited")
+                            )
+            );
+
             DockerDbResetPrune = ReactiveCommand.Create(async () => await DockerDbResetPruneCommandExecution.Instance.ExecuteAsync(_window));
 
             DockerBuildAllConfirmation = ReactiveCommand.Create(

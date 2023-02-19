@@ -41,16 +41,17 @@
                     <!-- Backend -->
                     <TextBlock Grid.Column="0" Grid.Row="0" Text="Backend" Classes="content bold" />
 
-                    <Grid Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" ColumnDefinitions="*,*" RowDefinitions="*,*,*,*,*">
+                    <Grid Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" ColumnDefinitions="*,*" RowDefinitions="*,*,*,*,*,*">
                         <Button Grid.Column="0" Grid.Row="0" Content="Up" Classes="panel-btn" Command="{Binding DockerComposeUp}" />
                         <Button Grid.Column="1" Grid.Row="0" Content="Down" Classes="panel-btn" Command="{Binding DockerComposeDown}" />
                         <Button Grid.Column="0" Grid.Row="1" Content="Stop" Classes="panel-btn" Command="{Binding DockerComposeStop}" />
                         <Button Grid.Column="1" Grid.Row="1" Content="Start" Classes="panel-btn" Command="{Binding DockerComposeStart}" />
                         <Button Grid.Column="0" Grid.Row="2" Content="PS" Classes="panel-btn" Command="{Binding DockerPs}" />
-                        <Button Grid.Column="1" Grid.Row="2" Content="Build all" Classes="panel-btn" Command="{Binding DockerBuildAllConfirmation}" />
-                        <Button Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Content="Rm db volume + prune" Classes="panel-btn"
+                        <Button Grid.Column="1" Grid.Row="2" Content="PS Exited" Classes="panel-btn" Command="{Binding DockerPsExited}" />
+                        <Button Grid.Column="0" Grid.Row="3" Content="Build all" Classes="panel-btn" Command="{Binding DockerBuildAllConfirmation}" />
+                        <Button Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2" Content="Rm db volume + prune" Classes="panel-btn"
                                 Command="{Binding DockerDbResetPrune}" />
-                        <Button Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2" Content="Unmock vault" Classes="panel-btn"
+                        <Button Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2" Content="Unmock vault" Classes="panel-btn"
                                 Command="{Binding UnmockVault}" />
                     </Grid>
 
