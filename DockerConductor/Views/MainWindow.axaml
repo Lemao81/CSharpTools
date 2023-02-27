@@ -51,8 +51,8 @@
                         <Button Grid.Column="0" Grid.Row="3" Content="Build all" Classes="panel-btn" Command="{Binding DockerBuildAllConfirmation}" />
                         <Button Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2" Content="Rm db volume + prune" Classes="panel-btn"
                                 Command="{Binding DockerDbResetPrune}" />
-                        <Button Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2" Content="Unmock vault" Classes="panel-btn"
-                                Command="{Binding UnmockVault}" />
+                        <Button Grid.Column="0" Grid.Row="5" Content="Unmock vault" Classes="panel-btn" Command="{Binding VaultNotMockedEnv}" />
+                        <Button Grid.Column="1" Grid.Row="5" Content="Production" Classes="panel-btn" Command="{Binding ProductionEnv}" />
                     </Grid>
 
                     <!-- Frontend -->
@@ -101,7 +101,7 @@
                         <Button Content="Deselect all" Classes="panel-btn" Command="{Binding BuildDeselectAll}" />
                         <Button Content="Select usual" Classes="panel-btn" Command="{Binding SelectBuildUsuals}" />
                         <Button Content="Build" Classes="panel-btn" Command="{Binding BackendSelectedBuild}" />
-                        <customViews:BusyBeacon Name="BuildBusyBeacon" Classes="mt-2"  HorizontalAlignment="Left" VerticalAlignment="Bottom" />
+                        <customViews:BusyBeacon Name="BuildBusyBeacon" Classes="mt-2" HorizontalAlignment="Left" VerticalAlignment="Bottom" />
                     </StackPanel>
                 </StackPanel>
                 <TextBlock Grid.Column="2" Grid.Row="0" />

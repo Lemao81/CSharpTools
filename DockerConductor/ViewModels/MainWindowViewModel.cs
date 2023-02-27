@@ -210,7 +210,8 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Unit>? SelectBuildUsuals                { get; set; }
         public ReactiveCommand<Unit, Task>? ResetOcelotConfig                { get; set; }
         public ReactiveCommand<Unit, Task>? RefreshDockerContainerPanels     { get; set; }
-        public ReactiveCommand<Unit, Unit>? UnmockVault                      { get; set; }
+        public ReactiveCommand<Unit, Unit>? VaultNotMockedEnv                { get; set; }
+        public ReactiveCommand<Unit, Unit>? ProductionEnv                    { get; set; }
 
         public async Task OnContainerTabTappedAsync() => await UpdateDockerContainerPanelList();
 
@@ -488,7 +489,8 @@ namespace DockerConductor.ViewModels
 
             RefreshDockerContainerPanels = ReactiveCommand.Create(async () => await UpdateDockerContainerPanelList());
 
-            UnmockVault = ReactiveCommand.Create(SetVaultNotMockedEnvVariables);
+            VaultNotMockedEnv = ReactiveCommand.Create(SetVaultNotMockedEnvVariables);
+            ProductionEnv     = ReactiveCommand.Create(SetProductionEnvVariables);
         }
 
         private void WriteConfig()
@@ -568,6 +570,14 @@ namespace DockerConductor.ViewModels
             var text = File.ReadAllText(path, _encoding);
             text = text.Replace("VAULT_IS_MOCKED=\"true\"", "VAULT_IS_MOCKED=\"false\"");
             text = text.Replace("VAULT_IS_VAULTCONFIGOVERRIDE=\"false\"", "VAULT_IS_VAULTCONFIGOVERRIDE=\"true\"");
+            File.WriteAllText(path, text, _encoding);
+        }
+
+        private void SetProductionEnvVariables()
+        {
+            var path = Path.Join(BackendRepoPath, ".env");
+            var text = File.ReadAllText(path, _encoding);
+            text = text.Replace("ASPNETCORE_ENVIRONMENT=\"Development\"", "ASPNETCORE_ENVIRONMENT=\"Production\"");
             File.WriteAllText(path, text, _encoding);
         }
 
