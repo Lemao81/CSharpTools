@@ -368,7 +368,7 @@ namespace DockerConductor.ViewModels
             DockerPs = ReactiveCommand.Create(async () => await Helper.ExecuteCliCommandAsync(Helper.ConcatCommand("docker", "ps"), _window, false));
             DockerPsExited = ReactiveCommand.Create(
                 async () => await Helper.ExecuteCliCommandAsync(
-                                Helper.ConcatCommand("docker", "ps"),
+                                Helper.ConcatCommand("docker", "ps", "-a"),
                                 _window,
                                 false,
                                 s => s.Contains("CONTAINER") || s.Contains("Exited")
