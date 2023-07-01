@@ -55,7 +55,7 @@
         </Style>
         <!-- ToggleButton -->
         <Style Selector="ToggleButton.toggle-btn">
-            <Setter Property="Width" Value="350" />
+            <Setter Property="Width" Value="370" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
             <Setter Property="Padding" Value="12,8,12,8" />
             <Setter Property="Margin" Value="4,0,4,8" />
@@ -106,6 +106,9 @@
         <!-- BusyBeacon -->
         <Style Selector="customViews|BusyBeacon.mt-2">
             <Setter Property="Margin" Value="0,16,0,0"></Setter>
+        </Style>
+        <Style Selector="customViews|BusyBeacon.ml-8">
+            <Setter Property="Margin" Value="64,0,0,0"></Setter>
         </Style>
 
     </Application.Styles>

@@ -29,6 +29,7 @@
                         <StackPanel Classes="mb-1">
                             <Button Content="Deselect all" Classes="panel-btn" Command="{Binding DeselectAll}" />
                             <Button Content="Select 3rd party" Classes="panel-btn" Command="{Binding SelectThirdParties}" />
+                            <Button Content="Select Users setup" Classes="panel-btn" Command="{Binding SelectUsersSetup}" />
                             <Button Content="Select usual" Classes="panel-btn" Command="{Binding SelectStartUsuals}" />
                         </StackPanel>
                     </StackPanel>
@@ -91,10 +92,13 @@
 
         <!-- Build -->
         <TabItem Header="Build" VerticalAlignment="Center">
-            <Grid ColumnDefinitions="3*,2*,2*" RowDefinitions="Auto,Auto" ShowGridLines="False" Classes="content">
+            <Grid ColumnDefinitions="4*,2*,2*" RowDefinitions="Auto,*" ShowGridLines="False" Classes="content">
+                <!-- Column 0 -->
                 <ScrollViewer Grid.Column="0" Grid.Row="0" Grid.RowSpan="2">
                     <StackPanel Name="BuildSelectionContainer" Classes="content" />
                 </ScrollViewer>
+                
+                <!-- Column 1 -->
                 <StackPanel Grid.Column="1" Grid.Row="0" Classes="content">
                     <StackPanel Classes="mb-1">
                         <Button Content="Select all" Classes="panel-btn" Command="{Binding BuildSelectAll}" />
@@ -104,7 +108,10 @@
                         <customViews:BusyBeacon Name="BuildBusyBeacon" Classes="mt-2" HorizontalAlignment="Left" VerticalAlignment="Bottom" />
                     </StackPanel>
                 </StackPanel>
+                
+                <!-- Column 2 -->
                 <TextBlock Grid.Column="2" Grid.Row="0" />
+                <TextBlock Grid.Column="2" Grid.Row="1" />
             </Grid>
         </TabItem>
 
@@ -117,26 +124,28 @@
                 <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal">
                     <Button Content="Build ocelotapigateway" Classes="btn" Command="{Binding DockerComposeBuildOcelot}" />
                     <Button Content="Reset (+ build)" Classes="btn" Command="{Binding ResetOcelotConfig}" />
+                    <customViews:BusyBeacon Name="OcelotBusyBeacon" Classes="ml-8" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </StackPanel>
             </Grid>
         </TabItem>
 
         <!-- Container -->
         <TabItem Header="Container" IsSelected="False" VerticalAlignment="Center" Tapped="ContainerTab_OnTapped">
-            <Grid ColumnDefinitions="*" RowDefinitions="Auto,Auto,Auto" ShowGridLines="False" HorizontalAlignment="Stretch" Classes="content">
+            <Grid ColumnDefinitions="*" RowDefinitions="Auto,Auto,Auto,*" ShowGridLines="False" HorizontalAlignment="Stretch" Classes="content">
                 <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal" Classes="content">
                     <Button Content="Refresh" Command="{Binding RefreshDockerContainerPanels}" Classes="btn" />
                 </StackPanel>
-                <ScrollViewer Grid.Column="0" Grid.Row="1">
+                <ScrollViewer Grid.Column="0" Grid.Row="1" Height="800">
                     <StackPanel Name="DockerContainerPanelContainer" Classes="content" />
                 </ScrollViewer>
                 <TextBlock Grid.Column="0" Grid.Row="2" Name="DockerApiStatus" Margin="8,32,8,8" />
+                <!-- <TextBlock Grid.Column="1" Grid.Row="0" /> -->
             </Grid>
         </TabItem>
 
         <!-- Configuration -->
         <TabItem Header="Configuration" IsSelected="False" VerticalAlignment="Center">
-            <Grid ColumnDefinitions="2*,3*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto, Auto, Auto"
+            <Grid ColumnDefinitions="2*,3*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto, Auto, Auto, Auto"
                   ShowGridLines="False"
                   HorizontalAlignment="Stretch"
                   Classes="content">
@@ -162,34 +171,37 @@
                 <TextBlock Grid.Column="0" Grid.Row="4" Text="Third parties:" Classes="configuration-cell" />
                 <TextBox Grid.Column="1" Grid.Row="4" Text="{Binding ThirdParties}" Classes="configuration-cell" />
 
-                <TextBlock Grid.Column="0" Grid.Row="5" Text="Start usuals:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="5" Text="{Binding StartUsuals}" Classes="configuration-cell" />
+                <TextBlock Grid.Column="0" Grid.Row="5" Text="Users setup:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="5" Text="{Binding UsersSetup}" Classes="configuration-cell" />
 
-                <TextBlock Grid.Column="0" Grid.Row="6" Text="Build usuals:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="6" Text="{Binding BuildUsuals}" Classes="configuration-cell" />
+                <TextBlock Grid.Column="0" Grid.Row="6" Text="Start usuals:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="6" Text="{Binding StartUsuals}" Classes="configuration-cell" />
 
-                <TextBlock Grid.Column="0" Grid.Row="7" Text="1. Batch:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="7" Text="{Binding FirstBatch}" Classes="configuration-cell" />
+                <TextBlock Grid.Column="0" Grid.Row="7" Text="Build usuals:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="7" Text="{Binding BuildUsuals}" Classes="configuration-cell" />
 
-                <TextBlock Grid.Column="0" Grid.Row="8" Text="1. Batch Wait Sec:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="8" Text="{Binding FirstBatchWait}" Classes="configuration-cell" />
+                <TextBlock Grid.Column="0" Grid.Row="8" Text="1. Batch:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="8" Text="{Binding FirstBatch}" Classes="configuration-cell" />
 
-                <TextBlock Grid.Column="0" Grid.Row="9" Text="2. Batch:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="9" Text="{Binding SecondBatch}" Classes="configuration-cell" />
+                <TextBlock Grid.Column="0" Grid.Row="9" Text="1. Batch Wait Sec:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="9" Text="{Binding FirstBatchWait}" Classes="configuration-cell" />
 
-                <TextBlock Grid.Column="0" Grid.Row="10" Text="2. Batch Wait Sec:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="10" Text="{Binding SecondBatchWait}" Classes="configuration-cell" />
+                <TextBlock Grid.Column="0" Grid.Row="10" Text="2. Batch:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="10" Text="{Binding SecondBatch}" Classes="configuration-cell" />
 
-                <TextBlock Grid.Column="0" Grid.Row="11" Text="Excludes from stop:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="11" Text="{Binding ExcludesStop}" Classes="configuration-cell" />
+                <TextBlock Grid.Column="0" Grid.Row="11" Text="2. Batch Wait Sec:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="11" Text="{Binding SecondBatchWait}" Classes="configuration-cell" />
 
-                <TextBlock Grid.Column="0" Grid.Row="12" Text="Db volume:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="12" Text="{Binding DbVolume}" Classes="configuration-cell" />
+                <TextBlock Grid.Column="0" Grid.Row="12" Text="Excludes from stop:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="12" Text="{Binding ExcludesStop}" Classes="configuration-cell" />
 
-                <TextBlock Grid.Column="0" Grid.Row="13" Text="Dev server IP:" Classes="configuration-cell" />
-                <TextBox Grid.Column="1" Grid.Row="13" Text="{Binding DevServerIp}" Classes="configuration-cell" />
+                <TextBlock Grid.Column="0" Grid.Row="13" Text="Db volume:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="13" Text="{Binding DbVolume}" Classes="configuration-cell" />
 
-                <StackPanel Grid.Column="0" Grid.Row="14" Classes="mt-5" Orientation="Horizontal">
+                <TextBlock Grid.Column="0" Grid.Row="14" Text="Dev server IP:" Classes="configuration-cell" />
+                <TextBox Grid.Column="1" Grid.Row="14" Text="{Binding DevServerIp}" Classes="configuration-cell" />
+
+                <StackPanel Grid.Column="0" Grid.Row="15" Classes="mt-5" Orientation="Horizontal">
                     <Button Content="Save" Classes="configuration-btn" Command="{Binding SaveConfiguration}" />
                 </StackPanel>
             </Grid>

@@ -36,6 +36,7 @@ namespace DockerConductor.Views
         public TabControl?               TabControl                    { get; set; }
         public BusyBeacon?               PanelBusyBeacon               { get; set; }
         public BusyBeacon?               BuildBusyBeacon               { get; set; }
+        public BusyBeacon?               OcelotBusyBeacon              { get; set; }
 
         private void InitializeComponent()
         {
@@ -50,6 +51,7 @@ namespace DockerConductor.Views
             TabControl                    = this.Find<TabControl>("TabControl");
             PanelBusyBeacon               = this.Find<BusyBeacon>("PanelBusyBeacon");
             BuildBusyBeacon               = this.Find<BusyBeacon>("BuildBusyBeacon");
+            OcelotBusyBeacon              = this.Find<BusyBeacon>("OcelotBusyBeacon");
         }
 
         private void ContainerTab_OnTapped(object? _, RoutedEventArgs __) => Dispatcher.UIThread.InvokeAsync(() => ViewModel.OnContainerTabTappedAsync());

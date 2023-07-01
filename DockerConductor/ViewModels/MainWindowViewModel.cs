@@ -31,6 +31,7 @@ namespace DockerConductor.ViewModels
         private readonly MainWindow                   _window;
         private          string                       _excludes     = string.Empty;
         private          string                       _thirdParties = string.Empty;
+        private          string                       _usersSetup   = string.Empty;
         private          string                       _startUsuals  = string.Empty;
         private          string                       _buildUsuals  = string.Empty;
         private          string                       _firstBatch   = string.Empty;
@@ -113,6 +114,12 @@ namespace DockerConductor.ViewModels
         {
             get => _thirdParties;
             set => this.RaiseAndSetIfChanged(ref _thirdParties, value);
+        }
+
+        public string UsersSetup
+        {
+            get => _usersSetup;
+            set => this.RaiseAndSetIfChanged(ref _usersSetup, value);
         }
 
         public string StartUsuals
@@ -206,6 +213,7 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Unit>? BuildSelectAll                   { get; set; }
         public ReactiveCommand<Unit, Unit>? BuildDeselectAll                 { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectThirdParties               { get; set; }
+        public ReactiveCommand<Unit, Unit>? SelectUsersSetup                 { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectStartUsuals                { get; set; }
         public ReactiveCommand<Unit, Unit>? SelectBuildUsuals                { get; set; }
         public ReactiveCommand<Unit, Task>? ResetOcelotConfig                { get; set; }
@@ -229,12 +237,14 @@ namespace DockerConductor.ViewModels
         {
             _window.PanelBusyBeacon?.SwitchBusy();
             _window.BuildBusyBeacon?.SwitchBusy();
+            _window.OcelotBusyBeacon?.SwitchBusy();
         }
 
         public void SwitchIdle()
         {
             _window.PanelBusyBeacon?.SwitchIdle();
             _window.BuildBusyBeacon?.SwitchIdle();
+            _window.OcelotBusyBeacon?.SwitchIdle();
         }
 
         private void InitializeCommands()
@@ -479,6 +489,10 @@ namespace DockerConductor.ViewModels
                 () => Helper.SelectMatchingContents(_window.ServiceSelectionCheckBoxes, Helper.SplitCommaSeparated(ThirdParties))
             );
 
+            SelectUsersSetup = ReactiveCommand.Create(
+                () => Helper.SelectMatchingContents(_window.ServiceSelectionCheckBoxes, Helper.SplitCommaSeparated(UsersSetup))
+            );
+
             SelectStartUsuals = ReactiveCommand.Create(
                 () => Helper.SelectMatchingContents(_window.ServiceSelectionCheckBoxes, Helper.SplitCommaSeparated(StartUsuals))
             );
@@ -508,7 +522,7 @@ namespace DockerConductor.ViewModels
         private void AdjustDevConfigs(string host)
         {
             AdjustWebDevConfig(host);
-            AdjustClientInstituteConfig(host);
+            // AdjustClientInstituteConfig(host);
 
             _window.ViewModel.SetOutput($"Config files adjusted to host {host}");
         }
@@ -517,7 +531,7 @@ namespace DockerConductor.ViewModels
         {
             var path = Path.Join(FrontendRepoPath, "src", "assets", "config", "config.dev.json");
             var text = File.ReadAllText(path, _encoding);
-            text = Regex.Replace(text, "http:\\/\\/(.*)\",", $"http://{host}\",");
+            text = Regex.Replace(text, "\"baseUrl\": \"http:\\/\\/(.*)\",", $"\"baseUrl\": \"http://{host}\",");
             File.WriteAllText(path, text, _encoding);
         }
 
@@ -525,7 +539,7 @@ namespace DockerConductor.ViewModels
         {
             var path = Path.Join(FrontendRepoPath, "electron", "config", "system", "config", "institute_config.json");
             var text = File.ReadAllText(path, _encoding);
-            text = Regex.Replace(text, "http:\\/\\/(.*)\",", $"http://{host}\",");
+            text = Regex.Replace(text, "\"baseUrl\": \"http:\\/\\/(.*)\",", $"\"baseUrl\": \"http://{host}\",");
             File.WriteAllText(path, text, _encoding);
         }
 

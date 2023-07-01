@@ -11,6 +11,7 @@ namespace DockerConductor.Models
         public string              OcelotConfigurationPath { get; set; } = string.Empty;
         public string              Excludes                { get; set; } = string.Empty;
         public string              ThirdParties            { get; set; } = string.Empty;
+        public string              UsersSetup              { get; set; } = string.Empty;
         public string              StartUsuals             { get; set; } = string.Empty;
         public string              BuildUsuals             { get; set; } = string.Empty;
         public string              FirstBatch              { get; set; } = string.Empty;
@@ -29,6 +30,7 @@ namespace DockerConductor.Models
             viewModel.OcelotConfigurationPath = OcelotConfigurationPath;
             viewModel.Excludes                = Excludes;
             viewModel.ThirdParties            = ThirdParties;
+            viewModel.UsersSetup              = UsersSetup;
             viewModel.StartUsuals             = StartUsuals;
             viewModel.BuildUsuals             = BuildUsuals;
             viewModel.FirstBatch              = FirstBatch;
@@ -48,6 +50,7 @@ namespace DockerConductor.Models
             OcelotConfigurationPath = viewModel.OcelotConfigurationPath;
             Excludes                = viewModel.Excludes;
             ThirdParties            = viewModel.ThirdParties;
+            UsersSetup              = viewModel.UsersSetup;
             StartUsuals             = viewModel.StartUsuals;
             BuildUsuals             = viewModel.BuildUsuals;
             FirstBatch              = viewModel.FirstBatch;
