@@ -138,7 +138,7 @@ namespace DockerConductor.Helpers
                 return 6;
             }
 
-            bool BuildSelectionNameFilter(string name) => name.Contains("radioreport") || name.Contains("ocelot");
+            bool BuildSelectionNameFilter(string name) => name.Contains("radioreport") || name.Contains("ocelot") || name.Contains("traefik");
         }
 
         public static void UpdateOcelotItemList(MainWindow window)

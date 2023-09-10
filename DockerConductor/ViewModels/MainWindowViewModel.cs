@@ -220,6 +220,9 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Task>? RefreshDockerContainerPanels     { get; set; }
         public ReactiveCommand<Unit, Unit>? VaultNotMockedEnv                { get; set; }
         public ReactiveCommand<Unit, Unit>? ProductionEnv                    { get; set; }
+        public ReactiveCommand<Unit, Unit>? TraceLogEnv                      { get; set; }
+        public ReactiveCommand<Unit, Unit>? AdjustLocalConfigs               { get; set; }
+        public ReactiveCommand<Unit, Unit>? RevertLocalConfigs               { get; set; }
 
         public async Task OnContainerTabTappedAsync() => await UpdateDockerContainerPanelList();
 
@@ -424,6 +427,8 @@ namespace DockerConductor.ViewModels
                 }
             );
 
+            AdjustLocalConfigs               = ReactiveCommand.Create(AdjustFrontendBackendLocalConfigs);
+            RevertLocalConfigs               = ReactiveCommand.Create(RevertFrontendBackendLocalConfigs);
             FrontendAdjustDevConfigLocalhost = ReactiveCommand.Create(AdjustDevConfigLocalhost);
             FrontendAdjustDevConfigDevServer = ReactiveCommand.Create(AdjustDevConfigDevServer);
             FrontendRemoveModules            = ReactiveCommand.Create(RemoveFrontendModulePageFolders);
@@ -503,8 +508,9 @@ namespace DockerConductor.ViewModels
 
             RefreshDockerContainerPanels = ReactiveCommand.Create(async () => await UpdateDockerContainerPanelList());
 
-            VaultNotMockedEnv = ReactiveCommand.Create(SetVaultNotMockedEnvVariables);
-            ProductionEnv     = ReactiveCommand.Create(SetProductionEnvVariables);
+            VaultNotMockedEnv = ReactiveCommand.Create(SetVaultNotMockedBackendEnvVariables);
+            ProductionEnv     = ReactiveCommand.Create(SetProductionBackendEnvVariables);
+            TraceLogEnv       = ReactiveCommand.Create(SetTraceLogEnvVariables);
         }
 
         private void WriteConfig()
@@ -515,23 +521,43 @@ namespace DockerConductor.ViewModels
             File.WriteAllText(App.ConfigFileName, JsonConvert.SerializeObject(appConfig, Formatting.Indented));
         }
 
-        private void AdjustDevConfigLocalhost() => AdjustDevConfigs("localhost");
-
-        private void AdjustDevConfigDevServer() => AdjustDevConfigs(DevServerIp);
-
-        private void AdjustDevConfigs(string host)
+        private void AdjustFrontendBackendLocalConfigs()
         {
-            AdjustWebDevConfig(host);
-            // AdjustClientInstituteConfig(host);
+            AdjustFrontendWebDevConfig("http://localhost");
+            SetSslInactiveBackendEnvVariables();
 
-            _window.ViewModel.SetOutput($"Config files adjusted to host {host}");
+            _window.ViewModel.SetOutput($"Config files adjusted");
         }
 
-        private void AdjustWebDevConfig(string host)
+        private void RevertFrontendBackendLocalConfigs()
+        {
+            AdjustFrontendWebDevConfig("https://rrdevelopdocker");
+            ReplaceInBackendDotEnv(
+                ("SSL_ACTIVE=\"false\"", "SSL_ACTIVE=\"true\""),
+                ("VAULT_IS_MOCKED=\"false\"", "VAULT_IS_MOCKED=\"true\""),
+                ("VAULT_IS_VAULTCONFIGOVERRIDE=\"true\"", "VAULT_IS_VAULTCONFIGOVERRIDE=\"false\""),
+                ("ASPNETCORE_ENVIRONMENT=\"Production\"", "ASPNETCORE_ENVIRONMENT=\"Development\""),
+                ("ENVIRONMENT_TRACE_LOG=\"true\"", "ENVIRONMENT_TRACE_LOG=\"false\"")
+            );
+        }
+
+        private void AdjustDevConfigLocalhost() => AdjustDevConfigs("http://localhost");
+
+        private void AdjustDevConfigDevServer() => AdjustDevConfigs($"https://{DevServerIp}");
+
+        private void AdjustDevConfigs(string url)
+        {
+            AdjustFrontendWebDevConfig(url);
+            // AdjustClientInstituteConfig(host);
+
+            _window.ViewModel.SetOutput($"Config files adjusted to url {url}");
+        }
+
+        private void AdjustFrontendWebDevConfig(string url)
         {
             var path = Path.Join(FrontendRepoPath, "src", "assets", "config", "config.dev.json");
             var text = File.ReadAllText(path, _encoding);
-            text = Regex.Replace(text, "\"baseUrl\": \"http:\\/\\/(.*)\",", $"\"baseUrl\": \"http://{host}\",");
+            text = Regex.Replace(text, "\"baseUrl\": \"http(s)*:\\/\\/(.*)\",", $"\"baseUrl\": \"{url}\",");
             File.WriteAllText(path, text, _encoding);
         }
 
@@ -578,21 +604,29 @@ namespace DockerConductor.ViewModels
             File.WriteAllLines(routingFilePath, newLines);
         }
 
-        private void SetVaultNotMockedEnvVariables()
-        {
-            var path = Path.Join(BackendRepoPath, ".env");
-            var text = File.ReadAllText(path, _encoding);
-            text = text.Replace("VAULT_IS_MOCKED=\"true\"", "VAULT_IS_MOCKED=\"false\"");
-            text = text.Replace("VAULT_IS_VAULTCONFIGOVERRIDE=\"false\"", "VAULT_IS_VAULTCONFIGOVERRIDE=\"true\"");
-            File.WriteAllText(path, text, _encoding);
-        }
+        private void SetSslInactiveBackendEnvVariables() => ReplaceInBackendDotEnv(("SSL_ACTIVE=\"true\"", "SSL_ACTIVE=\"false\""));
 
-        private void SetProductionEnvVariables()
+        private void SetVaultNotMockedBackendEnvVariables() => ReplaceInBackendDotEnv(
+            ("VAULT_IS_MOCKED=\"true\"", "VAULT_IS_MOCKED=\"false\""),
+            ("VAULT_IS_VAULTCONFIGOVERRIDE=\"false\"", "VAULT_IS_VAULTCONFIGOVERRIDE=\"true\"")
+        );
+
+        private void SetProductionBackendEnvVariables() =>
+            ReplaceInBackendDotEnv(("ASPNETCORE_ENVIRONMENT=\"Development\"", "ASPNETCORE_ENVIRONMENT=\"Production\""));
+
+        private void SetTraceLogEnvVariables() => ReplaceInBackendDotEnv(("ENVIRONMENT_TRACE_LOG=\"false\"", "ENVIRONMENT_TRACE_LOG=\"true\""));
+
+        private void ReplaceInBackendDotEnv(params (string orig, string replacement)[] replacements)
         {
             var path = Path.Join(BackendRepoPath, ".env");
             var text = File.ReadAllText(path, _encoding);
-            text = text.Replace("ASPNETCORE_ENVIRONMENT=\"Development\"", "ASPNETCORE_ENVIRONMENT=\"Production\"");
+            foreach (var (orig, replacement) in replacements)
+            {
+                text = text.Replace(orig, replacement);
+            }
+
             File.WriteAllText(path, text, _encoding);
+            _window.ViewModel.SetOutput($"Env file adjusted");
         }
 
         private async Task UpdateDockerContainerPanelList()
