@@ -62,7 +62,7 @@ namespace DockerConductor.Helpers
                 RedirectStandardOutput = true,
                 RedirectStandardError  = true,
                 StandardOutputEncoding = Encoding.UTF8,
-                StandardErrorEncoding = Encoding.UTF8
+                StandardErrorEncoding  = Encoding.UTF8
             };
 
             var process = new Process();
@@ -143,6 +143,8 @@ namespace DockerConductor.Helpers
 
         public static void UpdateOcelotItemList(MainWindow window)
         {
+            if (!File.Exists(window.ViewModel.OcelotConfigurationPath)) return;
+
             window.ViewModel.OcelotConfigLines = File.ReadAllLines(window.ViewModel.OcelotConfigurationPath);
             window.ViewModel.OcelotRoutes.Clear();
             var parseRoutes = new OcelotConfigurationParser().Parse(window.ViewModel.OcelotConfigLines);

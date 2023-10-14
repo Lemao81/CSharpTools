@@ -62,12 +62,14 @@
                     <!-- Frontend -->
                     <TextBlock Grid.Column="0" Grid.Row="3" Text="Frontend" Classes="content bold" />
 
-                    <Grid Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2" ColumnDefinitions="*,*" RowDefinitions="*,*,*">
-                        <Button Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Content="FE config develop" Classes="panel-btn"
+                    <Grid Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2" ColumnDefinitions="*,*" RowDefinitions="*,*,*,*">
+                        <Button Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Content="FE config localhost" Classes="panel-btn"
+                                Command="{Binding FrontendAdjustDevConfigLocalhost}" />
+                        <Button Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Content="FE config develop" Classes="panel-btn"
                                 Command="{Binding FrontendAdjustDevConfigDevServer}" />
-                        <Button Grid.Column="0" Grid.Row="1" Content="FE Build" Classes="panel-btn" Command="{Binding FrontendBuild}" />
-                        <Button Grid.Column="0" Grid.Row="2" Content="FE Up" Classes="panel-btn" Command="{Binding FrontendDockerComposeUp}" />
-                        <Button Grid.Column="1" Grid.Row="2" Content="FE Down" Classes="panel-btn" Command="{Binding FrontendDockerComposeDown}" />
+                        <Button Grid.Column="0" Grid.Row="2" Content="FE Build" Classes="panel-btn" Command="{Binding FrontendBuild}" />
+                        <Button Grid.Column="0" Grid.Row="3" Content="FE Up" Classes="panel-btn" Command="{Binding FrontendDockerComposeUp}" />
+                        <Button Grid.Column="1" Grid.Row="3" Content="FE Down" Classes="panel-btn" Command="{Binding FrontendDockerComposeDown}" />
                     </Grid>
 
                 </Grid>

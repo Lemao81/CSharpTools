@@ -531,7 +531,7 @@ namespace DockerConductor.ViewModels
 
         private void RevertFrontendBackendLocalConfigs()
         {
-            AdjustFrontendWebDevConfig("https://rrdevelopdocker");
+            AdjustFrontendWebDevConfig("http://10.10.0.51");
             ReplaceInBackendDotEnv(
                 ("SSL_ACTIVE=\"false\"", "SSL_ACTIVE=\"true\""),
                 ("VAULT_IS_MOCKED=\"false\"", "VAULT_IS_MOCKED=\"true\""),
@@ -541,7 +541,7 @@ namespace DockerConductor.ViewModels
             );
         }
 
-        private void AdjustDevConfigLocalhost() => AdjustDevConfigs("http://localhost");
+        private void AdjustDevConfigLocalhost() => AdjustDevConfigs("https://localhost");
 
         private void AdjustDevConfigDevServer() => AdjustDevConfigs($"https://{DevServerIp}");
 
