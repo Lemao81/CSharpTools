@@ -60,6 +60,11 @@ namespace DockerConductor
                     Helper.UpdateOcelotItemList(mainWindow);
                 }
 
+                if (!string.IsNullOrWhiteSpace(appConfig.TraefikServicesPath))
+                {
+                    Helper.UpdateTraefikItemList(mainWindow);
+                }
+
                 if (appConfig.LastSelected.Any())
                 {
                     foreach (var checkBox in mainWindow.ServiceSelectionCheckBoxes.Where(c => appConfig.LastSelected.Contains(c.Content.ToString())))

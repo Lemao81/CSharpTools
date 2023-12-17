@@ -3,13 +3,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using DockerConductor.Constants;
 using DockerConductor.Extensions;
-using DockerConductor.Helpers;
 using DockerConductor.Views;
-using static DockerConductor.Helpers.DockerComposeCommandHelper;
 
 namespace DockerConductor.Commands
 {
-    public class ResetOcelotConfigCommandExecution : CommandExecutionBase
+    public class ResetOcelotConfigCommandExecution : BuildCommandExecutionBase
     {
         public static ResetOcelotConfigCommandExecution Instance = new();
 
@@ -18,7 +16,7 @@ namespace DockerConductor.Commands
             await ResetAndSaveOcelotAsync(window);
             window.OcelotRouteUis.ForEach(ui => ui.RadioButton80.Check());
             window.TabControl.SwitchToTab(TabItemIndex.Panel);
-            await ExecuteBuildAsync(window);
+            await ExecuteBuildAsync(window, ServiceNames.OcelotApiGateway);
         }
 
         private static async Task ResetAndSaveOcelotAsync(MainWindow window)
@@ -36,13 +34,6 @@ namespace DockerConductor.Commands
             {
                 await File.WriteAllLinesAsync(window.ViewModel.OcelotConfigurationPath, window.ViewModel.OcelotConfigLines);
             }
-        }
-
-        private static async Task ExecuteBuildAsync(MainWindow window)
-        {
-            var basicCommand = GetBasicBuildCommand(window.ViewModel.BackendDockerComposePath, window.ViewModel.BackendDockerComposeOverridePath);
-            var command      = Helper.ConcatCommand(basicCommand, "ocelotapigateway");
-            await Helper.ExecuteCliCommandAsync(command, window);
         }
     }
 }

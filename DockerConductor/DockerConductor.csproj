@@ -8,7 +8,6 @@
       <DefineConstants>TRACECOREAPP;</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
-        <Folder Include="Models\" />
         <AvaloniaResource Include="Assets\**" />
     </ItemGroup>
     <ItemGroup>
@@ -19,6 +18,6 @@
         <PackageReference Include="Docker.DotNet" Version="3.125.12" />
         <PackageReference Include="MessageBox.Avalonia" Version="1.7.1" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-        <PackageReference Include="YamlDotNet" Version="11.2.1" />
+        <PackageReference Include="YamlDotNet" Version="13.7.1" />
     </ItemGroup>
 </Project>

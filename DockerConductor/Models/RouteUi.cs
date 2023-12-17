@@ -3,7 +3,7 @@ using Avalonia.Controls;
 
 namespace DockerConductor.Models
 {
-    public class OcelotRouteUi
+    public class RouteUi
     {
         public TextBlock?   NameTextBlock   { get; set; }
         public RadioButton? RadioButton80   { get; set; }

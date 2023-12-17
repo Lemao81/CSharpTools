@@ -22,6 +22,7 @@ namespace DockerConductor.Models
         public string              DbVolume                { get; set; } = string.Empty;
         public string              DevServerIp             { get; set; } = string.Empty;
         public IEnumerable<string> LastSelected            { get; set; } = Enumerable.Empty<string>();
+        public string              TraefikServicesPath     { get; set; } = string.Empty;
 
         public void MapInto(MainWindowViewModel viewModel)
         {
@@ -41,6 +42,7 @@ namespace DockerConductor.Models
             viewModel.DbVolume                = DbVolume;
             viewModel.DevServerIp             = DevServerIp;
             viewModel.LastSelected            = LastSelected;
+            viewModel.TraefikServicesPath     = TraefikServicesPath;
         }
 
         public void MapFrom(MainWindowViewModel viewModel)
@@ -61,6 +63,7 @@ namespace DockerConductor.Models
             DbVolume                = viewModel.DbVolume;
             DevServerIp             = viewModel.DevServerIp;
             LastSelected            = viewModel.LastSelected;
+            TraefikServicesPath     = viewModel.TraefikServicesPath;
         }
     }
 }

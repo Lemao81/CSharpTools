@@ -4,14 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using DockerConductor.Constants;
 using DockerConductor.Extensions;
-using DockerConductor.Helpers;
 using DockerConductor.Models;
 using DockerConductor.Views;
-using static DockerConductor.Helpers.DockerComposeCommandHelper;
 
 namespace DockerConductor.Commands
 {
-    public class BuildOcelotCommandExecution : CommandExecutionBase
+    public class BuildOcelotCommandExecution : BuildCommandExecutionBase
     {
         public static BuildOcelotCommandExecution Instance = new();
 
@@ -19,7 +17,7 @@ namespace DockerConductor.Commands
         {
             await ReplaceAndSaveOcelotAsync(window);
             window.TabControl.SwitchToTab(TabItemIndex.Panel);
-            await ExecuteBuildAsync(window);
+            await ExecuteBuildAsync(window, ServiceNames.OcelotApiGateway);
         }
 
         private static async Task ReplaceAndSaveOcelotAsync(MainWindow window)
@@ -50,7 +48,7 @@ namespace DockerConductor.Commands
 
             await File.WriteAllLinesAsync(window.ViewModel.OcelotConfigurationPath, window.ViewModel.OcelotConfigLines);
 
-            void AlignWebSocketEntryIfExist(OcelotRouteUi uiModel, string host, bool isInternalHost)
+            void AlignWebSocketEntryIfExist(RouteUi uiModel, string host, bool isInternalHost)
             {
                 var webSocketRoute = window.ViewModel.OcelotRoutes.FirstOrDefault(
                     r => r.Path.Contains(uiModel.Name, StringComparison.InvariantCultureIgnoreCase) && r.IsWebSocket
@@ -62,13 +60,6 @@ namespace DockerConductor.Commands
                 webSocketRoute.ReplaceHost(host, window.ViewModel.OcelotConfigLines);
                 webSocketRoute.ReplacePort(uiModel.Port, window.ViewModel.OcelotConfigLines);
             }
-        }
-
-        private static async Task ExecuteBuildAsync(MainWindow window)
-        {
-            var basicCommand = GetBasicBuildCommand(window.ViewModel.BackendDockerComposePath, window.ViewModel.BackendDockerComposeOverridePath);
-            var command      = Helper.ConcatCommand(basicCommand, "ocelotapigateway");
-            await Helper.ExecuteCliCommandAsync(command, window);
         }
     }
 }

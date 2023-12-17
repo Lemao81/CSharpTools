@@ -46,8 +46,9 @@ namespace DockerConductor.ViewModels
         private          string                       _frontendRepoPath        = string.Empty;
         private          string                       _backendRepoPath         = string.Empty;
         private          DockerClient                 _dockerClient;
-        private          Encoding                     _encoding           = new UTF8Encoding(false);
-        private          ObservableCollection<string> _consoleOutputItems = new();
+        private          Encoding                     _encoding            = new UTF8Encoding(false);
+        private          ObservableCollection<string> _consoleOutputItems  = new();
+        private          string                       _traefikServicesPath = string.Empty;
 
         public MainWindowViewModel()
         {
@@ -74,9 +75,11 @@ namespace DockerConductor.ViewModels
                                                                 .Select(c => c.Content?.ToString())
                                                                 .Where(s => !string.IsNullOrWhiteSpace(s))!;
 
-        public IEnumerable<string> LastSelected      { get; set; } = Enumerable.Empty<string>();
-        public string[]            OcelotConfigLines { get; set; } = Array.Empty<string>();
-        public List<OcelotRoute>   OcelotRoutes      { get; }      = new();
+        public IEnumerable<string>  LastSelected            { get; set; } = Enumerable.Empty<string>();
+        public string[]             OcelotConfigLines       { get; set; } = Array.Empty<string>();
+        public List<OcelotRoute>    OcelotRoutes            { get; }      = new();
+        public TraefikServicesHttp? TraefikServicesHttp     { get; set; }
+        public string               TraefikServicesOrigText { get; set; }
 
         public string BackendRepoPath
         {
@@ -102,6 +105,12 @@ namespace DockerConductor.ViewModels
         {
             get => _ocelotConfigurationPath;
             set => this.RaiseAndSetIfChanged(ref _ocelotConfigurationPath, value);
+        }
+
+        public string TraefikServicesPath
+        {
+            get => _traefikServicesPath;
+            set => this.RaiseAndSetIfChanged(ref _traefikServicesPath, value);
         }
 
         public string Excludes
@@ -223,6 +232,9 @@ namespace DockerConductor.ViewModels
         public ReactiveCommand<Unit, Unit>? TraceLogEnv                      { get; set; }
         public ReactiveCommand<Unit, Unit>? AdjustLocalConfigs               { get; set; }
         public ReactiveCommand<Unit, Unit>? RevertLocalConfigs               { get; set; }
+        public ReactiveCommand<Unit, Task>? DockerComposeBuildTraefik        { get; set; }
+        public ReactiveCommand<Unit, Task>? ResetTraefikConfig               { get; set; }
+        public ReactiveCommand<Unit, Task>? TraefikServicesFileSelection     { get; set; }
 
         public async Task OnContainerTabTappedAsync() => await UpdateDockerContainerPanelList();
 
@@ -241,6 +253,7 @@ namespace DockerConductor.ViewModels
             _window.PanelBusyBeacon?.SwitchBusy();
             _window.BuildBusyBeacon?.SwitchBusy();
             _window.OcelotBusyBeacon?.SwitchBusy();
+            _window.TraefikBusyBeacon?.SwitchBusy();
         }
 
         public void SwitchIdle()
@@ -248,6 +261,7 @@ namespace DockerConductor.ViewModels
             _window.PanelBusyBeacon?.SwitchIdle();
             _window.BuildBusyBeacon?.SwitchIdle();
             _window.OcelotBusyBeacon?.SwitchIdle();
+            _window.TraefikBusyBeacon?.SwitchIdle();
         }
 
         private void InitializeCommands()
@@ -286,6 +300,22 @@ namespace DockerConductor.ViewModels
                     if (!string.IsNullOrWhiteSpace(OcelotConfigurationPath))
                     {
                         Helper.UpdateOcelotItemList(_window);
+                    }
+                }
+            );
+
+            TraefikServicesFileSelection = ReactiveCommand.Create(
+                async () =>
+                {
+                    var files = await Helper.ShowYamlFileSelection(_window, "Select traefik services-yaml");
+                    if (files.Length > 0)
+                    {
+                        TraefikServicesPath = files[0];
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(TraefikServicesPath))
+                    {
+                        Helper.UpdateTraefikItemList(_window);
                     }
                 }
             );
@@ -511,6 +541,9 @@ namespace DockerConductor.ViewModels
             VaultNotMockedEnv = ReactiveCommand.Create(SetVaultNotMockedBackendEnvVariables);
             ProductionEnv     = ReactiveCommand.Create(SetProductionBackendEnvVariables);
             TraceLogEnv       = ReactiveCommand.Create(SetTraceLogEnvVariables);
+
+            DockerComposeBuildTraefik = ReactiveCommand.Create(async () => await BuildTraefikCommandExecution.Instance.ExecuteAsync(_window));
+            ResetTraefikConfig        = ReactiveCommand.Create(async () => await ResetTraefikConfigCommandExecution.Instance.ExecuteAsync(_window));
         }
 
         private void WriteConfig()

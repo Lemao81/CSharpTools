@@ -23,9 +23,13 @@ namespace DockerConductor.Helpers
 {
     public static class Helper
     {
-        private static readonly IDeserializer YamlDeserializer = new DeserializerBuilder().IgnoreUnmatchedProperties()
-                                                                                          .WithNamingConvention(UnderscoredNamingConvention.Instance)
-                                                                                          .Build();
+        private static readonly IDeserializer UnderscoreYamlDeserializer = new DeserializerBuilder().IgnoreUnmatchedProperties()
+                                                                                                    .WithNamingConvention(UnderscoredNamingConvention.Instance)
+                                                                                                    .Build();
+
+        private static readonly IDeserializer CamelCaseYamlDeserializer = new DeserializerBuilder().IgnoreUnmatchedProperties()
+                                                                                                   .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                                                                                                   .Build();
 
         public static IEnumerable<string> ExcludeByCommaSeparated(IEnumerable<string> strings, string commaseparated)
         {
@@ -93,8 +97,10 @@ namespace DockerConductor.Helpers
         {
             var dockerComposeText         = File.ReadAllText(window.ViewModel.BackendDockerComposePath) ?? throw new InvalidOperationException();
             var dockerComposeOverrideText = File.ReadAllText(window.ViewModel.BackendDockerComposeOverridePath) ?? throw new InvalidOperationException();
-            var dockerCompose             = YamlDeserializer.Deserialize<DockerCompose>(dockerComposeText) ?? throw new InvalidOperationException();
-            var dockerComposeOverride     = YamlDeserializer.Deserialize<DockerCompose>(dockerComposeOverrideText) ?? throw new InvalidOperationException();
+            var dockerCompose             = UnderscoreYamlDeserializer.Deserialize<DockerCompose>(dockerComposeText) ?? throw new InvalidOperationException();
+            var dockerComposeOverride =
+                UnderscoreYamlDeserializer.Deserialize<DockerCompose>(dockerComposeOverrideText) ?? throw new InvalidOperationException();
+
             foreach (var key in dockerComposeOverride.Services.Keys.Where(k => !dockerCompose.Services.ContainsKey(k)))
             {
                 dockerCompose.Services[key] = dockerComposeOverride.Services[key];
@@ -153,9 +159,9 @@ namespace DockerConductor.Helpers
             var itemsToShow = window.ViewModel.OcelotRoutes.Where(r => r.HasSwaggerKey).Reverse().ToList();
             if (!itemsToShow.Any()) return;
 
-            var ocelotItemsContainer = window.OcelotItemContainer ?? throw new InvalidOperationException();
+            var itemsContainer = window.OcelotItemContainer ?? throw new InvalidOperationException();
 
-            ocelotItemsContainer.Children.Clear();
+            itemsContainer.Children.Clear();
             window.OcelotRouteUis.Clear();
             foreach (var item in itemsToShow)
             {
@@ -165,41 +171,54 @@ namespace DockerConductor.Helpers
                     Margin      = new Thickness(0, 0, 0, 8)
                 };
 
-                var uiModel = new OcelotRouteUi
+                var uiModel = CreateRouteUiModel(item.Name, item.Host, 200);
+                itemContainer.Children.Add(uiModel.NameTextBlock);
+                itemContainer.Children.Add(uiModel.RadioButton80);
+                itemContainer.Children.Add(uiModel.RadioButton5000);
+                itemContainer.Children.Add(uiModel.RadioButton5001);
+                itemContainer.Children.Add(uiModel.RadioButton5002);
+                itemsContainer.Children.Add(itemContainer);
+                window.OcelotRouteUis.Add(uiModel);
+            }
+        }
+
+        public static void UpdateTraefikItemList(MainWindow window)
+        {
+            if (!File.Exists(window.ViewModel.TraefikServicesPath)) return;
+
+            var traefikServicesText = File.ReadAllText(window.ViewModel.TraefikServicesPath) ?? throw new InvalidOperationException();
+            window.ViewModel.TraefikServicesOrigText = traefikServicesText;
+            var traefikServicesHttp = CamelCaseYamlDeserializer.Deserialize<TraefikServicesHttp>(traefikServicesText) ?? throw new InvalidOperationException();
+            window.ViewModel.TraefikServicesHttp = traefikServicesHttp;
+
+            var serviceNames = traefikServicesHttp.Http?.Services?.Keys;
+            if (serviceNames is null || !serviceNames.Any()) return;
+
+            var itemsContainer = window.TraefikItemContainer ?? throw new InvalidOperationException();
+            itemsContainer.Children.Clear();
+            var nameWidth = serviceNames.Max(n => n.Length) * 9;
+
+            foreach (var serviceName in serviceNames)
+            {
+                var itemContainer = new StackPanel
                 {
-                    NameTextBlock = new TextBlock
-                    {
-                        Text              = item.Name,
-                        Width             = 200,
-                        VerticalAlignment = VerticalAlignment.Center
-                    },
-                    RadioButton80 = new RadioButton
-                    {
-                        Content   = "80",
-                        Margin    = new Thickness(0, 0, 16, 0),
-                        IsChecked = true
-                    },
-                    RadioButton5000 = new RadioButton
-                    {
-                        Content = "5000",
-                        Margin  = new Thickness(0, 0, 16, 0)
-                    },
-                    RadioButton5001 = new RadioButton
-                    {
-                        Content = "5001",
-                        Margin  = new Thickness(0, 0, 16, 0)
-                    },
-                    RadioButton5002 = new RadioButton { Content = "5002" },
-                    OrigHost        = item.Host
+                    Orientation = Orientation.Horizontal,
+                    Margin      = new Thickness(0, 0, 0, 8)
                 };
+
+                var uiModel = CreateRouteUiModel(
+                    serviceName,
+                    window.ViewModel.TraefikServicesHttp?.Http?.Services?[serviceName].LoadBalancer.Servers.First().Url ?? string.Empty,
+                    nameWidth
+                );
 
                 itemContainer.Children.Add(uiModel.NameTextBlock);
                 itemContainer.Children.Add(uiModel.RadioButton80);
                 itemContainer.Children.Add(uiModel.RadioButton5000);
                 itemContainer.Children.Add(uiModel.RadioButton5001);
                 itemContainer.Children.Add(uiModel.RadioButton5002);
-                ocelotItemsContainer.Children.Add(itemContainer);
-                window.OcelotRouteUis.Add(uiModel);
+                itemsContainer.Children.Add(itemContainer);
+                window.TraefikRouteUis.Add(uiModel);
             }
         }
 
@@ -275,6 +294,37 @@ namespace DockerConductor.Helpers
                     window.ConsoleOutput?.ScrollIntoView(((ObservableCollection<string>)window.ConsoleOutput.Items).Last());
                 }
             );
+        }
+
+        private static RouteUi CreateRouteUiModel(string name, string host, int nameWidth)
+        {
+            return new RouteUi
+            {
+                NameTextBlock = new TextBlock
+                {
+                    Text              = name,
+                    Width             = nameWidth,
+                    VerticalAlignment = VerticalAlignment.Center
+                },
+                RadioButton80 = new RadioButton
+                {
+                    Content   = "80",
+                    Margin    = new Thickness(0, 0, 16, 0),
+                    IsChecked = true
+                },
+                RadioButton5000 = new RadioButton
+                {
+                    Content = "5000",
+                    Margin  = new Thickness(0, 0, 16, 0)
+                },
+                RadioButton5001 = new RadioButton
+                {
+                    Content = "5001",
+                    Margin  = new Thickness(0, 0, 16, 0)
+                },
+                RadioButton5002 = new RadioButton { Content = "5002" },
+                OrigHost        = host
+            };
         }
     }
 }
