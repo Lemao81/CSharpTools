@@ -27,6 +27,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DicomReader.Avalonia", "Dic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockerConductor", "DockerConductor\DockerConductor.csproj", "{632C8E7E-CB59-4201-9A2E-27F5A6BC551E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "KeyGeneration", "KeyGeneration", "{AF1F9840-554E-414E-AB50-7715F879B599}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtSecretKeyGenerator", "KeyGeneration\JwtSecretKeyGenerator\JwtSecretKeyGenerator.csproj", "{F7B0E35B-0F26-44FF-BC73-EC3F736B8048}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +81,10 @@ Global
 		{632C8E7E-CB59-4201-9A2E-27F5A6BC551E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{632C8E7E-CB59-4201-9A2E-27F5A6BC551E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{632C8E7E-CB59-4201-9A2E-27F5A6BC551E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7B0E35B-0F26-44FF-BC73-EC3F736B8048}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7B0E35B-0F26-44FF-BC73-EC3F736B8048}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7B0E35B-0F26-44FF-BC73-EC3F736B8048}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7B0E35B-0F26-44FF-BC73-EC3F736B8048}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -86,6 +94,7 @@ Global
 		{692F0C24-5853-48DE-9736-4401DC4AC0D7} = {7BC23D10-0362-4D7D-A1C8-A88B2BE50FF2}
 		{F46C6079-61EE-44D4-B44D-143BA458F5E3} = {7BC23D10-0362-4D7D-A1C8-A88B2BE50FF2}
 		{20FE6C99-5628-4683-84F9-54DBCC85E9B4} = {7BC23D10-0362-4D7D-A1C8-A88B2BE50FF2}
+		{F7B0E35B-0F26-44FF-BC73-EC3F736B8048} = {AF1F9840-554E-414E-AB50-7715F879B599}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {48988962-D6BF-4B2F-B2E3-B48FE3982AEB}
