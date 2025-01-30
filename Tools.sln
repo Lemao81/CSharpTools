@@ -31,6 +31,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "KeyGeneration", "KeyGenerat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtSecretKeyGenerator", "KeyGeneration\JwtSecretKeyGenerator\JwtSecretKeyGenerator.csproj", "{F7B0E35B-0F26-44FF-BC73-EC3F736B8048}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegistryEditor", "RegistryEditor\RegistryEditor.csproj", "{EBF7E147-4015-4FC2-BF55-6B5E54E67718}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +87,10 @@ Global
 		{F7B0E35B-0F26-44FF-BC73-EC3F736B8048}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7B0E35B-0F26-44FF-BC73-EC3F736B8048}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7B0E35B-0F26-44FF-BC73-EC3F736B8048}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBF7E147-4015-4FC2-BF55-6B5E54E67718}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBF7E147-4015-4FC2-BF55-6B5E54E67718}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBF7E147-4015-4FC2-BF55-6B5E54E67718}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBF7E147-4015-4FC2-BF55-6B5E54E67718}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
